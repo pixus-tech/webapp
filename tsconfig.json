@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "lib": [
+      "WebWorker",
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "baseUrl": "src",
+    "strict": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve"
+  },
+  "include": [
+    "src",
+    "typings"
+  ]
+}
