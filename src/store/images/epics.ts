@@ -104,7 +104,7 @@ export const addImageFileToAlbumEpic: Epic<
           ),
           take(1),
           map(readerAction =>
-            actions.generateImagePreview({
+            actions.processImage({
               album: action.payload.album,
               fileHandle: readerAction.payload,
             }),
@@ -138,21 +138,21 @@ export const addImageFileToAlbumEpic: Epic<
     ),
   )
 
-export const generateImagePreviewEpic: Epic<
+export const processImageEpic: Epic<
   RootAction,
   RootAction,
   RootState,
   Pick<RootService, 'images'>
 > = (action$, state$, { images }) =>
   action$.pipe(
-    filter(isActionOf(actions.generateImagePreview)),
+    filter(isActionOf(actions.processImage)),
     mergeMap(action =>
-      images.generateImagePreview(action.payload.fileHandle.objectURL).pipe(
-        map(imagePreview =>
+      images.processImage(action.payload.fileHandle.objectURL).pipe(
+        map(imageMetaData =>
           actions.uploadImageData({
             album: action.payload.album,
             fileHandle: action.payload.fileHandle,
-            imagePreview,
+            imageMetaData,
           }),
         ),
         takeUntil(
@@ -194,7 +194,7 @@ export const triggerUploadImageDataEpic: Epic<
         upload.request({
           id: imageId,
           path: imagePreviewUploadPath(imageId),
-          payload: action.payload.imagePreview.objectURL,
+          payload: action.payload.imageMetaData.previewObjectURL,
         }),
       )
     }),
@@ -222,8 +222,8 @@ export const uploadImageDataEpic: Epic<
             actions.createImageRecord({
               album: action.payload.album,
               fileHandle: action.payload.fileHandle,
-              imagePreview: action.payload.imagePreview,
-              uploadURL: uploadAction.payload.path, // TODO: get gaia upload url here
+              imageMetaData: action.payload.imageMetaData,
+              username: uploadAction.payload.uploader,
             }),
           ),
         ),
@@ -268,10 +268,12 @@ export const createImageRecordEpic: Epic<
     mergeMap(action => {
       const image: Image = {
         _id: action.payload.fileHandle._id,
-        previewColors: action.payload.imagePreview.colors,
+        height: action.payload.imageMetaData.height,
         name: action.payload.fileHandle.file.name,
+        previewColors: action.payload.imageMetaData.previewColors,
         type: action.payload.fileHandle.file.type,
-        gaiaURL: action.payload.uploadURL, // TODO: strip file path
+        username: action.payload.username,
+        width: action.payload.imageMetaData.width,
       }
 
       // TODO: Also add image/album association here

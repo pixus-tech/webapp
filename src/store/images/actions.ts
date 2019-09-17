@@ -2,7 +2,7 @@ import { API } from 'typings/types'
 import { createAsyncAction, createStandardAction } from 'typesafe-actions'
 import Album from 'models/album'
 import { FileHandle, FileHandleWithData } from 'models/fileHandle'
-import Image, { ImagePreview } from 'models/image'
+import Image, { ImageMetaData } from 'models/image'
 
 interface AlbumImageFiles {
   album: Album
@@ -35,19 +35,19 @@ export const addImageFileToAlbum = createAsyncAction(
   string
 >()
 
-interface GenerateImagePreviewRequestData {
+interface ProcessImageRequestData {
   album: Album
   fileHandle: FileHandleWithData
 }
 
-export const generateImagePreview = createStandardAction(
-  'IMAGES__GENERATE_PREVIEW',
-)<GenerateImagePreviewRequestData>()
+export const processImage = createStandardAction('IMAGES__GENERATE_PREVIEW')<
+  ProcessImageRequestData
+>()
 
 interface UploadImageDataRequestData {
   album: Album
   fileHandle: FileHandleWithData
-  imagePreview: ImagePreview
+  imageMetaData: ImageMetaData
 }
 
 export const uploadImageData = createStandardAction('IMAGES__UPLOAD_DATA')<
@@ -57,8 +57,8 @@ export const uploadImageData = createStandardAction('IMAGES__UPLOAD_DATA')<
 interface CreateImageRecordRequestData {
   album: Album
   fileHandle: FileHandleWithData
-  imagePreview: ImagePreview
-  uploadURL: string
+  imageMetaData: ImageMetaData
+  username: string
 }
 
 export const createImageRecord = createStandardAction(

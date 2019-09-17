@@ -13,16 +13,20 @@ export interface PreviewColors {
   tr: Uint8BitColor
 }
 
-export interface ImagePreview {
-  objectURL: string
-  colors: PreviewColors
+export interface ImageMetaData {
+  height: number
+  previewColors: PreviewColors
+  previewObjectURL: string
+  width: number
 }
 
 export default interface Image extends BaseModel {
-  gaiaURL: string
+  height: number
   name: string
   previewColors: PreviewColors
   type: string
+  username: string
+  width: number
 }
 
 export type UnsavedImage = UnsavedModel<Image>
@@ -39,7 +43,8 @@ export function parseImageRecord(record: ImageRecord): Image {
   const decodedColors = decodeColors(record.attrs.previewColors)
   return {
     _id: record._id,
-    gaiaURL: record.attrs.gaiaURL,
+    height: record.attrs.height,
+    name: record.attrs.name,
     previewColors: {
       bl: decodedColors[0],
       br: decodedColors[1],
@@ -47,8 +52,9 @@ export function parseImageRecord(record: ImageRecord): Image {
       tl: decodedColors[3],
       tr: decodedColors[4],
     },
-    name: record.attrs.name,
     type: record.attrs.type,
+    username: record.attrs.username,
+    width: record.attrs.width,
   }
 }
 

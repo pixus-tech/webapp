@@ -1,9 +1,11 @@
 import React from 'react'
 import {
-  AutoSizer,
-  Collection,
-  CollectionCellRendererParams,
-  Index,
+  CellRenderer,
+  CellMeasurer,
+  CellMeasurerCache,
+  Positioner,
+  createMasonryCellPositioner,
+  Masonry,
 } from 'react-virtualized'
 import { compose } from 'recompose'
 
@@ -31,81 +33,103 @@ const GUTTER_SIZE = 3
 interface IProps {
   columnCount: number
   images: Image[]
+  width: number
+  height: number
 }
 
-interface IState {}
+interface IState {
+  cellMeasurerCache: CellMeasurerCache
+  cellPositioner: Positioner
+  prevColumnCount: number
+}
 
 type ComposedProps = IProps & WithStyles<typeof styles>
 
 class ImageGrid extends React.PureComponent<ComposedProps, IState> {
-  private columnMap: { [key: number]: number } = {}
+  static buildMeasurerCacheAndPositioner(width: number, columnCount: number) {
+    const defaultWidth = (width - (columnCount - 1) * GUTTER_SIZE) / columnCount
+    const defaultHeight = (defaultWidth * 2) / 3
 
-  renderCell = ({ index, key, style }: CollectionCellRendererParams) => {
-    const { classes, images } = this.props
-
-    // Customize style
-    const image = images[index % images.length]
-    // style.backgroundColor = datum.color;
-
-    return (
-      <div className={classes.cell} key={key} style={style}>
-        <LazyImage image={image} />
-      </div>
-    )
-  }
-
-  renderPlaceholder = () => {
-    return <div>No cells</div>
-  }
-
-  cellSizeAndPosition = (containerWidth: number) => ({ index }: Index) => {
-    const { columnCount, images } = this.props
-
-    const columnPosition = index % columnCount
-    // const datum = imageList[index % imageList.length]
-
-    // Poor man's Masonry layout; columns won't all line up equally with the bottom.
-    const width =
-      (containerWidth - (columnCount - 1) * GUTTER_SIZE) / columnCount
-    const height = (width * 2) / 3
-    const x = columnPosition * (GUTTER_SIZE + width)
-    const y = this.columnMap[columnPosition] || 0
-
-    this.columnMap[columnPosition] = y + height + GUTTER_SIZE
+    const cellMeasurerCache = new CellMeasurerCache({
+      defaultHeight,
+      defaultWidth,
+      fixedWidth: true,
+    })
 
     return {
-      height,
-      width,
-      x,
-      y,
+      cellMeasurerCache,
+      cellPositioner: createMasonryCellPositioner({
+        cellMeasurerCache,
+        columnCount,
+        columnWidth: defaultWidth,
+        spacer: GUTTER_SIZE,
+      }),
     }
   }
 
-  render() {
+  static getDerivedStateFromProps(props: ComposedProps, state: IState) {
+    // Re-run the filter whenever the list array or filter text change.
+    // Note we need to store prevPropsList and prevFilterText to detect changes.
+    if (props.columnCount !== state.prevColumnCount) {
+      return {
+        ...ImageGrid.buildMeasurerCacheAndPositioner(
+          props.width,
+          props.columnCount,
+        ),
+        prevColumnCount: props.columnCount,
+      }
+    }
+    return null
+  }
+
+  constructor(props: ComposedProps) {
+    super(props)
+
+    this.state = {
+      ...ImageGrid.buildMeasurerCacheAndPositioner(
+        props.width,
+        props.columnCount,
+      ),
+      prevColumnCount: props.columnCount,
+    }
+  }
+  renderCell: CellRenderer = ({ index, key, parent, style }) => {
     const { classes, images } = this.props
+    const { cellMeasurerCache } = this.state
+
+    const image = images[index % images.length]
+    const width = cellMeasurerCache.defaultWidth
+    const height = Math.round((width / image.width) * image.height)
 
     return (
-      <AutoSizer>
-        {({ height, width }) => {
-          if (height === 0 || width === 0) {
-            return null
-          }
+      <CellMeasurer
+        cache={cellMeasurerCache}
+        index={index}
+        key={image._id}
+        parent={parent}
+      >
+        <div className={classes.cell} key={key} style={style}>
+          <LazyImage image={image} width={width} height={height} />
+        </div>
+      </CellMeasurer>
+    )
+  }
 
-          return (
-            <Collection
-              cellCount={images.length}
-              cellRenderer={this.renderCell}
-              cellSizeAndPositionGetter={this.cellSizeAndPosition(width)}
-              className={classes.collection}
-              height={height}
-              horizontalOverscanSize={0}
-              noContentRenderer={this.renderPlaceholder}
-              verticalOverscanSize={0}
-              width={width}
-            />
-          )
-        }}
-      </AutoSizer>
+  render() {
+    const { columnCount, images, height, width } = this.props
+    const { cellMeasurerCache, cellPositioner } = this.state
+
+    return (
+      <Masonry
+        autoHeight={true}
+        cellCount={images.length}
+        cellMeasurerCache={cellMeasurerCache}
+        cellPositioner={cellPositioner}
+        cellRenderer={this.renderCell}
+        height={height}
+        key={columnCount}
+        width={width}
+      />
     )
   }
 }

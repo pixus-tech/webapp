@@ -6,11 +6,11 @@ import { fileReader } from 'workers/index'
 
 export function upload(path: string, payload: ArrayBuffer | string) {
   return new Observable<string>(subscriber => {
+    const username = userSession.loadUserData().username
     userSession
       .putFile(path, payload as any) // TODO: I think blockstack uses wrong type `Buffer` here
       .then(url => {
-        // TODO: maybe set gaiaURL for fileHandle here
-        subscriber.next(url)
+        subscriber.next(username)
         subscriber.complete()
       })
       .catch(error => {

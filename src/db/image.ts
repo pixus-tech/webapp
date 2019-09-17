@@ -8,13 +8,21 @@ import { encodeColors } from 'utils/colors'
 export default class ImageRecord extends Model {
   static className = 'Image'
   static schema = {
-    gaiaURL: String,
+    height: {
+      type: Number,
+      decrypted: true,
+    },
     name: String,
+    previewColors: String,
     type: {
       type: String,
       decrypted: true,
     },
-    previewColors: String,
+    username: String,
+    width: {
+      type: Number,
+      decrypted: true,
+    },
   }
 }
 
@@ -30,10 +38,12 @@ export class ImageRecordFactory {
 
     return new ImageRecord({
       _id: _.get(image, '_id', uuid()),
-      gaiaURL: image.gaiaURL,
+      height: image.height,
       name: image.name,
       previewColors,
       type: image.type,
+      username: image.username,
+      width: image.width,
     })
   }
 }

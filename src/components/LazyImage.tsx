@@ -7,7 +7,9 @@ import Image, { imagePreviewUploadPath } from 'models/image'
 import { loadFile } from 'utils/blockstack'
 
 export interface IProps {
+  height: number
   image: Image
+  width: number
 }
 
 const useStyles = makeStyles(
@@ -30,7 +32,7 @@ const useStyles = makeStyles(
   }),
 )
 
-function LazyImage({ image }: IProps) {
+function LazyImage({ height, image, width }: IProps) {
   const classes = useStyles()
   const [imageObject, setImageObject] = React.useState<string | undefined>(
     undefined,
@@ -48,7 +50,7 @@ function LazyImage({ image }: IProps) {
   }
 
   return (
-    <>
+    <div style={{ height, width }}>
       {imageObject !== undefined && (
         <img
           className={classes.image}
@@ -64,7 +66,7 @@ function LazyImage({ image }: IProps) {
           [classes.gradientHidden]: isImageLoaded,
         })}
       />
-    </>
+    </div>
   )
 }
 

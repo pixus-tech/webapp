@@ -3,6 +3,7 @@ import React from 'react'
 import Dropzone from 'react-dropzone'
 import { RouteComponentProps } from 'react-router'
 import { withRouter } from 'react-router-dom'
+import { AutoSizer } from 'react-virtualized'
 
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
@@ -40,6 +41,11 @@ const lightColor = 'rgba(255, 255, 255, 0.7)'
 
 const styles = (theme: Theme) =>
   createStyles({
+    autosizeContainer: {
+      height: '100%',
+      overflow: 'hidden',
+      width: '100%',
+    },
     button: {
       borderColor: lightColor,
     },
@@ -68,6 +74,9 @@ const styles = (theme: Theme) =>
       display: 'inline-block',
       width: '1cm',
     },
+    slider: {
+      width: 100,
+    },
   })
 
 interface IDispatchProps {
@@ -85,7 +94,19 @@ type ComposedProps = RouteComponentProps<ShowAlbumURLParameters> &
   IStateProps &
   WithStyles<typeof styles>
 
-class ShowAlbum extends React.PureComponent<ComposedProps> {
+interface IState {
+  numberOfImageColumns: number
+}
+
+class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
+  constructor(props: ComposedProps) {
+    super(props)
+
+    this.state = {
+      numberOfImageColumns: 6,
+    }
+  }
+
   componentDidMount() {
     this.props.dispatchGetImages()
 
@@ -108,8 +129,19 @@ class ShowAlbum extends React.PureComponent<ComposedProps> {
     }
   }
 
+  onChangeImageColumnCount = (
+    _event: React.ChangeEvent<{}>,
+    value: number | number[],
+  ) => {
+    if (typeof value === 'number') {
+      // TODO: Throttle the event
+      this.setState({ numberOfImageColumns: value })
+    }
+  }
+
   render() {
     const { album, classes, images } = this.props
+    const { numberOfImageColumns } = this.state
 
     if (!album) {
       return <CircularProgress className={classes.progress} size={16} />
@@ -170,12 +202,17 @@ class ShowAlbum extends React.PureComponent<ComposedProps> {
                   <Grid item>
                     <PhotoSizeDown />
                   </Grid>
-                  <Grid item xs>
+                  <Grid item>
                     <Slider
+                      className={classes.slider}
                       color="secondary"
-                      value={30}
-                      onChange={() => console.log('foo')}
-                      aria-labelledby="continuous-slider"
+                      value={numberOfImageColumns}
+                      marks
+                      step={1}
+                      min={2}
+                      max={10}
+                      onChange={this.onChangeImageColumnCount}
+                      valueLabelDisplay="auto"
                     />
                   </Grid>
                   <Grid item>
@@ -196,7 +233,24 @@ class ShowAlbum extends React.PureComponent<ComposedProps> {
             </section>
           )}
         </Dropzone>
-        <ImageGrid columnCount={5} images={_.values(images)} />
+        <div className={classes.autosizeContainer}>
+          <AutoSizer>
+            {({ height, width }) => {
+              if (height === 0 || width === 0) {
+                return null
+              }
+
+              return (
+                <ImageGrid
+                  columnCount={numberOfImageColumns}
+                  height={height}
+                  images={_.values(images)}
+                  width={width}
+                />
+              )
+            }}
+          </AutoSizer>
+        </div>
       </div>
     )
   }

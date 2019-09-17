@@ -56,7 +56,12 @@ export const performUploadEpic: Epic<
     filter(isActionOf(actions._performUpload)),
     mergeMap(action =>
       files.upload(action.payload.path, action.payload.payload).pipe(
-        map(_ => actions.upload.success(action.payload)),
+        map(username =>
+          actions.upload.success({
+            ...action.payload,
+            uploader: username,
+          }),
+        ),
         catchError(error =>
           of(actions.upload.failure({ error, resource: action.payload })),
         ),

@@ -1,7 +1,7 @@
 import { API } from 'typings/types'
 import { createAsyncAction, createStandardAction } from 'typesafe-actions'
 
-import { UploadData } from './types'
+import { UploadData, UploadSuccessData } from './types'
 
 export const _enqueueUpload = createStandardAction('UPLOAD__ENQUEUE')<
   UploadData
@@ -20,4 +20,4 @@ export const upload = createAsyncAction(
   'UPLOAD__SUCCESS',
   'UPLOAD__FAILURE',
   'UPLOAD__CANCEL',
-)<UploadData, UploadData, API.ErrorResponse<UploadData>, string>()
+)<UploadData, UploadSuccessData, API.ErrorResponse<UploadData>, string>()
