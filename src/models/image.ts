@@ -21,6 +21,7 @@ export interface ImageMetaData {
 }
 
 export default interface Image extends BaseModel {
+  albumIds: string[],
   height: number
   name: string
   previewColors: PreviewColors
@@ -43,6 +44,7 @@ export function parseImageRecord(record: ImageRecord): Image {
   const decodedColors = decodeColors(record.attrs.previewColors)
   return {
     _id: record._id,
+    albumIds: record.attrs.albumIds,
     height: record.attrs.height,
     name: record.attrs.name,
     previewColors: {

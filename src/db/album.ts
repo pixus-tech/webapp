@@ -1,5 +1,4 @@
 import { Model } from 'radiks'
-import { slugify } from 'utils'
 
 export default class AlbumRecord extends Model {
   static className = 'Album'

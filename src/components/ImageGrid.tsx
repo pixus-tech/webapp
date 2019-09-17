@@ -30,6 +30,7 @@ const styles = (_theme: Theme) =>
 
 interface IProps {
   columnCount: number
+  displayId: string
   images: Image[]
   width: number
   height: number
@@ -43,7 +44,9 @@ interface IState {
 
 type ComposedProps = IProps & WithStyles<typeof styles>
 
-class ImageGrid extends React.PureComponent<ComposedProps, IState> {
+class ImageGrid extends React.Component<ComposedProps, IState> {
+  private masonryRef = React.createRef<Masonry>()
+
   static buildMeasurerCacheAndPositioner(width: number, columnCount: number) {
     const defaultWidth = (width - (columnCount - 1) * IMAGE_GRID_GUTTER_SIZE) / columnCount
     const defaultHeight = (defaultWidth * 2) / 3
@@ -66,8 +69,6 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
   }
 
   static getDerivedStateFromProps(props: ComposedProps, state: IState) {
-    // Re-run the filter whenever the list array or filter text change.
-    // Note we need to store prevPropsList and prevFilterText to detect changes.
     if (props.columnCount !== state.prevColumnCount) {
       return {
         ...ImageGrid.buildMeasurerCacheAndPositioner(
@@ -77,7 +78,8 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
         prevColumnCount: props.columnCount,
       }
     }
-    return null
+
+    return state
   }
 
   constructor(props: ComposedProps) {
@@ -91,6 +93,25 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
       prevColumnCount: props.columnCount,
     }
   }
+
+  shouldComponentUpdate(nextProps: ComposedProps) {
+    const masonry = this.masonryRef.current
+
+    if (masonry !== null) {
+      if (nextProps.displayId !== this.props.displayId) {
+        masonry.clearCellPositions()
+      } else if (nextProps.images.length !== this.props.images.length) {
+        masonry.clearCellPositions()
+      } else if (nextProps.columnCount !== this.props.columnCount) {
+        masonry.clearCellPositions()
+      }
+    }
+
+    return nextProps.columnCount !== this.props.columnCount ||
+           nextProps.images.length !== this.props.images.length ||
+           nextProps.displayId!== this.props.displayId
+  }
+
   renderCell: CellRenderer = ({ index, key, parent, style }) => {
     const { classes, images } = this.props
     const { cellMeasurerCache } = this.state
@@ -114,7 +135,7 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
   }
 
   render() {
-    const { columnCount, images, height, width } = this.props
+    const { images, height, width } = this.props
     const { cellMeasurerCache, cellPositioner } = this.state
 
     return (
@@ -125,7 +146,7 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
         cellPositioner={cellPositioner}
         cellRenderer={this.renderCell}
         height={height}
-        key={columnCount}
+        ref={this.masonryRef}
         width={width}
       />
     )

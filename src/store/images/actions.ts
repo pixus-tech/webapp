@@ -18,7 +18,7 @@ interface AlbumFileHandle {
   fileHandle: FileHandle
 }
 
-interface AddImageToAlbumSuccessResponseData {
+interface AlbumImage {
   album: Album
   image: Image
 }
@@ -30,7 +30,7 @@ export const addImageFileToAlbum = createAsyncAction(
   'IMAGES__ADD_IMAGE_FILE_TO_ALBUM__CANCEL',
 )<
   AlbumFileHandle,
-  AddImageToAlbumSuccessResponseData,
+  AlbumImage,
   API.ErrorResponse<AlbumFileHandle>,
   string
 >()
@@ -65,14 +65,20 @@ export const createImageRecord = createStandardAction(
   'IMAGES__CREATE_IMAGE_RECORD',
 )<CreateImageRecordRequestData>()
 
-export const getImages = createAsyncAction(
+
+interface AlbumImages {
+  album: Album
+  images: Image[]
+}
+
+export const getAlbumImages = createAsyncAction(
   'IMAGES__LIST_REQUEST',
   'IMAGES__LIST_SUCCESS',
   'IMAGES__LIST_FAILURE',
   'IMAGES__LIST_CANCEL',
 )<
-  undefined,
-  API.ShowResponse<Image[]>,
-  API.ErrorResponse<null>,
+  Album,
+  API.ShowResponse<AlbumImages>,
+  API.ErrorResponse<Album>,
   API.ResourceFilter
 >()

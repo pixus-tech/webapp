@@ -8,6 +8,10 @@ import { encodeColors } from 'utils/colors'
 export default class ImageRecord extends Model {
   static className = 'Image'
   static schema = {
+    albumIds: {
+      type: Array,
+      decrypted: true,
+    },
     height: {
       type: Number,
       decrypted: true,
@@ -37,6 +41,7 @@ export class ImageRecordFactory {
     )
 
     return new ImageRecord({
+      albumIds: image.albumIds,
       _id: _.get(image, '_id', uuid()),
       height: image.height,
       name: image.name,

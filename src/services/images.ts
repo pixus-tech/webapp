@@ -1,21 +1,31 @@
-import { from, Observable } from 'rxjs'
+import _ from 'lodash'
+import { from, Observable, forkJoin } from 'rxjs'
 import { map } from 'rxjs/operators'
 import uuid from 'uuid/v4'
 import toArrayBuffer from 'to-arraybuffer'
 
 import userSession from 'utils/userSession'
 import { IMAGE_PREVIEW_SIZE } from 'constants/index'
+import Album from 'models/album'
 import Image, { ImageMetaData, parseImageRecords } from 'models/image'
 import { Uint8BitColor } from 'utils/colors'
 import ImageRecord, { ImageRecordFactory } from 'db/image'
 
-export const getImages = () => {
-  return from(ImageRecord.fetchOwnList<ImageRecord>()).pipe(
-    map((imageRecords: ImageRecord[]) => {
-      return parseImageRecords(imageRecords)
-    }),
-    // TODO: fail e.g. on decrypt failure
-  )
+export const getAlbumImages = (album: Album) => {
+  return new Observable<Image[]>(subscriber => {
+    ImageRecord.fetchOwnList<ImageRecord>({
+      albumIds: album._id,
+    })
+      .then((imageRecords: ImageRecord[]) => {
+        const images = parseImageRecords(imageRecords)
+        subscriber.next(images)
+        subscriber.complete()
+      })
+      .catch((error: string) => {
+        console.log('query error', error)
+        subscriber.error(error)
+      })
+  })
 }
 
 export function processImage(imageObjectURL: string) {
@@ -108,7 +118,7 @@ export const saveImageRecord = (imageRecord: ImageRecord) => {
   })
 }
 
-export const saveImage = (image: Image) => {
+export const createImageRecord = (image: Image, album: Album) => {
   const imageRecord = ImageRecordFactory.build(image)
   return saveImageRecord(imageRecord)
 }

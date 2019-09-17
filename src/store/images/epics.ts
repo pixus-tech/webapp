@@ -30,20 +30,20 @@ import { MAX_CONCURRENT_UPLOADS } from 'constants/index'
 import { FileHandle } from 'models/fileHandle'
 import Image, { imagePreviewUploadPath, imageUploadPath } from 'models/image'
 
-export const getImagesEpic: Epic<
+export const getAlbumImagesEpic: Epic<
   RootAction,
   RootAction,
   RootState,
   Pick<RootService, 'images'>
 > = (action$, state$, { images }) =>
   action$.pipe(
-    filter(isActionOf(actions.getImages.request)),
+    filter(isActionOf(actions.getAlbumImages.request)),
     mergeMap(action =>
-      images.getImages().pipe(
-        map(actions.getImages.success),
-        takeUntil(action$.pipe(filter(isActionOf(actions.getImages.cancel)))),
+      images.getAlbumImages(action.payload).pipe(
+        map(images => actions.getAlbumImages.success({ album: action.payload, images })),
+        takeUntil(action$.pipe(filter(isActionOf(actions.getAlbumImages.cancel)))),
         catchError(error =>
-          of(actions.getImages.failure({ error, resource: null })),
+          of(actions.getAlbumImages.failure({ error, resource: action.payload })),
         ),
       ),
     ),
@@ -267,6 +267,7 @@ export const createImageRecordEpic: Epic<
     filter(isActionOf(actions.createImageRecord)),
     mergeMap(action => {
       const image: Image = {
+        albumIds: [action.payload.album._id],
         _id: action.payload.fileHandle._id,
         height: action.payload.imageMetaData.height,
         name: action.payload.fileHandle.file.name,
@@ -277,7 +278,7 @@ export const createImageRecordEpic: Epic<
       }
 
       // TODO: Also add image/album association here
-      return images.saveImage(image).pipe(
+      return images.createImageRecord(image, action.payload.album).pipe(
         map(_imageRecord =>
           actions.addImageFileToAlbum.success({
             album: action.payload.album,

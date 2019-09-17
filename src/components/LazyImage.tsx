@@ -15,15 +15,19 @@ export interface IProps {
 const useStyles = makeStyles(
   createStyles({
     image: {
-      height: 'auto',
+      bottom: 0,
+      left: 0,
       position: 'absolute',
-      width: '100%',
+      right: 0,
+      top: 0,
     },
     gradient: {
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
+      bottom: 0,
+      left: 0,
       opacity: 1,
+      position: 'absolute',
+      right: 0,
+      top: 0,
       transition: 'opacity 1000ms ease-out',
     },
     gradientHidden: {
@@ -54,9 +58,11 @@ function LazyImage({ height, image, width }: IProps) {
       {imageObject !== undefined && (
         <img
           className={classes.image}
-          src={imageObject}
+          height={height}
           onLoad={() => setIsImageLoaded(true)}
+          src={imageObject}
           style={{ opacity: isImageLoaded ? 1 : 0 }}
+          width={width}
         />
       )}
 

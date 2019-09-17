@@ -33,7 +33,8 @@ import {
 import ImageGrid from 'components/ImageGrid'
 import Album from 'models/album'
 import Image from 'models/image'
-import { addImageFilesToAlbum, getImages } from 'store/images/actions'
+import { addImageFilesToAlbum, getAlbumImages } from 'store/images/actions'
+import { albumImagesSelector } from 'store/images/selectors'
 import { ShowAlbumURLParameters } from 'utils/routes'
 
 // TODO: extract color
@@ -81,12 +82,12 @@ const styles = (theme: Theme) =>
 
 interface IDispatchProps {
   dispatchAddImageFilesToAlbum: typeof addImageFilesToAlbum
-  dispatchGetImages: typeof getImages.request
+  dispatchGetAlbumImages: typeof getAlbumImages.request
 }
 
 interface IStateProps {
   album?: Album
-  images: { [id: string]: Image }
+  images: Image[]
 }
 
 type ComposedProps = RouteComponentProps<ShowAlbumURLParameters> &
@@ -108,14 +109,23 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
   }
 
   componentDidMount() {
-    this.props.dispatchGetImages()
-
     const { match, album } = this.props
 
-    if (!album) {
+    if (album === undefined) {
       /* this.props.dispatchFindGMA({
        *   number: match.params.gma,
        * }) */
+    } else {
+      this.props.dispatchGetAlbumImages(album)
+    }
+  }
+
+  componentDidUpdate(prevProps: ComposedProps) {
+    const { album } = this.props
+    const prevAlbumId = _.get(prevProps.album, '_id')
+
+    if (album !== undefined && album._id !== prevAlbumId) {
+      this.props.dispatchGetAlbumImages(album)
     }
   }
 
@@ -242,6 +252,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
 
               return (
                 <ImageGrid
+                  displayId={album._id}
                   columnCount={numberOfImageColumns}
                   height={height}
                   images={_.values(images)}
@@ -258,7 +269,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
 
 function mapStateToProps(store: RootState, props: ComposedProps) {
   const album = store.albums.map.get(props.match.params.albumId)
-  const images = store.images.map
+  const images = album === undefined ? [] : albumImagesSelector(store, album)
 
   return {
     album,
@@ -270,7 +281,7 @@ function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
     dispatchAddImageFilesToAlbum: albumImageFiles =>
       dispatch(addImageFilesToAlbum(albumImageFiles)),
-    dispatchGetImages: () => dispatch(getImages.request()),
+    dispatchGetAlbumImages: (album: Album) => dispatch(getAlbumImages.request(album)),
   }
 }
 
