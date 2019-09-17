@@ -18,6 +18,7 @@ import {
 
 import LazyImage from './LazyImage'
 import Image from 'models/image'
+import { IMAGE_GRID_GUTTER_SIZE } from 'constants/index'
 
 const styles = (_theme: Theme) =>
   createStyles({
@@ -26,9 +27,6 @@ const styles = (_theme: Theme) =>
     },
     collection: {},
   })
-
-// TODO: extract into props
-const GUTTER_SIZE = 3
 
 interface IProps {
   columnCount: number
@@ -47,7 +45,7 @@ type ComposedProps = IProps & WithStyles<typeof styles>
 
 class ImageGrid extends React.PureComponent<ComposedProps, IState> {
   static buildMeasurerCacheAndPositioner(width: number, columnCount: number) {
-    const defaultWidth = (width - (columnCount - 1) * GUTTER_SIZE) / columnCount
+    const defaultWidth = (width - (columnCount - 1) * IMAGE_GRID_GUTTER_SIZE) / columnCount
     const defaultHeight = (defaultWidth * 2) / 3
 
     const cellMeasurerCache = new CellMeasurerCache({
@@ -62,7 +60,7 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
         cellMeasurerCache,
         columnCount,
         columnWidth: defaultWidth,
-        spacer: GUTTER_SIZE,
+        spacer: IMAGE_GRID_GUTTER_SIZE,
       }),
     }
   }
