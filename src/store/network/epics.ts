@@ -17,75 +17,40 @@ import {
 } from 'typesafe-actions'
 
 import * as actions from './actions'
-import { MAX_CONCURRENT_UPLOADS } from 'constants/index'
 import { UploadData } from './types'
 
-export const dequeueUploadEpic: Epic<RootAction, RootAction, RootState> = (
-  action$,
-  state$,
-) =>
-  action$.pipe(
-    filter(isActionOf(actions._dequeueUpload)),
-    withLatestFrom(state$),
-    filter(
-      ([_action, state]) =>
-        state.network.numberOfActiveUploads < MAX_CONCURRENT_UPLOADS,
-    ),
-    mergeMap(([_action, state]) => {
-      const { uploadQueue, numberOfActiveUploads } = state.network
-
-      const resultActions: RootAction[] = []
-
-      uploadQueue
-        .slice(0, MAX_CONCURRENT_UPLOADS - numberOfActiveUploads)
-        .forEach(uploadData => {
-          resultActions.push(actions._performUpload(uploadData))
-        })
-
-      return of(...resultActions)
-    }),
-  )
-
-export const performUploadEpic: Epic<
+export const uploadEpic: Epic<
   RootAction,
   RootAction,
   RootState,
   Pick<RootService, 'files'>
 > = (action$, state$, { files }) =>
   action$.pipe(
-    filter(isActionOf(actions._performUpload)),
+    filter(isActionOf(actions.upload.request)),
     mergeMap(action =>
-      files.upload(action.payload.path, action.payload.payload).pipe(
+      files.upload(action.payload.data.path, action.payload.data.payload).pipe(
         map(username =>
           actions.upload.success({
-            ...action.payload,
-            uploader: username,
+            jobId: action.payload.jobId,
+            data: {
+              ...action.payload.data,
+              uploader: username,
+            },
           }),
         ),
         catchError(error =>
-          of(actions.upload.failure({ error, resource: action.payload })),
+          of(actions.upload.failure({ jobId: action.payload.jobId, data: { error, resource: action.payload.data }})),
         ),
         takeUntil(
           action$.pipe(
             filter(cancelAction => {
               return (
                 isActionOf(actions.upload.cancel)(cancelAction) &&
-                cancelAction.payload === action.payload.id
+                cancelAction.payload.jobId === action.payload.jobId
               )
             }),
           ),
         ),
       ),
     ),
-  )
-
-export const uploadEpic: Epic<RootAction, RootAction, RootState> = (
-  action$,
-  state$,
-) =>
-  action$.pipe(
-    filter(isActionOf(actions.upload.request)),
-    mergeMap(action => {
-      return of(actions._enqueueUpload(action.payload))
-    }),
   )

@@ -6,8 +6,6 @@ import {
   setParentAlbumEpic,
 } from './albums/epics'
 import {
-  dequeueReadFileEpic,
-  performReadFileEpic,
   readFileEpic,
 } from './files/epics'
 import {
@@ -21,11 +19,14 @@ import {
   uploadImageDataEpic,
 } from './images/epics'
 import {
-  dequeueUploadEpic,
-  performUploadEpic,
   uploadEpic,
 } from './network/epics'
-import { dequeueUploadTimerEpic, dequeueReadFileTimerEpic } from './timer/epics'
+import {
+  dequeueJobEpic,
+  jobProgressEpic,
+  performJobEpic,
+  queueWorkerEpic,
+} from './queue/epics'
 import {
   subscribeWebSocketEpic,
   unsubscribeWebSocketEpic,
@@ -36,15 +37,13 @@ const rootEpic = combineEpics(
   addImageFileToAlbumEpic,
   addImageFilesToAlbumEpic,
   createImageRecordEpic,
-  dequeueReadFileEpic,
-  dequeueReadFileTimerEpic,
-  dequeueUploadEpic,
-  dequeueUploadTimerEpic,
+  dequeueJobEpic,
   fetchAlbumTreeEpic,
   getAlbumImagesEpic,
-  performReadFileEpic,
-  performUploadEpic,
+  jobProgressEpic,
+  performJobEpic,
   processImageEpic,
+  queueWorkerEpic,
   readFileEpic,
   setParentAlbumEpic,
   subscribeWebSocketEpic,

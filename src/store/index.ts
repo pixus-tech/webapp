@@ -11,7 +11,7 @@ import {
   LAUNCH_WORKER_PERIOD,
 } from 'constants/index'
 import { composeEnhancer } from './utils'
-import { startTimer } from './timer/actions'
+import { startQueueWorker } from './queue/actions'
 
 import rootEpic from './rootEpic'
 import rootReducer from './rootReducer'
@@ -45,7 +45,7 @@ const persistor = persistStore(store)
 epicMiddleware.run(rootEpic)
 
 setTimeout(() => {
-  store.dispatch(startTimer(LAUNCH_WORKER_PERIOD))
+  store.dispatch(startQueueWorker(LAUNCH_WORKER_PERIOD))
 }, DELAY_TO_LAUNCH_WORKER_QUEUE)
 
 export default { persistor, store }

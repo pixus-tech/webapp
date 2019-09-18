@@ -1,23 +1,16 @@
 import { API } from 'typings/types'
-import { createAsyncAction, createStandardAction } from 'typesafe-actions'
 
 import { FileHandle, FileHandleWithData } from 'models/fileHandle'
+import { CancelJobPayload, createEnqueueableAction, QueuePayload } from 'utils/queue'
 
-export const _enqueueReadFile = createStandardAction('FILES__ENQUEUE_READ')<
-  FileHandle
+export const readFile = createEnqueueableAction(
+  'FILES__READ__REQUEST',
+  'FILES__READ__SUCCESS',
+  'FILES__READ__FAILURE',
+  'FILES__READ__CANCEL',
+)<
+  QueuePayload<FileHandle>,
+  QueuePayload<FileHandleWithData>,
+  QueuePayload<API.ErrorResponse<FileHandle>>,
+  CancelJobPayload
 >()
-
-export const _dequeueReadFile = createStandardAction('FILES__DEQUEUE_READ')<
-  undefined
->()
-
-export const _performReadFile = createStandardAction('FILES__PERFORM_READ')<
-  FileHandle
->()
-
-export const readFile = createAsyncAction(
-  'FILES__READ_REQUEST',
-  'FILES__READ_SUCCESS',
-  'FILES__READ_FAILURE',
-  'FILES__READ_CANCEL',
-)<FileHandle, FileHandleWithData, API.ErrorResponse<FileHandle>, string>()

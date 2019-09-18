@@ -252,10 +252,10 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
 
               return (
                 <ImageGrid
-                  displayId={album._id}
                   columnCount={numberOfImageColumns}
                   height={height}
-                  images={_.values(images)}
+                  images={images}
+                  key={album._id}
                   width={width}
                 />
               )

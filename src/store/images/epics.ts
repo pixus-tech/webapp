@@ -26,9 +26,11 @@ import * as actions from './actions'
 import { upload } from '../network/actions'
 import { readFile } from '../files/actions'
 
-import { MAX_CONCURRENT_UPLOADS } from 'constants/index'
 import { FileHandle } from 'models/fileHandle'
 import Image, { imagePreviewUploadPath, imageUploadPath } from 'models/image'
+import { UploadData } from 'store/network/types'
+import { enqueueAction } from 'utils/queue'
+import { Queue } from 'store/queue/types'
 
 export const getAlbumImagesEpic: Epic<
   RootAction,
@@ -83,7 +85,12 @@ export const triggerImageFileReadEpic: Epic<
 > = (action$, state$) =>
   action$.pipe(
     filter(isActionOf(actions.addImageFileToAlbum.request)),
-    map(action => readFile.request(action.payload.fileHandle)),
+    map(action =>
+      enqueueAction<FileHandle, typeof readFile.request>(
+        Queue.ReadFile,
+        readFile.request,
+        action.payload.fileHandle
+      ))
   )
 
 export const addImageFileToAlbumEpic: Epic<
@@ -100,13 +107,13 @@ export const addImageFileToAlbumEpic: Epic<
           filter(isActionOf(readFile.success)),
           filter(
             successAction =>
-              successAction.payload._id === action.payload.fileHandle._id,
+              successAction.payload.data._id === action.payload.fileHandle._id,
           ),
           take(1),
           map(readerAction =>
             actions.processImage({
               album: action.payload.album,
-              fileHandle: readerAction.payload,
+              fileHandle: readerAction.payload.data,
             }),
           ),
         ),
@@ -114,13 +121,13 @@ export const addImageFileToAlbumEpic: Epic<
           filter(isActionOf(readFile.failure)),
           filter(
             errorAction =>
-              errorAction.payload.resource._id ===
+              errorAction.payload.data.resource._id ===
               action.payload.fileHandle._id,
           ),
           take(1),
           map(errorAction =>
             actions.addImageFileToAlbum.failure({
-              error: errorAction.payload.error,
+              error: errorAction.payload.data.error,
               resource: action.payload,
             }),
           ),
@@ -132,7 +139,7 @@ export const addImageFileToAlbumEpic: Epic<
               cancelAction.payload === action.payload.fileHandle._id,
           ),
           take(1),
-          mergeMap(cancelAction => of(readFile.cancel(cancelAction.payload))),
+          mergeMap(cancelAction => of(readFile.cancel({ jobId: cancelAction.payload }))), // TODO: this is not the correct id
         ),
       ),
     ),
@@ -186,12 +193,12 @@ export const triggerUploadImageDataEpic: Epic<
     mergeMap(action => {
       const imageId = action.payload.fileHandle._id
       return of(
-        upload.request({
+        enqueueAction<UploadData, typeof upload.request>(Queue.Upload, upload.request, {
           id: imageId,
           path: imageUploadPath(imageId),
           payload: action.payload.fileHandle.payload,
         }),
-        upload.request({
+        enqueueAction<UploadData, typeof upload.request>(Queue.Upload, upload.request, {
           id: imageId,
           path: imagePreviewUploadPath(imageId),
           payload: action.payload.imageMetaData.previewObjectURL,
@@ -214,7 +221,7 @@ export const uploadImageDataEpic: Epic<
           filter(isActionOf(upload.success)),
           filter(
             successAction =>
-              successAction.payload.id === action.payload.fileHandle._id,
+              successAction.payload.data.id === action.payload.fileHandle._id,
           ),
           bufferCount(2),
           take(1),
@@ -223,7 +230,7 @@ export const uploadImageDataEpic: Epic<
               album: action.payload.album,
               fileHandle: action.payload.fileHandle,
               imageMetaData: action.payload.imageMetaData,
-              username: uploadAction.payload.uploader,
+              username: uploadAction.payload.data.uploader,
             }),
           ),
         ),
@@ -231,16 +238,16 @@ export const uploadImageDataEpic: Epic<
           filter(isActionOf(upload.failure)),
           filter(
             errorAction =>
-              errorAction.payload.resource.id === action.payload.fileHandle._id,
+              errorAction.payload.data.resource.id === action.payload.fileHandle._id,
           ),
           take(1),
           mergeMap(errorAction => {
             return of(
               actions.addImageFileToAlbum.failure({
-                error: errorAction.payload.error,
+                error: errorAction.payload.data.error,
                 resource: action.payload,
               }),
-              upload.cancel(errorAction.payload.resource.id),
+              upload.cancel({ jobId: errorAction.payload.jobId }),
             )
           }),
         ),
@@ -251,7 +258,7 @@ export const uploadImageDataEpic: Epic<
               cancelAction.payload === action.payload.fileHandle._id,
           ),
           take(1),
-          mergeMap(cancelAction => of(upload.cancel(cancelAction.payload))),
+          mergeMap(cancelAction => of(upload.cancel({ jobId: cancelAction.payload }))),
         ),
       ),
     ),

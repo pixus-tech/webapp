@@ -1,23 +1,16 @@
 import { API } from 'typings/types'
-import { createAsyncAction, createStandardAction } from 'typesafe-actions'
 
 import { UploadData, UploadSuccessData } from './types'
+import { CancelJobPayload, createEnqueueableAction, QueuePayload } from 'utils/queue'
 
-export const _enqueueUpload = createStandardAction('UPLOAD__ENQUEUE')<
-  UploadData
->()
-
-export const _dequeueUpload = createStandardAction('UPLOAD__DEQUEUE')<
-  undefined
->()
-
-export const _performUpload = createStandardAction('UPLOAD__PERFORM')<
-  UploadData
->()
-
-export const upload = createAsyncAction(
+export const upload = createEnqueueableAction(
   'UPLOAD__REQUEST',
   'UPLOAD__SUCCESS',
   'UPLOAD__FAILURE',
   'UPLOAD__CANCEL',
-)<UploadData, UploadSuccessData, API.ErrorResponse<UploadData>, string>()
+)<
+  QueuePayload<UploadData>,
+  QueuePayload<UploadSuccessData>,
+  QueuePayload<API.ErrorResponse<UploadData>>,
+  CancelJobPayload
+>()

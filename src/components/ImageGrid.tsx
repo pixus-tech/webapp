@@ -30,7 +30,6 @@ const styles = (_theme: Theme) =>
 
 interface IProps {
   columnCount: number
-  displayId: string
   images: Image[]
   width: number
   height: number
@@ -98,21 +97,16 @@ class ImageGrid extends React.Component<ComposedProps, IState> {
     const masonry = this.masonryRef.current
 
     if (masonry !== null) {
-      if (nextProps.displayId !== this.props.displayId) {
-        masonry.clearCellPositions()
-      } else if (nextProps.images.length !== this.props.images.length) {
-        masonry.clearCellPositions()
-      } else if (nextProps.columnCount !== this.props.columnCount) {
+      if (nextProps.columnCount !== this.props.columnCount) {
         masonry.clearCellPositions()
       }
     }
 
     return nextProps.columnCount !== this.props.columnCount ||
-           nextProps.images.length !== this.props.images.length ||
-           nextProps.displayId!== this.props.displayId
+           nextProps.images.length !== this.props.images.length
   }
 
-  renderCell: CellRenderer = ({ index, key, parent, style }) => {
+  renderCell: CellRenderer = ({ index, parent, style }) => {
     const { classes, images } = this.props
     const { cellMeasurerCache } = this.state
 
@@ -127,7 +121,7 @@ class ImageGrid extends React.Component<ComposedProps, IState> {
         key={image._id}
         parent={parent}
       >
-        <div className={classes.cell} key={key} style={style}>
+        <div className={classes.cell} key={image._id} style={style}>
           <LazyImage image={image} width={width} height={height} />
         </div>
       </CellMeasurer>

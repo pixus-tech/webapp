@@ -8,7 +8,7 @@ import images, { initialState as initialImagesState } from './images/reducers'
 import network, {
   initialState as initialNetworkState,
 } from './network/reducers'
-import timer, { initialState as initialTimerState } from './timer/reducers'
+import queue, { initialState as initialQueueState } from './queue/reducers'
 import webSocket, {
   initialState as initialWebSocketState,
 } from './webSocket/reducers'
@@ -20,7 +20,7 @@ const rootReducer = combineReducers({
   i18n,
   images,
   network,
-  timer,
+  queue,
   webSocket,
 })
 
@@ -31,7 +31,7 @@ export const initialState = {
   i18n: initialI18nState,
   images: initialImagesState,
   network: initialNetworkState,
-  timer: initialTimerState,
+  queue: initialQueueState,
   webSocket: initialWebSocketState,
 }
 

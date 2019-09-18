@@ -4,8 +4,11 @@ import * as filesActions from './files/actions'
 import * as i18nActions from './i18n/actions'
 import * as imagesActions from './images/actions'
 import * as networkActions from './network/actions'
-import * as timerActions from './timer/actions'
+import * as queueActions from './queue/actions'
 import * as webSocketActions from './webSocket/actions'
+
+import { readFile } from './files/actions'
+import { upload } from './network/actions'
 
 const rootAction = {
   ...albumsActions,
@@ -14,8 +17,13 @@ const rootAction = {
   ...i18nActions,
   ...imagesActions,
   ...networkActions,
-  ...timerActions,
+  ...queueActions,
   ...webSocketActions,
+}
+
+export const enqueueableActions = {
+  readFile,
+  upload,
 }
 
 export default rootAction
