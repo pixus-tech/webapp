@@ -1,14 +1,6 @@
 import { Epic } from 'redux-observable'
 import { of } from 'rxjs'
-import {
-  catchError,
-  filter,
-  map,
-  mergeMap,
-  withLatestFrom,
-  ignoreElements,
-  takeUntil,
-} from 'rxjs/operators'
+import { catchError, filter, map, mergeMap, takeUntil } from 'rxjs/operators'
 import {
   isActionOf,
   RootAction,

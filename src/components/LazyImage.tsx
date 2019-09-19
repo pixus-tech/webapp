@@ -68,6 +68,7 @@ function LazyImage({ image }: IProps) {
     <div className={classes.container}>
       {imageObject !== undefined && (
         <img
+          alt={image.name}
           className={classes.image}
           onLoad={() => setIsImageLoaded(true)}
           src={imageObject}

@@ -66,10 +66,6 @@ type JobActionType =
   | ReturnType<typeof actions._jobDidFail>
   | ReturnType<typeof actions._jobDidSucceed>
 
-function jobId(action: JobActionType) {
-  return action.payload.id
-}
-
 type QueueStoreTypes = OrderedMap<JobId, Job> | number | List<JobId>
 
 function setQueueState<

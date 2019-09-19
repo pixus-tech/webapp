@@ -1,14 +1,5 @@
 import React from 'react'
-import {
-  Grid,
-  GridCellRenderer,
-  CellRenderer,
-  CellMeasurer,
-  CellMeasurerCache,
-  Positioner,
-  createMasonryCellPositioner,
-  Masonry,
-} from 'react-virtualized'
+import { Grid, GridCellRenderer } from 'react-virtualized'
 import { compose } from 'recompose'
 
 import {

@@ -1,9 +1,8 @@
 import * as _ from 'lodash'
-import { Model } from 'radiks'
 
 import BaseModel, { UnsavedModel } from './'
 import ImageRecord from 'db/image'
-import { decodeColors, encodeColors, Uint8BitColor } from 'utils/colors'
+import { decodeColors, Uint8BitColor } from 'utils/colors'
 
 export interface PreviewColors {
   bl: Uint8BitColor

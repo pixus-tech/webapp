@@ -1,28 +1,22 @@
 import { Epic } from 'redux-observable'
 import { of, race, interval } from 'rxjs'
 import {
-  catchError,
   filter,
   mergeMap,
   map,
   takeUntil,
   take,
-  ignoreElements,
   withLatestFrom,
 } from 'rxjs/operators'
 import {
   isActionOf,
   RootAction,
-  RootService,
   RootState,
-  PayloadAction,
-  TypeConstant,
   EnqueueableAction,
 } from 'typesafe-actions'
 
 import * as actions from './actions'
 import { Queue } from './types'
-import { IdentifiableAction } from 'utils/queue'
 
 export const queueWorkerEpic: Epic<RootAction, RootAction, RootState> = (
   action$,

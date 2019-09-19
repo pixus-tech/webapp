@@ -1,16 +1,12 @@
 import { Epic } from 'redux-observable'
 import { combineEpics } from 'redux-observable'
-import { of, race, forkJoin } from 'rxjs'
+import { of, race } from 'rxjs'
 import {
   bufferCount,
-  tap,
   catchError,
   filter,
   map,
   mergeMap,
-  switchMap,
-  withLatestFrom,
-  ignoreElements,
   take,
   takeUntil,
 } from 'rxjs/operators'
@@ -20,7 +16,6 @@ import {
   RootService,
   RootState,
 } from 'typesafe-actions'
-import uuid from 'uuid/v4'
 
 import * as actions from './actions'
 import { privateActions } from './actions'

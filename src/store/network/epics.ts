@@ -1,14 +1,6 @@
 import { Epic } from 'redux-observable'
 import { of } from 'rxjs'
-import {
-  catchError,
-  filter,
-  map,
-  mergeMap,
-  withLatestFrom,
-  ignoreElements,
-  takeUntil,
-} from 'rxjs/operators'
+import { catchError, filter, map, mergeMap, takeUntil } from 'rxjs/operators'
 import {
   isActionOf,
   RootAction,
@@ -17,7 +9,6 @@ import {
 } from 'typesafe-actions'
 
 import * as actions from './actions'
-import { UploadData } from './types'
 
 export const uploadEpic: Epic<
   RootAction,

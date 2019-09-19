@@ -1,10 +1,5 @@
-import _ from 'lodash'
-import { from, Observable, forkJoin } from 'rxjs'
-import { map } from 'rxjs/operators'
-import uuid from 'uuid/v4'
-import toArrayBuffer from 'to-arraybuffer'
+import { Observable } from 'rxjs'
 
-import userSession from 'utils/userSession'
 import { IMAGE_PREVIEW_SIZE } from 'constants/index'
 import Album from 'models/album'
 import Image, { ImageMetaData, parseImageRecords } from 'models/image'
@@ -75,12 +70,6 @@ export function processImage(imageObjectURL: string) {
         const tl = ctx.getImageData(0, 0, 1, 1).data
         const tr = ctx.getImageData(previewBounds.width - 1, 0, 1, 1).data
 
-        const previewData = ctx.getImageData(
-          0,
-          0,
-          previewBounds.width,
-          previewBounds.height,
-        )
         const previewDataURL = canvas.toDataURL('image/jpeg', 0.9)
 
         const imageMetaData: ImageMetaData = {

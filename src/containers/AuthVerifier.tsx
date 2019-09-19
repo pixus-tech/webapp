@@ -8,7 +8,7 @@ import { RootAction, RootState } from 'typesafe-actions'
 import { setUser } from 'store/auth/actions'
 import authReducer from 'store/auth/reducers'
 import { UserData } from 'models/blockstack'
-import { User as RadiksUser, GroupMembership } from 'radiks'
+import { User as RadiksUser } from 'radiks'
 import routes, { redirect } from 'utils/routes'
 import userSession from 'utils/userSession'
 

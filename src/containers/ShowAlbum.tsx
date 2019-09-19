@@ -109,13 +109,9 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
   }
 
   componentDidMount() {
-    const { match, album } = this.props
+    const { album } = this.props
 
-    if (album === undefined) {
-      /* this.props.dispatchFindGMA({
-       *   number: match.params.gma,
-       * }) */
-    } else {
+    if (album !== undefined) {
       this.props.dispatchGetAlbumImages(album)
     }
   }

@@ -2,7 +2,6 @@ import {
   AsyncActionCreator,
   EnqueueableAction,
   PayloadAC,
-  PayloadAction,
   TypeConstant,
   createStandardAction,
 } from 'typesafe-actions'

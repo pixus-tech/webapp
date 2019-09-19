@@ -1,19 +1,7 @@
 import _ from 'lodash'
 import { Epic } from 'redux-observable'
-import { of, race, forkJoin } from 'rxjs'
-import {
-  bufferCount,
-  tap,
-  catchError,
-  filter,
-  map,
-  mergeMap,
-  switchMap,
-  withLatestFrom,
-  ignoreElements,
-  take,
-  takeUntil,
-} from 'rxjs/operators'
+import { of } from 'rxjs'
+import { catchError, filter, map, mergeMap, takeUntil } from 'rxjs/operators'
 import {
   isActionOf,
   RootAction,
