@@ -7,19 +7,26 @@ import Image, { imagePreviewUploadPath } from 'models/image'
 import { loadFile } from 'utils/blockstack'
 
 export interface IProps {
-  height: number
   image: Image
-  width: number
 }
 
 const useStyles = makeStyles(
   createStyles({
+    container: {
+      height: '100%',
+      overflow: 'hidden',
+      position: 'relative',
+      width: '100%',
+    },
     image: {
-      bottom: 0,
-      left: 0,
+      bottom: '-100%',
+      left: '-100%',
+      margin: 'auto',
+      minHeight: '100%',
+      minWidth: '100%',
       position: 'absolute',
-      right: 0,
-      top: 0,
+      right: '-100%',
+      top: '-100%',
     },
     gradient: {
       bottom: 0,
@@ -36,7 +43,7 @@ const useStyles = makeStyles(
   }),
 )
 
-function LazyImage({ height, image, width }: IProps) {
+function LazyImage({ image }: IProps) {
   const classes = useStyles()
   const [imageObject, setImageObject] = React.useState<string | undefined>(
     undefined,
@@ -53,16 +60,18 @@ function LazyImage({ height, image, width }: IProps) {
     })
   }
 
+  const imageStyles = {
+    opacity: isImageLoaded ? 1 : 0,
+  }
+
   return (
-    <div style={{ height, width }}>
+    <div className={classes.container}>
       {imageObject !== undefined && (
         <img
           className={classes.image}
-          height={height}
           onLoad={() => setIsImageLoaded(true)}
           src={imageObject}
-          style={{ opacity: isImageLoaded ? 1 : 0 }}
-          width={width}
+          style={imageStyles}
         />
       )}
 

@@ -1,5 +1,7 @@
 import React from 'react'
 import {
+  Grid,
+  GridCellRenderer,
   CellRenderer,
   CellMeasurer,
   CellMeasurerCache,
@@ -24,8 +26,9 @@ const styles = (_theme: Theme) =>
   createStyles({
     cell: {
       overflow: 'hidden',
+      paddingBottom: IMAGE_GRID_GUTTER_SIZE,
+      paddingRight: IMAGE_GRID_GUTTER_SIZE,
     },
-    collection: {},
   })
 
 interface IProps {
@@ -35,117 +38,35 @@ interface IProps {
   height: number
 }
 
-interface IState {
-  cellMeasurerCache: CellMeasurerCache
-  cellPositioner: Positioner
-  prevColumnCount: number
-}
-
 type ComposedProps = IProps & WithStyles<typeof styles>
 
-class ImageGrid extends React.Component<ComposedProps, IState> {
-  private masonryRef = React.createRef<Masonry>()
+class ImageGrid extends React.PureComponent<ComposedProps> {
+  renderCell: GridCellRenderer = ({ columnIndex, key, rowIndex, style }) => {
+    const { columnCount, classes, images } = this.props
 
-  static buildMeasurerCacheAndPositioner(width: number, columnCount: number) {
-    const defaultWidth =
-      (width - (columnCount - 1) * IMAGE_GRID_GUTTER_SIZE) / columnCount
-    const defaultHeight = (defaultWidth * 2) / 3
-
-    const cellMeasurerCache = new CellMeasurerCache({
-      defaultHeight,
-      defaultWidth,
-      fixedWidth: true,
-    })
-
-    return {
-      cellMeasurerCache,
-      cellPositioner: createMasonryCellPositioner({
-        cellMeasurerCache,
-        columnCount,
-        columnWidth: defaultWidth,
-        spacer: IMAGE_GRID_GUTTER_SIZE,
-      }),
-    }
-  }
-
-  static getDerivedStateFromProps(props: ComposedProps, state: IState) {
-    if (props.columnCount !== state.prevColumnCount) {
-      return {
-        ...ImageGrid.buildMeasurerCacheAndPositioner(
-          props.width,
-          props.columnCount,
-        ),
-        prevColumnCount: props.columnCount,
-      }
-    }
-
-    return state
-  }
-
-  constructor(props: ComposedProps) {
-    super(props)
-
-    this.state = {
-      ...ImageGrid.buildMeasurerCacheAndPositioner(
-        props.width,
-        props.columnCount,
-      ),
-      prevColumnCount: props.columnCount,
-    }
-  }
-
-  shouldComponentUpdate(nextProps: ComposedProps) {
-    const masonry = this.masonryRef.current
-
-    if (masonry !== null) {
-      if (nextProps.columnCount !== this.props.columnCount) {
-        masonry.clearCellPositions()
-      }
-    }
-
-    return (
-      nextProps.columnCount !== this.props.columnCount ||
-      nextProps.images.length !== this.props.images.length ||
-      nextProps.height !== this.props.height ||
-      nextProps.width !== this.props.width
-    )
-  }
-
-  renderCell: CellRenderer = ({ index, parent, style }) => {
-    const { classes, images } = this.props
-    const { cellMeasurerCache } = this.state
-
+    const index = columnIndex * columnCount + rowIndex
     const image = images[index % images.length]
-    const width = cellMeasurerCache.defaultWidth
-    const height = Math.round((width / image.width) * image.height)
 
     return (
-      <CellMeasurer
-        cache={cellMeasurerCache}
-        index={index}
-        key={image._id}
-        parent={parent}
-      >
-        <div className={classes.cell} key={image._id} style={style}>
-          <LazyImage image={image} width={width} height={height} />
-        </div>
-      </CellMeasurer>
+      <div className={classes.cell} key={key} style={style}>
+        <LazyImage image={image} />
+      </div>
     )
   }
 
   render() {
-    const { images, height, width } = this.props
-    const { cellMeasurerCache, cellPositioner } = this.state
+    const { columnCount, images, height, width } = this.props
+    const cellWidth = width / columnCount
+    const cellHeight = (cellWidth * 2) / 3
 
     return (
-      <Masonry
-        autoHeight={true}
-        cellCount={images.length}
-        cellMeasurerCache={cellMeasurerCache}
-        cellPositioner={cellPositioner}
+      <Grid
         cellRenderer={this.renderCell}
+        columnCount={columnCount}
+        columnWidth={cellWidth}
         height={height}
-        ref={this.masonryRef}
+        rowCount={Math.ceil(images.length / columnCount)}
+        rowHeight={cellHeight}
         width={width}
       />
     )
