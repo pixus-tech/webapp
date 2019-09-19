@@ -47,7 +47,8 @@ class ImageGrid extends React.Component<ComposedProps, IState> {
   private masonryRef = React.createRef<Masonry>()
 
   static buildMeasurerCacheAndPositioner(width: number, columnCount: number) {
-    const defaultWidth = (width - (columnCount - 1) * IMAGE_GRID_GUTTER_SIZE) / columnCount
+    const defaultWidth =
+      (width - (columnCount - 1) * IMAGE_GRID_GUTTER_SIZE) / columnCount
     const defaultHeight = (defaultWidth * 2) / 3
 
     const cellMeasurerCache = new CellMeasurerCache({
@@ -102,8 +103,12 @@ class ImageGrid extends React.Component<ComposedProps, IState> {
       }
     }
 
-    return nextProps.columnCount !== this.props.columnCount ||
-           nextProps.images.length !== this.props.images.length
+    return (
+      nextProps.columnCount !== this.props.columnCount ||
+      nextProps.images.length !== this.props.images.length ||
+      nextProps.height !== this.props.height ||
+      nextProps.width !== this.props.width
+    )
   }
 
   renderCell: CellRenderer = ({ index, parent, style }) => {

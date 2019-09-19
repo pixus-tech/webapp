@@ -1,7 +1,11 @@
 import { API } from 'typings/types'
 
 import { UploadData, UploadSuccessData } from './types'
-import { CancelJobPayload, createEnqueueableAction, QueuePayload } from 'utils/queue'
+import {
+  CancelJobPayload,
+  createEnqueueableAction,
+  QueuePayload,
+} from 'utils/queue'
 
 export const upload = createEnqueueableAction(
   'UPLOAD__REQUEST',

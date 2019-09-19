@@ -7,10 +7,7 @@ import { RootState } from 'typesafe-actions'
 
 const dataSelector = (state: RootState) => state.images.data
 
-const albumImageIdsSelector = (
-  state: RootState,
-  album: Album,
-) => {
+const albumImageIdsSelector = (state: RootState, album: Album) => {
   const imageIds = state.images.albumImageIds.get(album._id)
 
   if (imageIds === undefined || imageIds.size === 0) {

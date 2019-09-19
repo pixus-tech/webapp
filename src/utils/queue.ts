@@ -64,21 +64,21 @@ interface EnqueueableActionBuilder<
     [TType1, TPayload1],
     [TType2, TPayload2],
     [TType3, TPayload3]
-  >;
+  >
 }
 
 function checkInvalidActionTypeInArray(
   arg: TypeConstant,
-  idx: number
+  idx: number,
 ): void | never {
   if (arg == null) {
     throw new Error(
-      `Argument contains array with empty element at index ${idx}`
-    );
+      `Argument contains array with empty element at index ${idx}`,
+    )
   } else if (typeof arg !== 'string' && typeof arg !== 'symbol') {
     throw new Error(
-      `Argument contains array with invalid element at index ${idx}, it should be of type: string | symbol`
-    );
+      `Argument contains array with invalid element at index ${idx}, it should be of type: string | symbol`,
+    )
   }
 }
 
@@ -91,11 +91,11 @@ export function createEnqueueableAction<
   requestType: TType1,
   successType: TType2,
   failureType: TType3,
-  cancelType?: TType4
+  cancelType?: TType4,
 ): EnqueueableActionBuilder<TType1, TType2, TType3, TType4> {
-  [requestType, successType, failureType].forEach(
-    checkInvalidActionTypeInArray
-  );
+  ;[requestType, successType, failureType].forEach(
+    checkInvalidActionTypeInArray,
+  )
 
   const constructor = (<
     TPayload1 extends IdentifiableAction,
@@ -108,15 +108,15 @@ export function createEnqueueableAction<
       success: createStandardAction(successType)<TPayload2>(),
       failure: createStandardAction(failureType)<TPayload3>(),
       cancel: cancelType && createStandardAction(cancelType)<TPayload4>(),
-    };
-  }) as EnqueueableActionBuilder<TType1, TType2, TType3, TType4>;
+    }
+  }) as EnqueueableActionBuilder<TType1, TType2, TType3, TType4>
 
   const api = Object.assign<
     EnqueueableActionBuilder<TType1, TType2, TType3, TType4>,
     {}
   >(constructor, {
     // extension point for chain api
-  });
+  })
 
-  return api;
+  return api
 }

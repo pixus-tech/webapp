@@ -60,10 +60,11 @@ const isRunning = createReducer(initialState.isRunning)
     return false
   })
 
-type JobActionType = ReturnType<typeof actions._enqueueJob> |
-                     ReturnType<typeof actions._performJob> |
-                     ReturnType<typeof actions._jobDidFail> |
-                     ReturnType<typeof actions._jobDidSucceed>
+type JobActionType =
+  | ReturnType<typeof actions._enqueueJob>
+  | ReturnType<typeof actions._performJob>
+  | ReturnType<typeof actions._jobDidFail>
+  | ReturnType<typeof actions._jobDidSucceed>
 
 function jobId(action: JobActionType) {
   return action.payload.id
@@ -84,32 +85,49 @@ function setQueueState<
 }
 
 const setFailedJobsQueue = setQueueState<List<JobId>>()
-const failedJobs = createReducer(initialState.failedJobs)
-  .handleAction(actions._jobDidFail, setFailedJobsQueue((queueData, job) =>
-    queueData.push(job.id)))
+const failedJobs = createReducer(initialState.failedJobs).handleAction(
+  actions._jobDidFail,
+  setFailedJobsQueue((queueData, job) => queueData.push(job.id)),
+)
 
 const setJobsQueue = setQueueState<OrderedMap<JobId, Job>>()
 const jobs = createReducer(initialState.jobs)
-  .handleAction(actions._enqueueJob, setJobsQueue((queueData, job) =>
-    queueData.set(job.id, job)))
-  .handleAction(actions._jobDidSucceed, setJobsQueue((queueData, job) =>
-    queueData.delete(job.id)))
+  .handleAction(
+    actions._enqueueJob,
+    setJobsQueue((queueData, job) => queueData.set(job.id, job)),
+  )
+  .handleAction(
+    actions._jobDidSucceed,
+    setJobsQueue((queueData, job) => queueData.delete(job.id)),
+  )
 
 const limits = createReducer(initialState.limits)
 
 const setQueuesQueue = setQueueState<List<JobId>>()
 const queues = createReducer(initialState.queues)
-  .handleAction(actions._enqueueJob, setQueuesQueue((queueData, job) =>
-    queueData.push(job.id)))
-  .handleAction(actions._performJob, setQueuesQueue((queueData, job) =>
-    queueData.filterNot(id => id === job.id)))
+  .handleAction(
+    actions._enqueueJob,
+    setQueuesQueue((queueData, job) => queueData.push(job.id)),
+  )
+  .handleAction(
+    actions._performJob,
+    setQueuesQueue((queueData, job) =>
+      queueData.filterNot(id => id === job.id),
+    ),
+  )
 
 const setRunningJobsQueue = setQueueState<List<JobId>>()
 const runningJobs = createReducer(initialState.runningJobs)
-  .handleAction(actions._performJob, setRunningJobsQueue((queueData, job) =>
-    queueData.push(job.id)))
-  .handleAction([actions._jobDidSucceed, actions._jobDidFail], setRunningJobsQueue((queueData, job) =>
-    queueData.filterNot(id => id === job.id)))
+  .handleAction(
+    actions._performJob,
+    setRunningJobsQueue((queueData, job) => queueData.push(job.id)),
+  )
+  .handleAction(
+    [actions._jobDidSucceed, actions._jobDidFail],
+    setRunningJobsQueue((queueData, job) =>
+      queueData.filterNot(id => id === job.id),
+    ),
+  )
 
 export default combineReducers({
   isRunning,

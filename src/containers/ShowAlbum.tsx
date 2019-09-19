@@ -33,7 +33,7 @@ import {
 import ImageGrid from 'components/ImageGrid'
 import Album from 'models/album'
 import Image from 'models/image'
-import { addImageFilesToAlbum, getAlbumImages } from 'store/images/actions'
+import { getAlbumImages, uploadImagesToAlbum } from 'store/images/actions'
 import { albumImagesSelector } from 'store/images/selectors'
 import { ShowAlbumURLParameters } from 'utils/routes'
 
@@ -81,7 +81,7 @@ const styles = (theme: Theme) =>
   })
 
 interface IDispatchProps {
-  dispatchAddImageFilesToAlbum: typeof addImageFilesToAlbum
+  dispatchUploadImagesToAlbum: typeof uploadImagesToAlbum
   dispatchGetAlbumImages: typeof getAlbumImages.request
 }
 
@@ -133,7 +133,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
     const { album } = this.props
 
     if (album !== undefined) {
-      this.props.dispatchAddImageFilesToAlbum({ album, imageFiles })
+      this.props.dispatchUploadImagesToAlbum({ album, imageFiles })
     } else {
       // TODO: Error handling
     }
@@ -246,6 +246,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
         <div className={classes.autosizeContainer}>
           <AutoSizer>
             {({ height, width }) => {
+              console.log('autosizer did change bounds', height, width)
               if (height === 0 || width === 0) {
                 return null
               }
@@ -279,9 +280,10 @@ function mapStateToProps(store: RootState, props: ComposedProps) {
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
-    dispatchAddImageFilesToAlbum: albumImageFiles =>
-      dispatch(addImageFilesToAlbum(albumImageFiles)),
-    dispatchGetAlbumImages: (album: Album) => dispatch(getAlbumImages.request(album)),
+    dispatchGetAlbumImages: (album: Album) =>
+      dispatch(getAlbumImages.request(album)),
+    dispatchUploadImagesToAlbum: albumImageFiles =>
+      dispatch(uploadImagesToAlbum(albumImageFiles)),
   }
 }
 

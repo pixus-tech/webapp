@@ -104,7 +104,9 @@ export function processImage(imageObjectURL: string) {
   })
 }
 
-export const saveImageRecord = (imageRecord: ImageRecord) => {
+export const saveImage = (image: Image) => {
+  const imageRecord = ImageRecordFactory.build(image)
+
   return new Observable<ImageRecord>(subscriber => {
     imageRecord
       .save()
@@ -116,9 +118,4 @@ export const saveImageRecord = (imageRecord: ImageRecord) => {
         subscriber.error(error)
       })
   })
-}
-
-export const createImageRecord = (image: Image, album: Album) => {
-  const imageRecord = ImageRecordFactory.build(image)
-  return saveImageRecord(imageRecord)
 }

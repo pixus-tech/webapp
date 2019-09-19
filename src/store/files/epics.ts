@@ -32,9 +32,15 @@ export const readFileEpic: Epic<
           actions.readFile.success({
             jobId: action.payload.jobId,
             data: fileHandleWithData,
-          })),
+          }),
+        ),
         catchError(error =>
-          of(actions.readFile.failure({ jobId: action.payload.jobId, data: { error, resource: action.payload.data }})),
+          of(
+            actions.readFile.failure({
+              jobId: action.payload.jobId,
+              data: { error, resource: action.payload.data },
+            }),
+          ),
         ),
         takeUntil(
           action$.pipe(

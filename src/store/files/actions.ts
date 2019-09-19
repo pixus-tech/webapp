@@ -1,7 +1,11 @@
 import { API } from 'typings/types'
 
 import { FileHandle, FileHandleWithData } from 'models/fileHandle'
-import { CancelJobPayload, createEnqueueableAction, QueuePayload } from 'utils/queue'
+import {
+  CancelJobPayload,
+  createEnqueueableAction,
+  QueuePayload,
+} from 'utils/queue'
 
 export const readFile = createEnqueueableAction(
   'FILES__READ__REQUEST',

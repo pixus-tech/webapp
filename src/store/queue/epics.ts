@@ -41,8 +41,13 @@ export const queueWorkerEpic: Epic<RootAction, RootAction, RootState> = (
             dequeueActions.push(actions._dequeueJob(Queue.Download))
           }
 
-          const libraryAdditionQueue = state.queue.queues.get(Queue.LibraryAddition)
-          if (libraryAdditionQueue !== undefined && libraryAdditionQueue.size > 0) {
+          const libraryAdditionQueue = state.queue.queues.get(
+            Queue.LibraryAddition,
+          )
+          if (
+            libraryAdditionQueue !== undefined &&
+            libraryAdditionQueue.size > 0
+          ) {
             dequeueActions.push(actions._dequeueJob(Queue.LibraryAddition))
           }
 
@@ -50,8 +55,13 @@ export const queueWorkerEpic: Epic<RootAction, RootAction, RootState> = (
           if (readFileQueue !== undefined && readFileQueue.size > 0) {
             dequeueActions.push(actions._dequeueJob(Queue.ReadFile))
           }
-          const recordOperationQueue = state.queue.queues.get(Queue.RecordOperation)
-          if (recordOperationQueue !== undefined && recordOperationQueue.size > 0) {
+          const recordOperationQueue = state.queue.queues.get(
+            Queue.RecordOperation,
+          )
+          if (
+            recordOperationQueue !== undefined &&
+            recordOperationQueue.size > 0
+          ) {
             dequeueActions.push(actions._dequeueJob(Queue.RecordOperation))
           }
 
@@ -81,11 +91,13 @@ export const dequeueJobEpic: Epic<RootAction, RootAction, RootState> = (
       const runningJobs = state.queue.runningJobs.get(action.payload)
       const jobs = state.queue.jobs.get(action.payload)
 
-      if (runningJobs !== undefined &&
-          queueLimit !== undefined &&
-          queue !== undefined &&
-          jobs !== undefined &&
-          runningJobs.size < queueLimit) {
+      if (
+        runningJobs !== undefined &&
+        queueLimit !== undefined &&
+        queue !== undefined &&
+        jobs !== undefined &&
+        runningJobs.size < queueLimit
+      ) {
         queue
           .slice(0, queueLimit - runningJobs.size)
           .forEach((jobId: string) => {
@@ -100,21 +112,21 @@ export const dequeueJobEpic: Epic<RootAction, RootAction, RootState> = (
     }),
   )
 
-export const performJobEpic: Epic<
-  RootAction,
-  RootAction,
-  RootState
-> = (action$, state$, { files }) =>
+export const performJobEpic: Epic<RootAction, RootAction, RootState> = (
+  action$,
+  state$,
+  { files },
+) =>
   action$.pipe(
     filter(isActionOf(actions._performJob)),
-    map(action => action.payload.action)
+    map(action => action.payload.action),
   )
 
-export const jobProgressEpic: Epic<
-  RootAction,
-  RootAction,
-  RootState
-> = (action$, state$, { files }) =>
+export const jobProgressEpic: Epic<RootAction, RootAction, RootState> = (
+  action$,
+  state$,
+  { files },
+) =>
   action$.pipe(
     filter(isActionOf(actions._performJob)),
     mergeMap(action =>
@@ -122,8 +134,10 @@ export const jobProgressEpic: Epic<
         action$.pipe(
           filter(
             successAction =>
-              successAction.type === action.payload.action.type.replace('__REQUEST', '__SUCCESS') &&
-              (successAction as EnqueueableAction).payload.jobId === action.payload.id
+              successAction.type ===
+                action.payload.action.type.replace('__REQUEST', '__SUCCESS') &&
+              (successAction as EnqueueableAction).payload.jobId ===
+                action.payload.id,
           ),
           take(1),
           map(successAction => actions._jobDidSucceed(action.payload)),
@@ -131,8 +145,10 @@ export const jobProgressEpic: Epic<
         action$.pipe(
           filter(
             errorAction =>
-              errorAction.type === action.payload.action.type.replace('__REQUEST', '__FAILURE') &&
-              (errorAction as EnqueueableAction).payload.jobId === action.payload.id
+              errorAction.type ===
+                action.payload.action.type.replace('__REQUEST', '__FAILURE') &&
+              (errorAction as EnqueueableAction).payload.jobId ===
+                action.payload.id,
           ),
           take(1),
           map(errorAction => actions._jobDidFail(action.payload)),

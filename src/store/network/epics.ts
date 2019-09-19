@@ -39,7 +39,12 @@ export const uploadEpic: Epic<
           }),
         ),
         catchError(error =>
-          of(actions.upload.failure({ jobId: action.payload.jobId, data: { error, resource: action.payload.data }})),
+          of(
+            actions.upload.failure({
+              jobId: action.payload.jobId,
+              data: { error, resource: action.payload.data },
+            }),
+          ),
         ),
         takeUntil(
           action$.pipe(

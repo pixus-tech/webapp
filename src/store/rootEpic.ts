@@ -5,22 +5,14 @@ import {
   fetchAlbumTreeEpic,
   setParentAlbumEpic,
 } from './albums/epics'
+import { readFileEpic } from './files/epics'
 import {
-  readFileEpic,
-} from './files/epics'
-import {
-  addImageFileToAlbumEpic,
-  addImageFilesToAlbumEpic,
-  createImageRecordEpic,
   getAlbumImagesEpic,
-  processImageEpic,
-  triggerImageFileReadEpic,
-  triggerUploadImageDataEpic,
-  uploadImageDataEpic,
+  uploadImageToAlbumEpic,
+  uploadImagesToAlbumEpic,
+  saveImageEpic,
 } from './images/epics'
-import {
-  uploadEpic,
-} from './network/epics'
+import { uploadEpic } from './network/epics'
 import {
   dequeueJobEpic,
   jobProgressEpic,
@@ -34,24 +26,20 @@ import {
 
 const rootEpic = combineEpics(
   addAlbumEpic,
-  addImageFileToAlbumEpic,
-  addImageFilesToAlbumEpic,
-  createImageRecordEpic,
   dequeueJobEpic,
   fetchAlbumTreeEpic,
   getAlbumImagesEpic,
   jobProgressEpic,
   performJobEpic,
-  processImageEpic,
   queueWorkerEpic,
   readFileEpic,
+  saveImageEpic,
   setParentAlbumEpic,
   subscribeWebSocketEpic,
-  triggerImageFileReadEpic,
-  triggerUploadImageDataEpic,
   unsubscribeWebSocketEpic,
   uploadEpic,
-  uploadImageDataEpic,
+  uploadImageToAlbumEpic,
+  uploadImagesToAlbumEpic,
 )
 
 export default rootEpic

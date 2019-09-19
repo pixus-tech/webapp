@@ -21,7 +21,7 @@ export interface ImageMetaData {
 }
 
 export default interface Image extends BaseModel {
-  albumIds: string[],
+  albumIds: string[]
   height: number
   name: string
   previewColors: PreviewColors
