@@ -9,7 +9,7 @@ import {
   WithStyles,
 } from '@material-ui/core/styles'
 
-import LazyImage from './LazyImage'
+import LazyImage from 'connected-components/LazyImage'
 import Image from 'models/image'
 import { IMAGE_GRID_GUTTER_SIZE } from 'constants/index'
 
@@ -35,8 +35,13 @@ class ImageGrid extends React.PureComponent<ComposedProps> {
   renderCell: GridCellRenderer = ({ columnIndex, key, rowIndex, style }) => {
     const { columnCount, classes, images } = this.props
 
-    const index = columnIndex * columnCount + rowIndex
-    const image = images[index % images.length]
+    const index = columnIndex + rowIndex * columnCount
+
+    if (index >= images.length) {
+      return null
+    }
+
+    const image = images[index]
 
     return (
       <div className={classes.cell} key={key} style={style}>

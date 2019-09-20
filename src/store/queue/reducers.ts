@@ -72,7 +72,7 @@ function setQueueState<
   T extends QueueStoreTypes,
   StateMap extends Map<QueueKeys, QueueStoreTypes> = Map<QueueKeys, T>
 >() {
-  return (cb: (queueData: T, job: Job) => T) => {
+  return (cb: (queueData: T, payload: Job) => T) => {
     return (state: StateMap, action: JobActionType) => {
       const queueData = state.get(action.payload.queue)! as T
       return state.set(action.payload.queue, cb(queueData, action.payload))
@@ -96,6 +96,7 @@ const jobs = createReducer(initialState.jobs)
     actions._jobDidSucceed,
     setJobsQueue((queueData, job) => queueData.delete(job.id)),
   )
+  // TODO: clear queue on cancel action (derive job id from group id)
 
 const limits = createReducer(initialState.limits)
 
@@ -111,6 +112,7 @@ const queues = createReducer(initialState.queues)
       queueData.filterNot(id => id === job.id),
     ),
   )
+  // TODO: clear queue on cancel action (derive job id from group id)
 
 const setRunningJobsQueue = setQueueState<List<JobId>>()
 const runningJobs = createReducer(initialState.runningJobs)
@@ -124,6 +126,7 @@ const runningJobs = createReducer(initialState.runningJobs)
       queueData.filterNot(id => id === job.id),
     ),
   )
+  // TODO: clear queue on cancel action (derive job id from group id)
 
 export default combineReducers({
   isRunning,

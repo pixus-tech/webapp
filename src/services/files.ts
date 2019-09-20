@@ -19,6 +19,20 @@ export function upload(path: string, payload: ArrayBuffer | string) {
   })
 }
 
+export function download(path: string) {
+  return new Observable<ArrayBuffer | string>(subscriber => {
+    userSession
+      .getFile(path)
+      .then(data => {
+        subscriber.next(data)
+        subscriber.complete()
+      })
+      .catch(error => {
+        subscriber.error(error)
+      })
+  })
+}
+
 export function read(fileHandle: FileHandle) {
   return new Observable<FileHandleWithData>(subscriber => {
     fileReader

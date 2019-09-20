@@ -242,7 +242,6 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
         <div className={classes.autosizeContainer}>
           <AutoSizer>
             {({ height, width }) => {
-              console.log('autosizer did change bounds', height, width)
               if (height === 0 || width === 0) {
                 return null
               }

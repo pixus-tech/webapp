@@ -4,7 +4,7 @@ import { IMAGE_PREVIEW_SIZE } from 'constants/index'
 import Album from 'models/album'
 import Image, { ImageMetaData, parseImageRecords } from 'models/image'
 import { Uint8BitColor } from 'utils/colors'
-import ImageRecord, { ImageRecordFactory } from 'db/image'
+import ImageRecord from 'db/image'
 
 export const getAlbumImages = (album: Album) => {
   return new Observable<Image[]>(subscriber => {
@@ -90,21 +90,5 @@ export function processImage(imageObjectURL: string) {
     }
 
     img.src = imageObjectURL
-  })
-}
-
-export const saveImage = (image: Image) => {
-  const imageRecord = ImageRecordFactory.build(image)
-
-  return new Observable<ImageRecord>(subscriber => {
-    imageRecord
-      .save()
-      .then(() => {
-        subscriber.next(imageRecord)
-        subscriber.complete()
-      })
-      .catch((error: string) => {
-        subscriber.error(error)
-      })
   })
 }

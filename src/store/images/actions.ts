@@ -3,11 +3,6 @@ import { createAsyncAction, createStandardAction } from 'typesafe-actions'
 import Album from 'models/album'
 import { FileHandle, FileHandleWithData } from 'models/fileHandle'
 import Image, { ImageMetaData } from 'models/image'
-import {
-  CancelJobPayload,
-  createEnqueueableAction,
-  QueuePayload,
-} from 'utils/queue'
 
 export const getAlbumImages = createAsyncAction(
   'IMAGES__LIST_REQUEST',
@@ -52,16 +47,26 @@ export const uploadImageToAlbum = createAsyncAction(
   string
 >()
 
-export const saveImage = createEnqueueableAction(
+export const saveImage = createAsyncAction(
   'IMAGES__SAVE_IMAGE__REQUEST',
   'IMAGES__SAVE_IMAGE__SUCCESS',
   'IMAGES__SAVE_IMAGE__FAILURE',
   'IMAGES__SAVE_IMAGE__CANCEL',
+)<Image, Image, API.ErrorResponse<Image>, string>()
+
+export const downloadPreviewImage = createAsyncAction(
+  'IMAGES__DOWNLOAD_PREVIEW_IMAGE__REQUEST',
+  'IMAGES__DOWNLOAD_PREVIEW_IMAGE__SUCCESS',
+  'IMAGES__DOWNLOAD_PREVIEW_IMAGE__FAILURE',
+  'IMAGES__DOWNLOAD_PREVIEW_IMAGE__CANCEL',
 )<
-  QueuePayload<Image>,
-  QueuePayload<Image>,
-  QueuePayload<API.ErrorResponse<Image>>,
-  CancelJobPayload
+  Image,
+  {
+    image: Image
+    fileContent: ArrayBuffer | string
+  },
+  API.ErrorResponse<Image>,
+  Image
 >()
 
 // private actions
@@ -71,18 +76,38 @@ const _processImage = createStandardAction('IMAGES__PROCESS_IMAGE')<{
   fileHandle: FileHandleWithData
 }>()
 
-const _uploadImageData = createStandardAction('IMAGES__UPLOAD_DATA')<{
-  album: Album
-  fileHandle: FileHandleWithData
-  imageMetaData: ImageMetaData
-}>()
+const _uploadImageData = createAsyncAction(
+  'IMAGES__UPLOAD_DATA__REQUEST',
+  'IMAGES__UPLOAD_DATA__SUCCESS',
+  'IMAGES__UPLOAD_DATA__FAILURE',
+  'IMAGES__UPLOAD_DATA__CANCEL',
+)<
+  {
+    album: Album
+    fileHandle: FileHandleWithData
+    imageMetaData: ImageMetaData
+  },
+  undefined,
+  undefined,
+  string
+>()
 
-const _createImageRecord = createStandardAction('IMAGES__CREATE_IMAGE_RECORD')<{
-  album: Album
-  fileHandle: FileHandleWithData
-  imageMetaData: ImageMetaData
-  username: string
-}>()
+const _createImageRecord = createAsyncAction(
+  'IMAGES__CREATE_IMAGE_RECORD__REQUEST',
+  'IMAGES__CREATE_IMAGE_RECORD__SUCCESS',
+  'IMAGES__CREATE_IMAGE_RECORD__FAILURE',
+  'IMAGES__CREATE_IMAGE_RECORD__CANCEL',
+)<
+  {
+    album: Album
+    fileHandle: FileHandleWithData
+    imageMetaData: ImageMetaData
+    username: string
+  },
+  undefined,
+  undefined,
+  string
+>()
 
 export const privateActions = {
   _processImage,

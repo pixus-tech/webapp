@@ -1,11 +1,11 @@
 import _ from 'lodash'
 import uuid from 'uuid/v4'
 
-import { Model } from 'radiks'
+import BaseRecord from './index'
 import Image, { UnsavedImage } from 'models/image'
 import { encodeColors } from 'utils/colors'
 
-export default class ImageRecord extends Model {
+export default class ImageRecord extends BaseRecord {
   static className = 'Image'
   static schema = {
     albumIds: {

@@ -1,6 +1,6 @@
-import { Model } from 'radiks'
+import BaseRecord from './index'
 
-export default class AlbumRecord extends Model {
+export default class AlbumRecord extends BaseRecord {
   static className = 'Album'
   static schema = {
     index: Number,

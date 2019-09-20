@@ -22,6 +22,7 @@ export const readFileEpic: Epic<
       files.read(action.payload.data).pipe(
         map(fileHandleWithData =>
           actions.readFile.success({
+            groupId: action.payload.groupId,
             jobId: action.payload.jobId,
             data: fileHandleWithData,
           }),
@@ -29,6 +30,7 @@ export const readFileEpic: Epic<
         catchError(error =>
           of(
             actions.readFile.failure({
+              groupId: action.payload.groupId,
               jobId: action.payload.jobId,
               data: { error, resource: action.payload.data },
             }),
@@ -36,12 +38,12 @@ export const readFileEpic: Epic<
         ),
         takeUntil(
           action$.pipe(
-            filter(cancelAction => {
-              return (
-                isActionOf(actions.readFile.cancel)(cancelAction) &&
-                cancelAction.payload.jobId === action.payload.jobId
-              )
-            }),
+            filter(isActionOf(actions.readFile.cancel)),
+            filter(
+              cancelAction =>
+                cancelAction.payload.groupId === action.payload.groupId ||
+                cancelAction.payload.jobId === action.payload.jobId,
+            ),
           ),
         ),
       ),

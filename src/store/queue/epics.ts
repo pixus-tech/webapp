@@ -146,6 +146,17 @@ export const jobProgressEpic: Epic<RootAction, RootAction, RootState> = (
           ),
           take(1),
           map(errorAction => actions._jobDidFail(action.payload)),
+        ),
+        action$.pipe(
+          filter(
+            cancelAction =>
+              cancelAction.type ===
+                action.payload.action.type.replace('__REQUEST', '__CANCEL') &&
+              (cancelAction as EnqueueableAction).payload.jobId ===
+                action.payload.id,
+          ),
+          take(1),
+          map(errorAction => actions._jobDidFail(action.payload)),
         ), // TODO: Add job cancelling here?
       ),
     ),

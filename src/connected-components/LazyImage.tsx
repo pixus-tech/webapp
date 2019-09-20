@@ -2,7 +2,7 @@ import cx from 'classnames'
 import React from 'react'
 import { makeStyles, createStyles } from '@material-ui/core/styles'
 
-import ImagePreviewGradient from './ImagePreviewGradient'
+import ImagePreviewGradient from 'components/ImagePreviewGradient'
 import Image, { imagePreviewUploadPath } from 'models/image'
 import { loadFile } from 'utils/blockstack'
 

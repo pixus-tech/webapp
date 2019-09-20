@@ -11,7 +11,12 @@ import {
 import uuid from 'uuid/v4'
 
 import * as actions from './actions'
+import { ImageRecordFactory } from 'db/image'
 import { FileHandle } from 'models/fileHandle'
+import { imagePreviewUploadPath } from 'models/image'
+import { download, saveRecord } from 'store/network/actions'
+import { Queue } from 'store/queue/types'
+import { listenToActionStream } from 'utils/queue'
 
 export { uploadImageToAlbumEpic } from './uploadImageToAlbum.epic'
 
@@ -67,40 +72,56 @@ export const uploadImagesToAlbumEpic: Epic<
     }),
   )
 
-export const saveImageEpic: Epic<
+export const saveImageEpic: Epic<RootAction, RootAction, RootState> = (
+  action$,
+  state$,
+) =>
+  listenToActionStream(action$)
+    .andPerformAction(actions.saveImage)
+    .byAsynchronouslyExecuting(saveRecord)
+    .withGroupId(requestData => `${requestData._id}-saveImage`)
+    .andJobs(requestData => [
+      {
+        queue: Queue.RecordOperation,
+        payload: ImageRecordFactory.build(requestData),
+      },
+    ])
+    .andResultCallbacks({
+      success: (request, success) => [actions.saveImage.success(request)],
+      error: (request, error) => [
+        actions.saveImage.failure({
+          error: Error('Image could not be saved'),
+          resource: request,
+        }),
+      ],
+    })
+
+export const downloadPreviewImageEpic: Epic<
   RootAction,
   RootAction,
-  RootState,
-  Pick<RootService, 'images'>
-> = (action$, state$, { images }) =>
-  action$.pipe(
-    filter(isActionOf(actions.saveImage.request)),
-    mergeMap(action =>
-      images.saveImage(action.payload.data).pipe(
-        map(imageRecord =>
-          actions.saveImage.success({
-            jobId: action.payload.jobId,
-            data: action.payload.data,
-          }),
-        ),
-        catchError(error =>
-          of(
-            actions.saveImage.failure({
-              jobId: action.payload.jobId,
-              data: { error, resource: action.payload.data },
-            }),
-          ),
-        ),
-        takeUntil(
-          action$.pipe(
-            filter(cancelAction => {
-              return (
-                isActionOf(actions.saveImage.cancel)(cancelAction) &&
-                cancelAction.payload.jobId === action.payload.jobId
-              )
-            }),
-          ),
-        ),
-      ),
-    ),
-  )
+  RootState
+> = (action$, state$) =>
+  listenToActionStream(action$)
+    .andPerformAction(actions.downloadPreviewImage)
+    .byAsynchronouslyExecuting(download)
+    .withGroupId(requestData => `${requestData._id}-downloadPreviewImage`)
+    .andJobs(requestData => [
+      {
+        queue: Queue.Download,
+        payload: imagePreviewUploadPath(requestData._id),
+      },
+    ])
+    .andResultCallbacks({
+      success: (request, success) => [
+        actions.downloadPreviewImage.success({
+          image: request,
+          fileContent: success.fileContent,
+        }),
+      ],
+      error: (request, error) => [
+        actions.downloadPreviewImage.failure({
+          error: Error('Image could not be downloaded'),
+          resource: request,
+        }),
+      ],
+    })

@@ -7,9 +7,8 @@ import * as networkActions from './network/actions'
 import * as queueActions from './queue/actions'
 import * as webSocketActions from './webSocket/actions'
 
-import { saveImage } from './images/actions'
 import { readFile } from './files/actions'
-import { upload } from './network/actions'
+import { download, upload, saveRecord } from './network/actions'
 
 const rootAction = {
   ...albumsActions,
@@ -23,8 +22,9 @@ const rootAction = {
 }
 
 export const enqueueableActions = {
+  download,
   readFile,
-  saveImage,
+  saveRecord,
   upload,
 }
 

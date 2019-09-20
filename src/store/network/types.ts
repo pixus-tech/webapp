@@ -7,3 +7,8 @@ export interface UploadData {
 export interface UploadSuccessData extends UploadData {
   uploader: string
 }
+
+export interface DownloadData {
+  path: string
+  fileContent: ArrayBuffer | string
+}

@@ -7,12 +7,13 @@ import {
 } from './albums/epics'
 import { readFileEpic } from './files/epics'
 import {
+  downloadPreviewImageEpic,
   getAlbumImagesEpic,
   uploadImageToAlbumEpic,
   uploadImagesToAlbumEpic,
   saveImageEpic,
 } from './images/epics'
-import { uploadEpic } from './network/epics'
+import { downloadEpic, uploadEpic, saveRecordEpic } from './network/epics'
 import {
   dequeueJobEpic,
   jobProgressEpic,
@@ -27,6 +28,8 @@ import {
 const rootEpic = combineEpics(
   addAlbumEpic,
   dequeueJobEpic,
+  downloadPreviewImageEpic,
+  downloadEpic,
   fetchAlbumTreeEpic,
   getAlbumImagesEpic,
   jobProgressEpic,
@@ -34,6 +37,7 @@ const rootEpic = combineEpics(
   queueWorkerEpic,
   readFileEpic,
   saveImageEpic,
+  saveRecordEpic,
   setParentAlbumEpic,
   subscribeWebSocketEpic,
   unsubscribeWebSocketEpic,
