@@ -82,24 +82,50 @@ export const dequeueJobEpic: Epic<RootAction, RootAction, RootState> = (
       const performActions: RootAction[] = []
       const queue = state.queue.queues.get(action.payload)
       const queueLimit = state.queue.limits.get(action.payload)
-      const runningJobs = state.queue.runningJobs.get(action.payload)
-      const jobs = state.queue.jobs.get(action.payload)
+      const runningJobsCount = state.queue.runningJobCounts.get(action.payload)
 
       if (
-        runningJobs !== undefined &&
         queueLimit !== undefined &&
         queue !== undefined &&
-        jobs !== undefined &&
-        runningJobs.size < queueLimit
+        runningJobsCount !== undefined &&
+        runningJobsCount < queueLimit
       ) {
         queue
-          .slice(0, queueLimit - runningJobs.size)
+          .slice(0, queueLimit - runningJobsCount)
           .forEach((jobId: string) => {
-            const job = jobs.get(jobId)
+            const job = state.queue.jobs.get(jobId)
             if (job !== undefined) {
               performActions.push(actions._performJob(job))
             }
           })
+      }
+
+      return of(...performActions)
+    }),
+  )
+
+export const cancelJobGroupEpic: Epic<RootAction, RootAction, RootState> = (
+  action$,
+  state$,
+) =>
+  action$.pipe(
+    filter(isActionOf(actions._cancelJobGroup)),
+    withLatestFrom(state$),
+    mergeMap(([action, state]) => {
+      const groupId = action.payload
+      const performActions: RootAction[] = []
+      const jobIdsToCancel = state.queue.jobGroups.get(groupId)
+
+      if (jobIdsToCancel !== undefined) {
+        jobIdsToCancel.forEach(jobId => {
+          const job = state.queue.jobs.get(jobId)
+          const isRunning = state.queue.runningJobsMap.get(jobId) || false
+          if (job !== undefined) {
+            performActions.push(
+              actions._cancelJob({ jobId, queue: job.queue, isRunning }),
+            )
+          }
+        })
       }
 
       return of(...performActions)

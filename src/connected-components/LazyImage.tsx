@@ -1,16 +1,22 @@
 import cx from 'classnames'
 import React from 'react'
-import { makeStyles, createStyles } from '@material-ui/core/styles'
+import { connect } from 'react-redux'
+import compose from 'recompose/compose'
+import { Dispatch } from 'redux'
+import { RootAction, RootState } from 'typesafe-actions'
+import {
+  createStyles,
+  Theme,
+  withStyles,
+  WithStyles,
+} from '@material-ui/core/styles'
 
 import ImagePreviewGradient from 'components/ImagePreviewGradient'
 import Image, { imagePreviewUploadPath } from 'models/image'
+import { downloadPreviewImage } from 'store/images/actions'
 import { loadFile } from 'utils/blockstack'
 
-export interface IProps {
-  image: Image
-}
-
-const useStyles = makeStyles(
+const styles = (_theme: Theme) =>
   createStyles({
     container: {
       height: '100%',
@@ -40,50 +46,122 @@ const useStyles = makeStyles(
     gradientHidden: {
       opacity: 0,
     },
-  }),
-)
+  })
 
-function LazyImage({ image }: IProps) {
-  const classes = useStyles()
-  const [imageObject, setImageObject] = React.useState<string | undefined>(
-    undefined,
-  )
-  const [isImageLoaded, setIsImageLoaded] = React.useState<boolean>(false)
-
-  if (imageObject === undefined) {
-    setTimeout(() => {
-      loadFile(imagePreviewUploadPath(image._id), image.type)
-        .then(objectURL => {
-          setImageObject(objectURL)
-        })
-        .catch((error: Error) => console.error('TODO: Error handling'))
-    })
-  }
-
-  const imageStyles = {
-    opacity: isImageLoaded ? 1 : 0,
-  }
-
-  return (
-    <div className={classes.container}>
-      {imageObject !== undefined && (
-        <img
-          alt={image.name}
-          className={classes.image}
-          onLoad={() => setIsImageLoaded(true)}
-          src={imageObject}
-          style={imageStyles}
-        />
-      )}
-
-      <ImagePreviewGradient
-        colors={image.previewColors}
-        className={cx(classes.gradient, {
-          [classes.gradientHidden]: isImageLoaded,
-        })}
-      />
-    </div>
-  )
+export interface IProps {
+  image: Image
+  isVisible: boolean
 }
 
-export default LazyImage
+interface IDispatchProps {
+  requestDownloadPreviewImage: () => void
+  cancelDownloadPreviewImage: () => void
+}
+
+interface IStateProps {
+  imageObjectURL?: string
+  isPreviewLoading?: boolean
+}
+
+type ComposedProps = IProps &
+  IDispatchProps &
+  IStateProps &
+  WithStyles<typeof styles>
+
+class LazyImage extends React.PureComponent<ComposedProps> {
+  componentDidMount() {
+    const {
+      imageObjectURL,
+      isPreviewLoading,
+      isVisible,
+      requestDownloadPreviewImage,
+    } = this.props
+    if (isVisible && !isPreviewLoading && imageObjectURL === undefined) {
+      requestDownloadPreviewImage()
+    }
+  }
+
+  componentDidUpdate(prevProps: ComposedProps) {
+    const {
+      image,
+      imageObjectURL,
+      isPreviewLoading,
+      isVisible,
+      requestDownloadPreviewImage,
+    } = this.props
+    if (
+      isVisible &&
+      (prevProps.isVisible !== isVisible ||
+        prevProps.image._id !== image._id) &&
+      !isPreviewLoading &&
+      imageObjectURL === undefined
+    ) {
+      requestDownloadPreviewImage()
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.isPreviewLoading === true) {
+      this.props.cancelDownloadPreviewImage()
+    }
+  }
+
+  render() {
+    const { classes, image, imageObjectURL } = this.props
+
+    const isImageLoaded = imageObjectURL !== undefined
+
+    const imageStyles = {
+      opacity: isImageLoaded ? 1 : 0,
+    }
+
+    return (
+      <div className={classes.container}>
+        {isImageLoaded && (
+          <img
+            alt={image.name}
+            className={classes.image}
+            src={imageObjectURL}
+            style={imageStyles}
+          />
+        )}
+
+        <ImagePreviewGradient
+          colors={image.previewColors}
+          className={cx(classes.gradient, {
+            [classes.gradientHidden]: isImageLoaded,
+          })}
+        />
+      </div>
+    )
+  }
+}
+
+function mapStateToProps(state: RootState, props: ComposedProps): IStateProps {
+  return {
+    imageObjectURL: state.images.previewImageObjectURLMap.get(props.image._id),
+    isPreviewLoading: !!state.images.previewImageIsLoadingMap.get(
+      props.image._id,
+    ),
+  }
+}
+
+function mapDispatchToProps(
+  dispatch: Dispatch<RootAction>,
+  props: ComposedProps,
+): IDispatchProps {
+  return {
+    cancelDownloadPreviewImage: () =>
+      dispatch(downloadPreviewImage.cancel(props.image)),
+    requestDownloadPreviewImage: () =>
+      dispatch(downloadPreviewImage.request(props.image)),
+  }
+}
+
+export default compose<ComposedProps, IProps>(
+  connect<IStateProps, IDispatchProps, ComposedProps, RootState>(
+    mapStateToProps,
+    mapDispatchToProps,
+  ),
+  withStyles(styles),
+)(LazyImage)

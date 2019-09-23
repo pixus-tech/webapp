@@ -29,6 +29,7 @@ export const addAlbum = (name: string) => {
 
   return from(albumRecord.save()).pipe(
     map(response => {
+      console.log('Is the error here?', parseAlbumRecord(albumRecord))
       return { resource: parseAlbumRecord(albumRecord) }
     }),
   )

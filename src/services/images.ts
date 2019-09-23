@@ -70,22 +70,38 @@ export function processImage(imageObjectURL: string) {
         const tl = ctx.getImageData(0, 0, 1, 1).data
         const tr = ctx.getImageData(previewBounds.width - 1, 0, 1, 1).data
 
-        const previewDataURL = canvas.toDataURL('image/jpeg', 0.9)
-
-        const imageMetaData: ImageMetaData = {
-          height: img.height,
-          previewColors: {
-            bl: Array.from(bl).slice(0, 3) as Uint8BitColor,
-            br: Array.from(br).slice(0, 3) as Uint8BitColor,
-            c: Array.from(c).slice(0, 3) as Uint8BitColor,
-            tl: Array.from(tl).slice(0, 3) as Uint8BitColor,
-            tr: Array.from(tr).slice(0, 3) as Uint8BitColor,
+        canvas.toBlob(
+          blob => {
+            if (blob === null) {
+              subscriber.error('Could not get image blob from canvas.')
+            } else {
+              const response = new Response(blob)
+              response
+                .arrayBuffer()
+                .then(previewImageData => {
+                  const imageMetaData: ImageMetaData = {
+                    height: img.height,
+                    previewColors: {
+                      bl: Array.from(bl).slice(0, 3) as Uint8BitColor,
+                      br: Array.from(br).slice(0, 3) as Uint8BitColor,
+                      c: Array.from(c).slice(0, 3) as Uint8BitColor,
+                      tl: Array.from(tl).slice(0, 3) as Uint8BitColor,
+                      tr: Array.from(tr).slice(0, 3) as Uint8BitColor,
+                    },
+                    previewImageData,
+                    width: img.width,
+                  }
+                  subscriber.next(imageMetaData)
+                  subscriber.complete()
+                })
+                .catch(error =>
+                  subscriber.error('Could not get image blob from canvas.'),
+                )
+            }
           },
-          previewObjectURL: previewDataURL,
-          width: img.width,
-        }
-        subscriber.next(imageMetaData)
-        subscriber.complete()
+          'image/jpeg',
+          0.9,
+        )
       }
     }
 

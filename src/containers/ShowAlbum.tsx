@@ -104,7 +104,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
     super(props)
 
     this.state = {
-      numberOfImageColumns: 6,
+      numberOfImageColumns: 2,
     }
   }
 

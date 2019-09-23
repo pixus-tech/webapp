@@ -15,6 +15,7 @@ import {
 } from './images/epics'
 import { downloadEpic, uploadEpic, saveRecordEpic } from './network/epics'
 import {
+  cancelJobGroupEpic,
   dequeueJobEpic,
   jobProgressEpic,
   performJobEpic,
@@ -27,6 +28,7 @@ import {
 
 const rootEpic = combineEpics(
   addAlbumEpic,
+  cancelJobGroupEpic,
   dequeueJobEpic,
   downloadPreviewImageEpic,
   downloadEpic,

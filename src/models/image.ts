@@ -15,7 +15,7 @@ export interface PreviewColors {
 export interface ImageMetaData {
   height: number
   previewColors: PreviewColors
-  previewObjectURL: string
+  previewImageData: ArrayBuffer
   width: number
 }
 

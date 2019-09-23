@@ -179,18 +179,15 @@ export function listenToActionStream(action$: ActionsObservable<RootAction>) {
                                 filter(isActionOf(actionCreator.cancel)),
                                 filter(
                                   cancelAction =>
-                                    _.get(cancelAction, 'payload') === groupId,
+                                    groupIdCreator(
+                                      _.get(cancelAction, 'payload'),
+                                    ) === groupId,
                                 ),
                                 take(1),
                                 mergeMap(cancelAction => {
-                                  const cancelId: string | undefined = _.get(
-                                    cancelAction,
-                                    'payload',
-                                    undefined,
-                                  )
                                   const cancelJobPayload = {
-                                    groupId: cancelId,
-                                    jobId: cancelId,
+                                    groupId,
+                                    jobId: undefined,
                                   } as QP4
                                   const cancelActions: RootAction[] = [
                                     (enqueueableActionCreator.cancel as PayloadAC<
@@ -207,6 +204,8 @@ export function listenToActionStream(action$: ActionsObservable<RootAction>) {
                                       ),
                                     )
                                   }
+
+                                  cancelActions.push(_cancelJobGroup(groupId))
 
                                   return of(...cancelActions)
                                 }),

@@ -125,7 +125,7 @@ export const _2_uploadImageData: Epic<RootAction, RootAction, RootState> = (
           payload: {
             id: imageId,
             path: imagePreviewUploadPath(imageId),
-            payload: requestData.imageMetaData.previewObjectURL,
+            payload: requestData.imageMetaData.previewImageData,
           },
         },
       ]

@@ -32,7 +32,13 @@ interface IProps {
 type ComposedProps = IProps & WithStyles<typeof styles>
 
 class ImageGrid extends React.PureComponent<ComposedProps> {
-  renderCell: GridCellRenderer = ({ columnIndex, key, rowIndex, style }) => {
+  renderCell: GridCellRenderer = ({
+    columnIndex,
+    isVisible,
+    key,
+    rowIndex,
+    style,
+  }) => {
     const { columnCount, classes, images } = this.props
 
     const index = columnIndex + rowIndex * columnCount
@@ -45,7 +51,7 @@ class ImageGrid extends React.PureComponent<ComposedProps> {
 
     return (
       <div className={classes.cell} key={key} style={style}>
-        <LazyImage image={image} />
+        <LazyImage image={image} isVisible={isVisible} />
       </div>
     )
   }
