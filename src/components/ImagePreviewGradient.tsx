@@ -15,14 +15,13 @@ const useStyles = makeStyles(
       height: '100%',
       position: 'relative',
       width: '100%',
-      filter: 'blur(8px)',
     },
     gradient: {
-      height: '110%',
+      height: '100%',
       position: 'absolute',
-      width: '110%',
-      top: '-5%',
-      left: '-5%',
+      width: '100%',
+      top: 0,
+      left: 0,
     },
   }),
 )
