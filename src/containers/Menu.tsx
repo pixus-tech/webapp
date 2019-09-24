@@ -202,7 +202,7 @@ function mapStateToProps(state: RootState) {
   // TODO use `IStateProps` as a return type...
   return {
     albums: state.albums.map,
-    albumCount: state.albums.count,
+    albumCount: state.albums.map.size,
   }
 }
 

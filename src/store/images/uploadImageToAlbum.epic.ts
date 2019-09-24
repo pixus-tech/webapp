@@ -14,6 +14,7 @@ import { privateActions } from './actions'
 import { upload, saveRecord } from 'store/network/actions'
 import { readFile } from 'store/files/actions'
 
+import { FileHandle } from 'models/fileHandle'
 import {
   imagePreviewUploadPath,
   imageUploadPath,
@@ -23,14 +24,16 @@ import { ImageRecordFactory } from 'db/image'
 import { Queue } from 'store/queue/types'
 import { cancelJobGroup, listenToActionStream } from 'utils/queue'
 
-function groupId(id: string) {
-  return `${id}-uploadImageToAlbum`
+function groupId(fileHandle: FileHandle) {
+  return `${fileHandle._id}-uploadImageToAlbum`
 }
 
 const _cancelJob: Epic<RootAction, RootAction, RootState> = (action$, state$) =>
   action$.pipe(
     filter(isActionOf(actions.uploadImageToAlbum.cancel)),
-    map(cancelAction => cancelJobGroup(cancelAction.payload)),
+    map(cancelAction =>
+      cancelJobGroup(groupId(cancelAction.payload.fileHandle)),
+    ),
   )
 
 export const _0_requestReadImageFile: Epic<
@@ -41,7 +44,7 @@ export const _0_requestReadImageFile: Epic<
   listenToActionStream(action$)
     .andPerformAction(actions.uploadImageToAlbum)
     .byAsynchronouslyExecuting(readFile)
-    .withGroupId(requestData => groupId(requestData.fileHandle._id))
+    .withGroupId(requestData => groupId(requestData.fileHandle))
     .andJobs(requestData => [
       {
         queue: Queue.ReadFile,
@@ -93,7 +96,8 @@ const _1_processImage: Epic<
             filter(isActionOf(actions.uploadImageToAlbum.cancel)),
             filter(
               cancelAction =>
-                cancelAction.payload === groupId(action.payload.fileHandle._id),
+                groupId(cancelAction.payload.fileHandle) ===
+                groupId(action.payload.fileHandle),
             ),
           ),
         ),
@@ -108,7 +112,7 @@ export const _2_uploadImageData: Epic<RootAction, RootAction, RootState> = (
   listenToActionStream(action$)
     .andPerformAction(privateActions._uploadImageData)
     .byAsynchronouslyExecuting(upload)
-    .withGroupId(requestData => groupId(requestData.fileHandle._id))
+    .withGroupId(requestData => groupId(requestData.fileHandle))
     .andJobs(requestData => {
       const imageId = requestData.fileHandle._id
       return [
@@ -144,7 +148,7 @@ export const _2_uploadImageData: Epic<RootAction, RootAction, RootState> = (
           error: error.error,
           resource: request,
         }),
-        upload.cancel({ groupId: groupId(request.fileHandle._id) }),
+        upload.cancel({ groupId: groupId(request.fileHandle) }),
       ],
     })
 
@@ -155,7 +159,7 @@ export const _3_persistImageRecord: Epic<RootAction, RootAction, RootState> = (
   listenToActionStream(action$)
     .andPerformAction(privateActions._createImageRecord)
     .byAsynchronouslyExecuting(saveRecord)
-    .withGroupId(requestData => groupId(requestData.fileHandle._id))
+    .withGroupId(requestData => groupId(requestData.fileHandle))
     .andJobs(requestData => [
       {
         queue: Queue.RecordOperation,

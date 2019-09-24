@@ -22,6 +22,13 @@ export const addAlbum = createAsyncAction(
   'ALBUMS__ADD_CANCEL',
 )<string, API.PutResponse<Album>, API.ErrorResponse<string>, undefined>()
 
+export const saveAlbum = createAsyncAction(
+  'ALBUMS__SAVE_ALBUM__REQUEST',
+  'ALBUMS__SAVE_ALBUM__SUCCESS',
+  'ALBUMS__SAVE_ALBUM__FAILURE',
+  'ALBUMS__SAVE_ALBUM__CANCEL',
+)<Album, Album, API.ErrorResponse<Album>, Album>()
+
 interface SetParentAlbumRequestSchema {
   album: Album
   parentAlbum: Album

@@ -44,7 +44,10 @@ export const uploadImageToAlbum = createAsyncAction(
     album: Album
     fileHandle: FileHandle
   }>,
-  string
+  {
+    album: Album
+    fileHandle: FileHandle
+  }
 >()
 
 export const saveImage = createAsyncAction(
@@ -52,7 +55,7 @@ export const saveImage = createAsyncAction(
   'IMAGES__SAVE_IMAGE__SUCCESS',
   'IMAGES__SAVE_IMAGE__FAILURE',
   'IMAGES__SAVE_IMAGE__CANCEL',
-)<Image, Image, API.ErrorResponse<Image>, string>()
+)<Image, Image, API.ErrorResponse<Image>, Image>()
 
 export const downloadPreviewImage = createAsyncAction(
   'IMAGES__DOWNLOAD_PREVIEW_IMAGE__REQUEST',
@@ -76,38 +79,32 @@ const _processImage = createStandardAction('IMAGES__PROCESS_IMAGE')<{
   fileHandle: FileHandleWithData
 }>()
 
+interface UploadImageDataRequest {
+  album: Album
+  fileHandle: FileHandleWithData
+  imageMetaData: ImageMetaData
+}
+
 const _uploadImageData = createAsyncAction(
   'IMAGES__UPLOAD_DATA__REQUEST',
   'IMAGES__UPLOAD_DATA__SUCCESS',
   'IMAGES__UPLOAD_DATA__FAILURE',
   'IMAGES__UPLOAD_DATA__CANCEL',
-)<
-  {
-    album: Album
-    fileHandle: FileHandleWithData
-    imageMetaData: ImageMetaData
-  },
-  undefined,
-  undefined,
-  string
->()
+)<UploadImageDataRequest, undefined, undefined, UploadImageDataRequest>()
+
+interface CreateImageRecordRequest {
+  album: Album
+  fileHandle: FileHandleWithData
+  imageMetaData: ImageMetaData
+  username: string
+}
 
 const _createImageRecord = createAsyncAction(
   'IMAGES__CREATE_IMAGE_RECORD__REQUEST',
   'IMAGES__CREATE_IMAGE_RECORD__SUCCESS',
   'IMAGES__CREATE_IMAGE_RECORD__FAILURE',
   'IMAGES__CREATE_IMAGE_RECORD__CANCEL',
-)<
-  {
-    album: Album
-    fileHandle: FileHandleWithData
-    imageMetaData: ImageMetaData
-    username: string
-  },
-  undefined,
-  undefined,
-  string
->()
+)<CreateImageRecordRequest, undefined, undefined, CreateImageRecordRequest>()
 
 export const privateActions = {
   _processImage,

@@ -73,14 +73,13 @@ export function listenToActionStream(action$: ActionsObservable<RootAction>) {
       AT4 extends TypeConstant,
       AP1,
       AP2,
-      AP3,
-      AP4
+      AP3
     >(
       actionCreator: AsyncActionCreator<
         [AT1, AP1],
         [AT2, AP2],
         [AT3, AP3],
-        [AT4, AP4],
+        [AT4, AP1],
         AT1,
         AP1
       >,

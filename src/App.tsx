@@ -67,6 +67,7 @@ class App extends React.PureComponent<ComposedProps> {
                 render={_props => (
                   <AppLayout>
                     <Switch>
+                      <Route component={ShowAlbum} path={routes.albums} />
                       <Route
                         component={Albums}
                         exact
@@ -77,7 +78,6 @@ class App extends React.PureComponent<ComposedProps> {
                         exact
                         path={routes.albumsOverview}
                       />
-                      <Route component={ShowAlbum} exact path={routes.albums} />
                     </Switch>
                   </AppLayout>
                 )}

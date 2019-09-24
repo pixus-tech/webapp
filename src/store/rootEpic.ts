@@ -3,6 +3,7 @@ import { combineEpics } from 'redux-observable'
 import {
   addAlbumEpic,
   fetchAlbumTreeEpic,
+  saveAlbumEpic,
   setParentAlbumEpic,
 } from './albums/epics'
 import { readFileEpic } from './files/epics'
@@ -38,6 +39,7 @@ const rootEpic = combineEpics(
   performJobEpic,
   queueWorkerEpic,
   readFileEpic,
+  saveAlbumEpic,
   saveImageEpic,
   saveRecordEpic,
   setParentAlbumEpic,

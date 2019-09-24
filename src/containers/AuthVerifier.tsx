@@ -33,22 +33,24 @@ class AuthVerifier extends React.Component<ComposedProps> {
       //await GroupMembership.cacheKeys()
       await radiksUser.save()
 
-      this.redirectToApp(userSession.loadUserData())
+      this.setUserData(userSession.loadUserData(), { redirect: false })
     } else if (userSession.isSignInPending()) {
       const userData = await userSession.handlePendingSignIn()
       const radiksUser = await RadiksUser.createWithCurrentUser()
       //await GroupMembership.cacheKeys()
       await radiksUser.save()
 
-      this.redirectToApp(userData)
+      this.setUserData(userData, { redirect: true })
     }
   }
 
-  redirectToApp(userData: UserData) {
+  setUserData(userData: UserData, options: { redirect: boolean }) {
     const person = new Person(userData.profile)
     this.props.dispatchSetUser(person)
 
-    redirect(routes.applicationRoot)
+    if (options.redirect) {
+      redirect(routes.applicationRoot)
+    }
   }
 
   render() {

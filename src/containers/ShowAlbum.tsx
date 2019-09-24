@@ -15,11 +15,8 @@ import AppBar from '@material-ui/core/AppBar'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Grid from '@material-ui/core/Grid'
-import HelpIcon from '@material-ui/icons/Help'
-import IconButton from '@material-ui/core/IconButton'
 import Slider from '@material-ui/core/Slider'
 import Toolbar from '@material-ui/core/Toolbar'
-import Tooltip from '@material-ui/core/Tooltip'
 import Typography from '@material-ui/core/Typography'
 import PhotoSizeUp from '@material-ui/icons/PhotoSizeSelectLarge'
 import PhotoSizeDown from '@material-ui/icons/PhotoSizeSelectSmall'
@@ -30,9 +27,11 @@ import {
   WithStyles,
 } from '@material-ui/core/styles'
 
+import AlbumTitle from 'components/AlbumTitle'
 import ImageGrid from 'components/ImageGrid'
 import Album from 'models/album'
 import Image from 'models/image'
+import { saveAlbum } from 'store/albums/actions'
 import { getAlbumImages, uploadImagesToAlbum } from 'store/images/actions'
 import { albumImagesSelector } from 'store/images/selectors'
 import { ShowAlbumURLParameters } from 'utils/routes'
@@ -83,6 +82,7 @@ const styles = (theme: Theme) =>
 interface IDispatchProps {
   dispatchUploadImagesToAlbum: typeof uploadImagesToAlbum
   dispatchGetAlbumImages: typeof getAlbumImages.request
+  dispatchSaveAlbum: typeof saveAlbum.request
 }
 
 interface IStateProps {
@@ -146,7 +146,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
   }
 
   render() {
-    const { album, classes, images } = this.props
+    const { album, classes, dispatchSaveAlbum, images } = this.props
     const { numberOfImageColumns } = this.state
 
     if (!album) {
@@ -165,9 +165,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
           <Toolbar>
             <Grid container alignItems="center" spacing={1}>
               <Grid item xs>
-                <Typography color="inherit" variant="h5" component="h1">
-                  {album.name}
-                </Typography>
+                <AlbumTitle album={album} onSave={dispatchSaveAlbum} />
               </Grid>
               <Grid item>
                 <Button
@@ -176,15 +174,8 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
                   color="inherit"
                   size="small"
                 >
-                  Web setup
+                  Share
                 </Button>
-              </Grid>
-              <Grid item>
-                <Tooltip title="Help">
-                  <IconButton color="inherit">
-                    <HelpIcon />
-                  </IconButton>
-                </Tooltip>
               </Grid>
             </Grid>
           </Toolbar>
@@ -200,7 +191,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
             <Grid container alignItems="center" spacing={1}>
               <Grid item xs>
                 <Typography color="inherit" variant="body1" component="p">
-                  foo
+                  {images.length} Images
                 </Typography>
               </Grid>
               <Grid item>
@@ -279,6 +270,7 @@ function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
       dispatch(getAlbumImages.request(album)),
     dispatchUploadImagesToAlbum: albumImageFiles =>
       dispatch(uploadImagesToAlbum(albumImageFiles)),
+    dispatchSaveAlbum: album => dispatch(saveAlbum.request(album)),
   }
 }
 
