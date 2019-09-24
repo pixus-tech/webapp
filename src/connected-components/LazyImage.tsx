@@ -12,9 +12,8 @@ import {
 } from '@material-ui/core/styles'
 
 import ImagePreviewGradient from 'components/ImagePreviewGradient'
-import Image, { imagePreviewUploadPath } from 'models/image'
+import Image from 'models/image'
 import { downloadPreviewImage } from 'store/images/actions'
-import { loadFile } from 'utils/blockstack'
 
 const styles = (_theme: Theme) =>
   createStyles({

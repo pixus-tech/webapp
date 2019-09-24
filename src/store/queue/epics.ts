@@ -35,16 +35,6 @@ export const queueWorkerEpic: Epic<RootAction, RootAction, RootState> = (
             dequeueActions.push(actions._dequeueJob(Queue.Download))
           }
 
-          const libraryAdditionQueue = state.queue.queues.get(
-            Queue.LibraryAddition,
-          )
-          if (
-            libraryAdditionQueue !== undefined &&
-            libraryAdditionQueue.size > 0
-          ) {
-            dequeueActions.push(actions._dequeueJob(Queue.LibraryAddition))
-          }
-
           const readFileQueue = state.queue.queues.get(Queue.ReadFile)
           if (readFileQueue !== undefined && readFileQueue.size > 0) {
             dequeueActions.push(actions._dequeueJob(Queue.ReadFile))

@@ -8,7 +8,6 @@ import { Queue, QueueKeys, JobId, JobGroupId, Job } from './types'
 import {
   DEFAULT_CONCURRENT_DOWNLOADS_LIMIT,
   DEFAULT_CONCURRENT_FILE_READS_LIMIT,
-  DEFAULT_CONCURRENT_LIBRARY_ADDITIONS_LIMIT,
   DEFAULT_CONCURRENT_RECORD_OPERATIONS_LIMIT,
   DEFAULT_CONCURRENT_UPLOADS_LIMIT,
 } from 'constants/index'
@@ -20,21 +19,18 @@ export const initialState = {
   runningJobsMap: Map<JobId, boolean>(),
   limits: Map<QueueKeys, number>([
     [Queue.Download, DEFAULT_CONCURRENT_DOWNLOADS_LIMIT],
-    [Queue.LibraryAddition, DEFAULT_CONCURRENT_LIBRARY_ADDITIONS_LIMIT],
     [Queue.ReadFile, DEFAULT_CONCURRENT_FILE_READS_LIMIT],
     [Queue.RecordOperation, DEFAULT_CONCURRENT_RECORD_OPERATIONS_LIMIT],
     [Queue.Upload, DEFAULT_CONCURRENT_UPLOADS_LIMIT],
   ]),
   queues: Map<QueueKeys, List<JobId>>([
     [Queue.Download, List<JobId>()],
-    [Queue.LibraryAddition, List<JobId>()],
     [Queue.ReadFile, List<JobId>()],
     [Queue.RecordOperation, List<JobId>()],
     [Queue.Upload, List<JobId>()],
   ]),
   runningJobCounts: Map<QueueKeys, number>([
     [Queue.Download, 0],
-    [Queue.LibraryAddition, 0],
     [Queue.ReadFile, 0],
     [Queue.RecordOperation, 0],
     [Queue.Upload, 0],

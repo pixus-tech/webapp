@@ -2,7 +2,6 @@ import { EnqueueableAction } from 'typesafe-actions'
 
 export enum Queue {
   Download = 'Download',
-  LibraryAddition = 'LibraryAddition',
   ReadFile = 'ReadFile',
   RecordOperation = 'RecordOperation',
   Upload = 'Upload',
