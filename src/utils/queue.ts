@@ -13,7 +13,7 @@ import {
 } from 'typesafe-actions'
 import uuid from 'uuid/v4'
 
-import { _cancelJobGroup, _enqueueJob } from 'store/queue/actions'
+import { cancelJobGroup, _enqueueJob } from 'store/queue/actions'
 import { JobId, JobGroupId, Queue } from 'store/queue/types'
 
 export interface IdentifiableAction {
@@ -39,10 +39,6 @@ interface ResultActions<AP1, QP2, QP3> {
   success: (requestData: AP1, successData: QP2) => RootAction[]
   error: (requestData: AP1, errorData: QP3) => RootAction[]
   cancel?: (requestData: AP1, cancelData: CancelJobPayload) => RootAction[]
-}
-
-export function cancelJobGroup(groupId: JobGroupId) {
-  return _cancelJobGroup(groupId)
 }
 
 export function enqueueAction<P>(
@@ -204,7 +200,7 @@ export function listenToActionStream(action$: ActionsObservable<RootAction>) {
                                     )
                                   }
 
-                                  cancelActions.push(_cancelJobGroup(groupId))
+                                  cancelActions.push(cancelJobGroup(groupId))
 
                                   return of(...cancelActions)
                                 }),

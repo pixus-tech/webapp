@@ -22,7 +22,7 @@ export const _cancelJob = createStandardAction('QUEUE__CANCEL_JOB')<{
   queue: Queue
 }>()
 
-export const _cancelJobGroup = createStandardAction('QUEUE__CANCEL_JOB_GROUP')<
+export const cancelJobGroup = createStandardAction('QUEUE__CANCEL_JOB_GROUP')<
   JobGroupId
 >()
 

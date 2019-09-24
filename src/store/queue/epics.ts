@@ -99,7 +99,7 @@ export const cancelJobGroupEpic: Epic<RootAction, RootAction, RootState> = (
   state$,
 ) =>
   action$.pipe(
-    filter(isActionOf(actions._cancelJobGroup)),
+    filter(isActionOf(actions.cancelJobGroup)),
     withLatestFrom(state$),
     mergeMap(([action, state]) => {
       const groupId = action.payload

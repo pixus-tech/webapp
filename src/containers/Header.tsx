@@ -21,6 +21,7 @@ import {
   subscribeWebSocket,
   unsubscribeWebSocket,
 } from 'store/webSocket/actions'
+import QueueInfo from 'connected-components/QueueInfo'
 
 // TODO: extract color
 const lightColor = 'rgba(255, 255, 255, 0.7)'
@@ -91,6 +92,9 @@ function Header({
               </IconButton>
             </Grid>
           </Hidden>
+          <Grid item>
+            <QueueInfo />
+          </Grid>
           <Hidden mdDown>
             <Grid item>
               <FormControlLabel

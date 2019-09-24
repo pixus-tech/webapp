@@ -21,8 +21,9 @@ import {
   parseImageRecord,
 } from 'models/image'
 import { ImageRecordFactory } from 'db/image'
+import { cancelJobGroup } from 'store/queue/actions'
 import { Queue } from 'store/queue/types'
-import { cancelJobGroup, listenToActionStream } from 'utils/queue'
+import { listenToActionStream } from 'utils/queue'
 
 function groupId(fileHandle: FileHandle) {
   return `${fileHandle._id}-uploadImageToAlbum`
