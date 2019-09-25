@@ -131,6 +131,64 @@ declare module 'radiks' {
     sign(): Promise<this>
   }
 
+  export declare class GroupInvitation extends Model {
+    static className: string;
+    userPublicKey: string;
+    static schema: Schema;
+    static defaults: {
+      updatable: boolean;
+    };
+    static makeInvitation(username: string, userGroup: UserGroup): Promise<GroupInvitation>;
+    activate(): Promise<true | GroupMembership>;
+    encryptionPublicKey(): Promise<string>;
+    encryptionPrivateKey(): string;
+  }
+
+  declare interface Member {
+    username: string;
+    inviteId: string;
+  }
+
+  export declare class UserGroup extends Model {
+    privateKey?: string;
+    static schema: Schema;
+    static defaults: {
+      members: Member[];
+    };
+    static find(id: string): Promise<UserGroup>;
+    create(): Promise<this>;
+    makeGroupMembership(username: string): Promise<GroupInvitation>;
+    static myGroups(): Promise<UserGroup[]>;
+    publicKey(): string;
+    encryptionPublicKey(): Promise<string>;
+    encryptionPrivateKey(): string | undefined;
+    static modelName: () => string;
+    getSigningKey(): {
+      privateKey: any;
+      id: any;
+    };
+  }
+
+  export declare class SigningKey extends Model {
+    static className: string;
+    static schema: {
+      publicKey: {
+        type: StringConstructor;
+        decrypted: boolean;
+      };
+      privateKey: StringConstructor;
+      userGroupId: {
+        type: StringConstructor;
+        decrypted: boolean;
+      };
+    };
+    static defaults: {
+      updatable: boolean;
+    };
+    static create(attrs?: {}): Promise<SigningKey>;
+    encryptionPrivateKey: () => string;
+  }
+
   declare interface Config {
     apiServer: string
     userSession: UserSession
@@ -138,6 +196,10 @@ declare module 'radiks' {
 
   export const configure: (newConfig: Config) => void
   export const getConfig: () => Config
+}
+
+declare module 'radiks/lib/models/signing-key'
+declare module 'radiks/lib/helpers'
 
   /*
 declare module "config" {
@@ -185,11 +247,6 @@ declare module "streamer" {
         static removeListener(callback: Function): void;
     }
 }
-declare module "model" {
-    import EventEmitter from 'wolfy87-eventemitter';
-    import { FindQuery } from "api";
-    import { Schema, Attrs } from "types/index";
-}
 declare module "api" {
     import Model from "model";
     export const sendNewGaiaUrl: (gaiaURL: string) => Promise<boolean>;
@@ -216,124 +273,4 @@ declare module "central" {
     }
     export default Central;
 }
-declare module "models/signing-key" {
-    import Model from "model";
-    export default class SigningKey extends Model {
-        static className: string;
-        static schema: {
-            publicKey: {
-                type: StringConstructor;
-                decrypted: boolean;
-            };
-            privateKey: StringConstructor;
-            userGroupId: {
-                type: StringConstructor;
-                decrypted: boolean;
-            };
-        };
-        static defaults: {
-            updatable: boolean;
-        };
-        static create(attrs?: {}): Promise<SigningKey>;
-        encryptionPrivateKey: () => string;
-    }
-}
-declare module "models/user" {
-    import Model from "model";
-    import SigningKey from "models/signing-key";
-    import { Schema } from "types/index";
-}
-declare module "models/group-membership" {
-    import Model from "model";
-    interface UserGroupKeys {
-        userGroups: {
-            [userGroupId: string]: string;
-        };
-        signingKeys: {
-            [signingKeyId: string]: string;
-        };
-    }
-    export default class GroupMembership extends Model {
-        static className: string;
-        static schema: {
-            userGroupId: StringConstructor;
-            username: {
-                type: StringConstructor;
-                decrypted: boolean;
-            };
-            signingKeyPrivateKey: StringConstructor;
-            signingKeyId: StringConstructor;
-        };
-        static fetchUserGroups(): Promise<UserGroupKeys>;
-        static cacheKeys(): Promise<void>;
-        static clearStorage(): Promise<void>;
-        static userGroupKeys(): any;
-        encryptionPublicKey(): Promise<any>;
-        encryptionPrivateKey(): string;
-        getSigningKey(): {
-            _id: string;
-            privateKey: string;
-        };
-        fetchUserGroupSigningKey(): Promise<{
-            _id: string;
-            signingKeyId: string;
-        }>;
-    }
-}
-declare module "models/group-invitation" {
-    import Model from "model";
-    import GroupMembership from "models/group-membership";
-    import UserGroup from "models/user-group";
-    import { Schema } from "types/index";
-    export default class GroupInvitation extends Model {
-        static className: string;
-        userPublicKey: string;
-        static schema: Schema;
-        static defaults: {
-            updatable: boolean;
-        };
-        static makeInvitation(username: string, userGroup: UserGroup): Promise<GroupInvitation>;
-        activate(): Promise<true | GroupMembership>;
-        encryptionPublicKey(): Promise<string>;
-        encryptionPrivateKey(): string;
-    }
-}
-declare module "models/user-group" {
-    import Model from "model";
-    import GroupInvitation from "models/group-invitation";
-    import { Schema } from "types/index";
-    interface Member {
-        username: string;
-        inviteId: string;
-    }
-    export default class UserGroup extends Model {
-        privateKey?: string;
-        static schema: Schema;
-        static defaults: {
-            members: Member[];
-        };
-        static find(id: string): Promise<UserGroup>;
-        create(): Promise<this>;
-        makeGroupMembership(username: string): Promise<GroupInvitation>;
-        static myGroups(): Promise<Model[]>;
-        publicKey(): string;
-        encryptionPublicKey(): Promise<string>;
-        encryptionPrivateKey(): any;
-        static modelName: () => string;
-        getSigningKey(): {
-            privateKey: any;
-            id: any;
-        };
-    }
-}
-declare module "index" {
-    import Model from "model";
-    import UserGroup from "models/user-group";
-    import User from "models/user";
-    import { configure, getConfig } from "config";
-    import GroupMembership from "models/group-membership";
-    import GroupInvitation from "models/group-invitation";
-    import Central from "central";
-}
   */
-}

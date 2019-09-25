@@ -8,12 +8,15 @@ export default class AlbumRecord extends BaseRecord {
   static className = 'Album'
   static schema = {
     index: Number,
-    isOpen: Boolean,
+    name: String,
     parentAlbumId: {
       type: String,
       decrypted: true,
     },
-    name: String,
+    userGroupId: {
+      type: String,
+      decrypted: true,
+    },
   }
 }
 
@@ -22,9 +25,9 @@ export class AlbumRecordFactory {
     return new AlbumRecord({
       _id: _.get(album, '_id', uuid()),
       index: album.index,
-      isOpen: album.isOpen,
       name: album.name,
       parentAlbumId: album.parentAlbumId,
+      userGroupId: album.userGroupId,
     })
   }
 }

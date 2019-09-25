@@ -8,7 +8,7 @@ import { RootAction, RootState } from 'typesafe-actions'
 import { setUser } from 'store/auth/actions'
 import authReducer from 'store/auth/reducers'
 import { UserData } from 'models/blockstack'
-import { User as RadiksUser } from 'radiks'
+import { GroupMembership, GroupInvitation, UserGroup, User as RadiksUser } from 'radiks'
 import routes, { redirect } from 'utils/routes'
 import userSession from 'utils/userSession'
 
@@ -29,15 +29,13 @@ class AuthVerifier extends React.Component<ComposedProps> {
 
   async login() {
     if (userSession.isUserSignedIn()) {
-      const radiksUser = RadiksUser.currentUser()
-      //await GroupMembership.cacheKeys()
-      await radiksUser.save()
-
-      this.setUserData(userSession.loadUserData(), { redirect: false })
+      const userData = userSession.loadUserData()
+      const radiksUser = await RadiksUser.createWithCurrentUser()
+      await GroupMembership.cacheKeys()
+      this.setUserData(userData, { redirect: false })
     } else if (userSession.isSignInPending()) {
       const userData = await userSession.handlePendingSignIn()
       const radiksUser = await RadiksUser.createWithCurrentUser()
-      //await GroupMembership.cacheKeys()
       await radiksUser.save()
 
       this.setUserData(userData, { redirect: true })

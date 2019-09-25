@@ -2,6 +2,7 @@ export interface UploadData {
   id: string
   path: string
   payload: ArrayBuffer | string
+  key?: string
 }
 
 export interface UploadSuccessData extends UploadData {

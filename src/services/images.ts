@@ -8,7 +8,7 @@ import ImageRecord from 'db/image'
 
 export const getAlbumImages = (album: Album) => {
   return new Observable<Image[]>(subscriber => {
-    ImageRecord.fetchOwnList<ImageRecord>({
+    ImageRecord.fetchList<ImageRecord>({
       albumIds: album._id,
     })
       .then((imageRecords: ImageRecord[]) => {

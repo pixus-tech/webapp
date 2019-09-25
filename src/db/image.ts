@@ -22,6 +22,10 @@ export default class ImageRecord extends BaseRecord {
       type: String,
       decrypted: true,
     },
+    userGroupId: {
+      type: String,
+      decrypted: true,
+    },
     username: String,
     width: {
       type: Number,
@@ -47,6 +51,7 @@ export class ImageRecordFactory {
       name: image.name,
       previewColors,
       type: image.type,
+      userGroupId: image.userGroupId,
       username: image.username,
       width: image.width,
     })

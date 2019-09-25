@@ -25,6 +25,7 @@ export default interface Image extends BaseModel {
   name: string
   previewColors: PreviewColors
   type: string
+  userGroupId: string
   username: string
   width: number
 }
@@ -54,6 +55,7 @@ export function parseImageRecord(record: ImageRecord): Image {
       tr: decodedColors[4],
     },
     type: record.attrs.type,
+    userGroupId: record.attrs.userGroupId,
     username: record.attrs.username,
     width: record.attrs.width,
   }

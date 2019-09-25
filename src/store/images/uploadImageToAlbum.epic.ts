@@ -116,6 +116,8 @@ export const _2_uploadImageData: Epic<RootAction, RootAction, RootState> = (
     .withGroupId(requestData => groupId(requestData.fileHandle))
     .andJobs(requestData => {
       const imageId = requestData.fileHandle._id
+      const userGroup = requestData.album.userGroup
+      const key = 'userGroup === undefined ? undefined : userGroup.encryptionPublicKey()'
       return [
         {
           queue: Queue.Upload,
@@ -123,6 +125,7 @@ export const _2_uploadImageData: Epic<RootAction, RootAction, RootState> = (
             id: imageId,
             path: imageUploadPath(imageId),
             payload: requestData.fileHandle.payload,
+            key,
           },
         },
         {
@@ -131,6 +134,7 @@ export const _2_uploadImageData: Epic<RootAction, RootAction, RootState> = (
             id: imageId,
             path: imagePreviewUploadPath(imageId),
             payload: requestData.imageMetaData.previewImageData,
+            key,
           },
         },
       ]
@@ -171,6 +175,7 @@ export const _3_persistImageRecord: Epic<RootAction, RootAction, RootState> = (
           name: requestData.fileHandle.file.name,
           previewColors: requestData.imageMetaData.previewColors,
           type: requestData.fileHandle.file.type,
+          userGroupId: requestData.album.userGroupId,
           username: requestData.username,
           width: requestData.imageMetaData.width,
         }),
