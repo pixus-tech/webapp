@@ -105,19 +105,15 @@ export const downloadPreviewImageEpic: Epic<
     .andPerformAction(actions.downloadPreviewImage)
     .byAsynchronouslyExecuting(download)
     .withGroupId(requestData => `${requestData.image._id}-downloadPreviewImage`)
-    .andJobs(requestData => {
-      const userGroup = requestData.album.userGroup
-      const key = userGroup ? userGroup.privateKey : undefined
-      return [
-        {
-          queue: Queue.Download,
-          payload: {
-            key,
-            path: imagePreviewUploadPath(requestData.image._id),
-          },
+    .andJobs(requestData => [
+      {
+        queue: Queue.Download,
+        payload: {
+          key: requestData.album.privateKey,
+          path: imagePreviewUploadPath(requestData.image._id),
         },
-      ]
-    })
+      },
+    ])
     .andResultCallbacks({
       success: (request, success) => [
         actions.downloadPreviewImage.success({

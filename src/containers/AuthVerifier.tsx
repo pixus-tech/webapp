@@ -1,4 +1,3 @@
-import { Person } from 'blockstack'
 import React from 'react'
 import { connect } from 'react-redux'
 import compose from 'recompose/compose'
@@ -43,8 +42,7 @@ class AuthVerifier extends React.Component<ComposedProps> {
   }
 
   setUserData(userData: UserData, options: { redirect: boolean }) {
-    const person = new Person(userData.profile)
-    this.props.dispatchSetUser(person)
+    this.props.dispatchSetUser(userData)
 
     if (options.redirect) {
       redirect(routes.applicationRoot)
@@ -64,7 +62,7 @@ function mapStateToProps(state: RootState): IStateProps {
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
-    dispatchSetUser: (user: Person) => dispatch(setUser(user)),
+    dispatchSetUser: userData => dispatch(setUser(userData)),
   }
 }
 

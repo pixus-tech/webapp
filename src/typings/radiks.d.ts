@@ -164,7 +164,7 @@ declare module 'radiks' {
     static myGroups(): Promise<UserGroup[]>
     publicKey(): string
     encryptionPublicKey(): Promise<string>
-    encryptionPrivateKey(): string | undefined
+    encryptionPrivateKey(): string
     static modelName: () => string
     getSigningKey(): {
       privateKey: any

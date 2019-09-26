@@ -1,20 +1,21 @@
 import _ from 'lodash'
+import { UserGroup } from 'radiks'
 import uuid from 'uuid/v4'
 
-import BaseRecord from './index'
 import Album, { UnsavedAlbum } from 'models/album'
 
-export default class AlbumRecord extends BaseRecord {
-  static className = 'Album'
+export default class AlbumRecord extends UserGroup {
+  static className = 'UserGroup'
   static schema = {
+    ...UserGroup.schema,
     index: Number,
     name: String,
     parentAlbumId: {
       type: String,
       decrypted: true,
     },
-    userGroupId: {
-      type: String,
+    users: {
+      type: Array,
       decrypted: true,
     },
   }
@@ -22,12 +23,16 @@ export default class AlbumRecord extends BaseRecord {
 
 export class AlbumRecordFactory {
   static build(album: UnsavedAlbum | Album): AlbumRecord {
-    return new AlbumRecord({
+    const record = new AlbumRecord({
       _id: _.get(album, '_id', uuid()),
       index: album.index,
       name: album.name,
       parentAlbumId: album.parentAlbumId,
-      userGroupId: album.userGroupId,
+      privateKey: album.privateKey,
+      signingKeyId: album.signingKeyId,
+      users: album.users,
     })
+    record.privateKey = album.privateKey
+    return record
   }
 }
