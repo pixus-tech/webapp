@@ -24,7 +24,9 @@ export default class NotificationRecord extends BaseRecord {
 }
 
 export class NotificationRecordFactory {
-  static build(notification: UnsavedNotification | Notification): NotificationRecord {
+  static build(
+    notification: UnsavedNotification | Notification,
+  ): NotificationRecord {
     return new NotificationRecord({
       _id: _.get(notification, '_id', uuid()),
       addressee: notification.addressee,

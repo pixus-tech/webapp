@@ -11,7 +11,10 @@ import { createUserGroup, currentUser, currentUserName } from 'utils/blockstack'
 
 export const getNotifications = () => {
   return new Observable<Notification[]>(subscriber => {
-    NotificationRecord.fetchList<NotificationRecord>({ addressee: currentUserName(), isRead: false })
+    NotificationRecord.fetchList<NotificationRecord>({
+      addressee: currentUserName(),
+      isRead: false,
+    })
       .then(notificationRecords => {
         subscriber.next(parseNotificationRecords(notificationRecords))
         subscriber.complete()
@@ -20,7 +23,9 @@ export const getNotifications = () => {
   })
 }
 
-export const createNotification = (notification: Omit<Notification, 'creator' | 'isRead'>) => {
+export const createNotification = (
+  notification: Omit<Notification, 'creator' | 'isRead'>,
+) => {
   const notificationRecord = NotificationRecordFactory.build({
     ...notification,
     creator: currentUserName(),
@@ -28,9 +33,12 @@ export const createNotification = (notification: Omit<Notification, 'creator' | 
   })
 
   return new Observable<{ resource: Notification }>(subscriber => {
-    notificationRecord.save()
+    notificationRecord
+      .save()
       .then((notificationRecord: NotificationRecord) => {
-        subscriber.next({ resource: parseNotificationRecord(notificationRecord) })
+        subscriber.next({
+          resource: parseNotificationRecord(notificationRecord),
+        })
         subscriber.complete()
       })
       .catch(error => subscriber.error(error))
@@ -42,9 +50,12 @@ export const setNotificationRead = (notification: Notification) => {
   notificationRecord.update({ isRead: true })
 
   return new Observable<{ resource: Notification }>(subscriber => {
-    notificationRecord.save()
+    notificationRecord
+      .save()
       .then((notificationRecord: NotificationRecord) => {
-        subscriber.next({ resource: parseNotificationRecord(notificationRecord) })
+        subscriber.next({
+          resource: parseNotificationRecord(notificationRecord),
+        })
         subscriber.complete()
       })
       .catch(error => subscriber.error(error))

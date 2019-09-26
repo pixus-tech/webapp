@@ -51,7 +51,8 @@
     "eject": "react-scripts eject",
     "lint:fix": "eslint --fix './src/**/*.{ts,tsx}'",
     "lint": "eslint './src/**/*.{ts,tsx}'",
-    "update": "npm-check --update"
+    "update": "npm-check --update",
+    "storybook": "start-storybook"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -69,6 +70,7 @@
     ]
   },
   "devDependencies": {
+    "@storybook/react": "^5.2.1",
     "@types/classnames": "^2.2.8",
     "@types/enzyme": "^3.9.3",
     "@types/jest": "^24.0.18",

@@ -1,4 +1,5 @@
 import * as _ from 'lodash'
+import * as Yup from 'yup'
 
 import BaseModel, { UnsavedModel } from './'
 import NotificationRecord from 'db/notification'
@@ -37,7 +38,9 @@ function parseNotificationType(type: any) {
   return NotificationType.Unknown
 }
 
-export function parseNotificationRecord(record: NotificationRecord): Notification {
+export function parseNotificationRecord(
+  record: NotificationRecord,
+): Notification {
   return {
     _id: record._id,
     addressee: record.attrs.addressee,
@@ -49,6 +52,15 @@ export function parseNotificationRecord(record: NotificationRecord): Notificatio
   }
 }
 
-export function parseNotificationRecords(records: NotificationRecord[]): Notification[] {
+export function parseNotificationRecords(
+  records: NotificationRecord[],
+): Notification[] {
   return _.map(records, parseNotificationRecord)
+}
+
+export const validationSchema = {
+  invite: Yup.object().shape({
+    addressee: Yup.string().required('Is Required'),
+    message: Yup.string().required('Is Required'),
+  }),
 }

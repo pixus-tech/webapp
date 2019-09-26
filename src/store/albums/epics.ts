@@ -25,9 +25,7 @@ export const fetchAlbumTreeEpic: Epic<
     mergeMap(action =>
       albums.getAlbums().pipe(
         map(actions.getAlbums.success),
-        takeUntil(
-          action$.pipe(filter(isActionOf(actions.getAlbums.cancel))),
-        ),
+        takeUntil(action$.pipe(filter(isActionOf(actions.getAlbums.cancel)))),
         catchError(error =>
           of(actions.getAlbums.failure({ error, resource: null })),
         ),
