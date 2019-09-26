@@ -19,37 +19,43 @@ export const uploadEpic: Epic<
   action$.pipe(
     filter(isActionOf(actions.upload.request)),
     mergeMap(action =>
-      files.upload(action.payload.data.path, action.payload.data.payload).pipe(
-        map(username =>
-          actions.upload.success({
-            jobId: action.payload.jobId,
-            groupId: action.payload.groupId,
-            data: {
-              ...action.payload.data,
-              uploader: username,
-            },
-          }),
-        ),
-        catchError(error =>
-          of(
-            actions.upload.failure({
+      files
+        .upload(
+          action.payload.data.path,
+          action.payload.data.payload,
+          action.payload.data.key,
+        )
+        .pipe(
+          map(username =>
+            actions.upload.success({
               jobId: action.payload.jobId,
               groupId: action.payload.groupId,
-              data: { error, resource: action.payload.data },
+              data: {
+                ...action.payload.data,
+                uploader: username,
+              },
             }),
           ),
-        ),
-        takeUntil(
-          action$.pipe(
-            filter(isActionOf(actions.upload.cancel)),
-            filter(
-              cancelAction =>
-                cancelAction.payload.groupId === action.payload.groupId ||
-                cancelAction.payload.jobId === action.payload.jobId,
+          catchError(error =>
+            of(
+              actions.upload.failure({
+                jobId: action.payload.jobId,
+                groupId: action.payload.groupId,
+                data: { error, resource: action.payload.data },
+              }),
+            ),
+          ),
+          takeUntil(
+            action$.pipe(
+              filter(isActionOf(actions.upload.cancel)),
+              filter(
+                cancelAction =>
+                  cancelAction.payload.groupId === action.payload.groupId ||
+                  cancelAction.payload.jobId === action.payload.jobId,
+              ),
             ),
           ),
         ),
-      ),
     ),
   )
 
@@ -62,14 +68,15 @@ export const downloadEpic: Epic<
   action$.pipe(
     filter(isActionOf(actions.download.request)),
     mergeMap(action =>
-      files.download(action.payload.data).pipe(
+      files.download(action.payload.data.path, action.payload.data.key).pipe(
         map(data =>
           actions.download.success({
             jobId: action.payload.jobId,
             groupId: action.payload.groupId,
             data: {
-              path: action.payload.data,
               fileContent: data,
+              key: action.payload.data.key,
+              path: action.payload.data.path,
             },
           }),
         ),

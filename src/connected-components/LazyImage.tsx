@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core/styles'
 
 import ImagePreviewGradient from 'components/ImagePreviewGradient'
+import Album from 'models/album'
 import Image from 'models/image'
 import { downloadPreviewImage } from 'store/images/actions'
 
@@ -48,6 +49,7 @@ const styles = (_theme: Theme) =>
   })
 
 export interface IProps {
+  album: Album
   image: Image
   isVisible: boolean
 }
@@ -149,11 +151,12 @@ function mapDispatchToProps(
   dispatch: Dispatch<RootAction>,
   props: ComposedProps,
 ): IDispatchProps {
+  const payload = { album: props.album, image: props.image }
   return {
     cancelDownloadPreviewImage: () =>
-      dispatch(downloadPreviewImage.cancel(props.image)),
+      dispatch(downloadPreviewImage.cancel(payload)),
     requestDownloadPreviewImage: () =>
-      dispatch(downloadPreviewImage.request(props.image)),
+      dispatch(downloadPreviewImage.request(payload)),
   }
 }
 

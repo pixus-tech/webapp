@@ -10,6 +10,7 @@ import {
 } from '@material-ui/core/styles'
 
 import LazyImage from 'connected-components/LazyImage'
+import Album from 'models/album'
 import Image from 'models/image'
 import { IMAGE_GRID_GUTTER_SIZE } from 'constants/index'
 
@@ -23,6 +24,7 @@ const styles = (_theme: Theme) =>
   })
 
 interface IProps {
+  album: Album
   columnCount: number
   images: Image[]
   width: number
@@ -39,7 +41,7 @@ class ImageGrid extends React.PureComponent<ComposedProps> {
     rowIndex,
     style,
   }) => {
-    const { columnCount, classes, images } = this.props
+    const { album, columnCount, classes, images } = this.props
 
     const index = columnIndex + rowIndex * columnCount
 
@@ -51,7 +53,7 @@ class ImageGrid extends React.PureComponent<ComposedProps> {
 
     return (
       <div className={classes.cell} key={key} style={style}>
-        <LazyImage image={image} isVisible={isVisible} />
+        <LazyImage album={album} image={image} isVisible={isVisible} />
       </div>
     )
   }

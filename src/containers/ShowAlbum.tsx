@@ -239,6 +239,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
 
               return (
                 <ImageGrid
+                  album={album}
                   columnCount={numberOfImageColumns}
                   height={height}
                   images={images}

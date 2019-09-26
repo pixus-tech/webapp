@@ -57,19 +57,24 @@ export const saveImage = createAsyncAction(
   'IMAGES__SAVE_IMAGE__CANCEL',
 )<Image, Image, API.ErrorResponse<Image>, Image>()
 
+interface DownloadPreviewImageRequest {
+  album: Album
+  image: Image
+}
+
 export const downloadPreviewImage = createAsyncAction(
   'IMAGES__DOWNLOAD_PREVIEW_IMAGE__REQUEST',
   'IMAGES__DOWNLOAD_PREVIEW_IMAGE__SUCCESS',
   'IMAGES__DOWNLOAD_PREVIEW_IMAGE__FAILURE',
   'IMAGES__DOWNLOAD_PREVIEW_IMAGE__CANCEL',
 )<
-  Image,
+  DownloadPreviewImageRequest,
   {
     image: Image
     fileContent: ArrayBuffer | string
   },
   API.ErrorResponse<Image>,
-  Image
+  DownloadPreviewImageRequest
 >()
 
 // private actions

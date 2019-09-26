@@ -52,7 +52,7 @@ const previewImageIsLoadingMap = createReducer(
   initialState.previewImageIsLoadingMap,
 )
   .handleAction(actions.downloadPreviewImage.request, (state, action) => {
-    return state.set(action.payload._id, true)
+    return state.set(action.payload.image._id, true)
   })
   .handleAction(actions.downloadPreviewImage.success, (state, action) => {
     return state.delete(action.payload.image._id)
@@ -61,7 +61,7 @@ const previewImageIsLoadingMap = createReducer(
     return state.delete(action.payload.resource._id)
   })
   .handleAction(actions.downloadPreviewImage.cancel, (state, action) => {
-    return state.delete(action.payload._id)
+    return state.delete(action.payload.image._id)
   })
 
 export default combineReducers({

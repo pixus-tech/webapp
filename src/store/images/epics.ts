@@ -76,7 +76,7 @@ export const saveImageEpic: Epic<RootAction, RootAction, RootState> = (
   action$,
   state$,
 ) =>
-  listenToActionStream(action$)
+  listenToActionStream(action$, state$)
     .andPerformAction(actions.saveImage)
     .byAsynchronouslyExecuting(saveRecord)
     .withGroupId(requestData => `${requestData._id}-saveImage`)
@@ -101,27 +101,34 @@ export const downloadPreviewImageEpic: Epic<
   RootAction,
   RootState
 > = (action$, state$) =>
-  listenToActionStream(action$)
+  listenToActionStream(action$, state$)
     .andPerformAction(actions.downloadPreviewImage)
     .byAsynchronouslyExecuting(download)
-    .withGroupId(requestData => `${requestData._id}-downloadPreviewImage`)
-    .andJobs(requestData => [
-      {
-        queue: Queue.Download,
-        payload: imagePreviewUploadPath(requestData._id),
-      },
-    ])
+    .withGroupId(requestData => `${requestData.image._id}-downloadPreviewImage`)
+    .andJobs(requestData => {
+      const userGroup = requestData.album.userGroup
+      const key = userGroup ? userGroup.privateKey : undefined
+      return [
+        {
+          queue: Queue.Download,
+          payload: {
+            key,
+            path: imagePreviewUploadPath(requestData.image._id),
+          },
+        },
+      ]
+    })
     .andResultCallbacks({
       success: (request, success) => [
         actions.downloadPreviewImage.success({
-          image: request,
+          image: request.image,
           fileContent: success.fileContent,
         }),
       ],
       error: (request, error) => [
         actions.downloadPreviewImage.failure({
           error: Error('Image could not be downloaded'),
-          resource: request,
+          resource: request.image,
         }),
       ],
     })

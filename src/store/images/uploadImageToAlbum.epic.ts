@@ -42,7 +42,7 @@ export const _0_requestReadImageFile: Epic<
   RootAction,
   RootState
 > = (action$, state$) =>
-  listenToActionStream(action$)
+  listenToActionStream(action$, state$)
     .andPerformAction(actions.uploadImageToAlbum)
     .byAsynchronouslyExecuting(readFile)
     .withGroupId(requestData => groupId(requestData.fileHandle))
@@ -110,14 +110,14 @@ export const _2_uploadImageData: Epic<RootAction, RootAction, RootState> = (
   action$,
   state$,
 ) =>
-  listenToActionStream(action$)
+  listenToActionStream(action$, state$)
     .andPerformAction(privateActions._uploadImageData)
     .byAsynchronouslyExecuting(upload)
     .withGroupId(requestData => groupId(requestData.fileHandle))
     .andJobs(requestData => {
       const imageId = requestData.fileHandle._id
       const userGroup = requestData.album.userGroup
-      const key = 'userGroup === undefined ? undefined : userGroup.encryptionPublicKey()'
+      const key = userGroup === undefined ? undefined : userGroup.publicKey()
       return [
         {
           queue: Queue.Upload,
@@ -161,7 +161,7 @@ export const _3_persistImageRecord: Epic<RootAction, RootAction, RootState> = (
   action$,
   state$,
 ) =>
-  listenToActionStream(action$)
+  listenToActionStream(action$, state$)
     .andPerformAction(privateActions._createImageRecord)
     .byAsynchronouslyExecuting(saveRecord)
     .withGroupId(requestData => groupId(requestData.fileHandle))

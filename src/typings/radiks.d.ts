@@ -132,61 +132,64 @@ declare module 'radiks' {
   }
 
   export declare class GroupInvitation extends Model {
-    static className: string;
-    userPublicKey: string;
-    static schema: Schema;
+    static className: string
+    userPublicKey: string
+    static schema: Schema
     static defaults: {
-      updatable: boolean;
-    };
-    static makeInvitation(username: string, userGroup: UserGroup): Promise<GroupInvitation>;
-    activate(): Promise<true | GroupMembership>;
-    encryptionPublicKey(): Promise<string>;
-    encryptionPrivateKey(): string;
+      updatable: boolean
+    }
+    static makeInvitation(
+      username: string,
+      userGroup: UserGroup,
+    ): Promise<GroupInvitation>
+    activate(): Promise<true | GroupMembership>
+    encryptionPublicKey(): Promise<string>
+    encryptionPrivateKey(): string
   }
 
   declare interface Member {
-    username: string;
-    inviteId: string;
+    username: string
+    inviteId: string
   }
 
   export declare class UserGroup extends Model {
-    privateKey?: string;
-    static schema: Schema;
+    privateKey?: string
+    static schema: Schema
     static defaults: {
-      members: Member[];
-    };
-    static find(id: string): Promise<UserGroup>;
-    create(): Promise<this>;
-    makeGroupMembership(username: string): Promise<GroupInvitation>;
-    static myGroups(): Promise<UserGroup[]>;
-    publicKey(): string;
-    encryptionPublicKey(): Promise<string>;
-    encryptionPrivateKey(): string | undefined;
-    static modelName: () => string;
+      members: Member[]
+    }
+    static find(id: string): Promise<UserGroup>
+    create(): Promise<this>
+    makeGroupMembership(username: string): Promise<GroupInvitation>
+    static myGroups(): Promise<UserGroup[]>
+    publicKey(): string
+    encryptionPublicKey(): Promise<string>
+    encryptionPrivateKey(): string | undefined
+    static modelName: () => string
     getSigningKey(): {
-      privateKey: any;
-      id: any;
-    };
+      privateKey: any
+      id: any
+    }
   }
 
   export declare class SigningKey extends Model {
-    static className: string;
+    static className: string
     static schema: {
       publicKey: {
-        type: StringConstructor;
-        decrypted: boolean;
-      };
-      privateKey: StringConstructor;
+        type: StringConstructor
+        decrypted: boolean
+      }
+      privateKey: StringConstructor
       userGroupId: {
-        type: StringConstructor;
-        decrypted: boolean;
-      };
-    };
+        type: StringConstructor
+        decrypted: boolean
+      }
+    }
     static defaults: {
-      updatable: boolean;
-    };
-    static create(attrs?: {}): Promise<SigningKey>;
-    encryptionPrivateKey: () => string;
+      updatable: boolean
+    }
+    static create(attrs?: {}): Promise<SigningKey>
+    encryptionPrivateKey: () => string
   }
 
   declare interface Config {
@@ -201,7 +204,7 @@ declare module 'radiks' {
 declare module 'radiks/lib/models/signing-key'
 declare module 'radiks/lib/helpers'
 
-  /*
+/*
 declare module "config" {
 }
 declare module "types/index" {

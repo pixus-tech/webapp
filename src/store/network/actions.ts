@@ -1,6 +1,11 @@
 import { API } from 'typings/types'
 
-import { DownloadData, UploadData, UploadSuccessData } from './types'
+import {
+  DownloadData,
+  DownloadSuccessData,
+  UploadData,
+  UploadSuccessData,
+} from './types'
 import BaseRecord from 'db/index'
 
 import {
@@ -27,9 +32,9 @@ export const download = createEnqueueableAction(
   'NETWORK__DOWNLOAD__FAILURE',
   'NETWORK__DOWNLOAD__CANCEL',
 )<
-  QueuePayload<string>,
   QueuePayload<DownloadData>,
-  QueuePayload<API.ErrorResponse<string>>,
+  QueuePayload<DownloadSuccessData>,
+  QueuePayload<API.ErrorResponse<DownloadData>>,
   CancelJobPayload
 >()
 

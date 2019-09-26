@@ -10,6 +10,10 @@ export interface UploadSuccessData extends UploadData {
 }
 
 export interface DownloadData {
+  key?: string
   path: string
+}
+
+export interface DownloadSuccessData extends DownloadData {
   fileContent: ArrayBuffer | string
 }

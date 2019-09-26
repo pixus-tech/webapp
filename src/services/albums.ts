@@ -1,5 +1,10 @@
 import _ from 'lodash'
-import { GroupInvitation, GroupMembership, User as RadiksUser, UserGroup } from 'radiks'
+import {
+  GroupInvitation,
+  GroupMembership,
+  User as RadiksUser,
+  UserGroup,
+} from 'radiks'
 import SigningKey from 'radiks/lib/models/signing-key'
 import { addUserGroupKey } from 'radiks/lib/helpers'
 import { from, Observable } from 'rxjs'
@@ -11,9 +16,6 @@ import Album, {
   parseAlbumRecord,
   parseAlbumRecords,
 } from 'models/album'
-
-import { isModelOwnedByUser } from 'models/blockstack'
-import userSession from 'utils/userSession'
 
 async function getUserGroups(): Promise<UserGroup[]> {
   return await UserGroup.myGroups()
@@ -27,8 +29,8 @@ export const getAlbumTree = () => {
           _.map(userGroups, userGroup => {
             userGroup.privateKey = userGroup.encryptionPrivateKey()
             return userGroup
-          }) ,
-          '_id'
+          }),
+          '_id',
         )
         AlbumRecord.fetchList<AlbumRecord>()
           .then(albumRecords => {
@@ -46,7 +48,7 @@ export const getAlbumTree = () => {
 }
 
 async function createInvitation(user: RadiksUser, userGroup: UserGroup) {
-  const { publicKey, username } = user.attrs
+  const { publicKey } = user.attrs
 
   const invitation = new GroupInvitation({
     userGroupId: userGroup._id,
@@ -65,14 +67,16 @@ async function createGroupMembership(user: RadiksUser, userGroup: UserGroup) {
     signingKeyPrivateKey: userGroup.privateKey,
     signingKeyId: userGroup.getSigningKey().id,
     updatable: false,
-  });
+  })
   await groupMembership.save()
   return groupMembership
 }
 
 async function createUserGroup(name: string) {
   const userGroup = new UserGroup({ name })
-  const userGroupSigningKey = await SigningKey.create({ userGroupId: userGroup._id })
+  const userGroupSigningKey = await SigningKey.create({
+    userGroupId: userGroup._id,
+  })
   userGroup.attrs.signingKeyId = userGroupSigningKey._id
   userGroup.privateKey = userGroupSigningKey.attrs.privateKey
   addUserGroupKey(userGroup)
@@ -100,12 +104,13 @@ export const addAlbum = (name: string) => {
           userGroupId: userGroup._id,
         })
 
-        albumRecord.save()
-                   .then(() => {
-                     subscriber.next({ resource: parseAlbumRecord(albumRecord)! })
-                     subscriber.complete()
-                   })
-                   .catch(error => subscriber.error(error))
+        albumRecord
+          .save()
+          .then(() => {
+            subscriber.next({ resource: parseAlbumRecord(albumRecord)! })
+            subscriber.complete()
+          })
+          .catch(error => subscriber.error(error))
       })
       .catch(error => subscriber.error(error))
   })

@@ -1,12 +1,19 @@
 import _ from 'lodash'
-import { ActionsObservable } from 'redux-observable'
+import { ActionsObservable, StateObservable } from 'redux-observable'
 import { Observable, of, race, merge } from 'rxjs'
-import { bufferCount, filter, mergeMap, take } from 'rxjs/operators'
+import {
+  bufferCount,
+  filter,
+  mergeMap,
+  take,
+  withLatestFrom,
+} from 'rxjs/operators'
 import {
   AsyncActionCreator,
   EnqueueableAction,
   PayloadAC,
   RootAction,
+  RootState,
   TypeConstant,
   createStandardAction,
   isActionOf,
@@ -60,7 +67,10 @@ export function enqueueAction<P>(
   })
 }
 
-export function listenToActionStream(action$: ActionsObservable<RootAction>) {
+export function listenToActionStream(
+  action$: ActionsObservable<RootAction>,
+  state$: StateObservable<RootState>,
+) {
   return {
     andPerformAction: function<
       AT1 extends TypeConstant,
@@ -104,7 +114,10 @@ export function listenToActionStream(action$: ActionsObservable<RootAction>) {
             ) {
               return {
                 andJobs: function(
-                  jobsCreator: (requestData: AP1) => QueueOptions<QP1>[],
+                  jobsCreator: (
+                    requestData: AP1,
+                    state: RootState,
+                  ) => QueueOptions<QP1>[],
                 ) {
                   return {
                     andResultCallbacks: function(
@@ -117,10 +130,11 @@ export function listenToActionStream(action$: ActionsObservable<RootAction>) {
                             AP1
                           >),
                         ),
-                        mergeMap(action => {
+                        withLatestFrom(state$),
+                        mergeMap(([action, state]) => {
                           const groupId = groupIdCreator(action.payload)
                           const jobs = _.map(
-                            jobsCreator(action.payload),
+                            jobsCreator(action.payload, state),
                             queueOptions =>
                               enqueueAction(
                                 queueOptions.queue,

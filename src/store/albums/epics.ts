@@ -58,7 +58,7 @@ export const saveAlbumEpic: Epic<RootAction, RootAction, RootState> = (
   action$,
   state$,
 ) =>
-  listenToActionStream(action$)
+  listenToActionStream(action$, state$)
     .andPerformAction(actions.saveAlbum)
     .byAsynchronouslyExecuting(saveRecord)
     .withGroupId(requestData => `${requestData._id}-saveAlbum`)
