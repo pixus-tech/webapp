@@ -3,7 +3,7 @@ import { createAsyncAction, createStandardAction } from 'typesafe-actions'
 import Album from 'models/album'
 import { API } from 'typings/types'
 
-export const getAlbumTree = createAsyncAction(
+export const getAlbums = createAsyncAction(
   'ALBUMS__LIST_REQUEST',
   'ALBUMS__LIST_SUCCESS',
   'ALBUMS__LIST_FAILURE',

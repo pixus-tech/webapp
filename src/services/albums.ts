@@ -10,7 +10,7 @@ import Album, {
 } from 'models/album'
 import { createUserGroup, currentUser, currentUserName } from 'utils/blockstack'
 
-export const getAlbumTree = () => {
+export const getAlbums = () => {
   return new Observable<Album[]>(subscriber => {
     AlbumRecord.fetchList<AlbumRecord>({ users: currentUserName() })
       .then(albumRecords => {
@@ -33,7 +33,6 @@ export const addAlbum = (name: string) => {
   return new Observable<{ resource: Album }>(subscriber => {
     createUserGroup(AlbumRecordFactory.build, album)
       .then(albumRecord => {
-        console.log(albumRecord)
         subscriber.next({ resource: parseAlbumRecord(albumRecord) })
         subscriber.complete()
       })

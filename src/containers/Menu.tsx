@@ -28,7 +28,7 @@ import AddDirectoryIcon from '@material-ui/icons/CreateNewFolder'
 
 import AlbumTreeView from 'components/menu/AlbumTreeView'
 import Album from 'models/album'
-import { addAlbum, getAlbumTree, setParentAlbum } from 'store/albums/actions'
+import { addAlbum, getAlbums, setParentAlbum } from 'store/albums/actions'
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -89,7 +89,7 @@ const styles = (theme: Theme) =>
 
 interface IDispatchProps {
   dispatchAddAlbum: typeof addAlbum.request
-  dispatchGetAlbumTree: typeof getAlbumTree.request
+  dispatchGetAlbumTree: typeof getAlbums.request
   dispatchSetParentAlbum: typeof setParentAlbum.request
 }
 
@@ -209,7 +209,7 @@ function mapStateToProps(state: RootState) {
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
     dispatchAddAlbum: (name: string) => dispatch(addAlbum.request(name)),
-    dispatchGetAlbumTree: () => dispatch(getAlbumTree.request()),
+    dispatchGetAlbumTree: () => dispatch(getAlbums.request()),
     dispatchSetParentAlbum: payload =>
       dispatch(setParentAlbum.request(payload)),
   }

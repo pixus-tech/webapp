@@ -21,15 +21,15 @@ export const fetchAlbumTreeEpic: Epic<
   Pick<RootService, 'albums'>
 > = (action$, state$, { albums }) =>
   action$.pipe(
-    filter(isActionOf(actions.getAlbumTree.request)),
+    filter(isActionOf(actions.getAlbums.request)),
     mergeMap(action =>
-      albums.getAlbumTree().pipe(
-        map(actions.getAlbumTree.success),
+      albums.getAlbums().pipe(
+        map(actions.getAlbums.success),
         takeUntil(
-          action$.pipe(filter(isActionOf(actions.getAlbumTree.cancel))),
+          action$.pipe(filter(isActionOf(actions.getAlbums.cancel))),
         ),
         catchError(error =>
-          of(actions.getAlbumTree.failure({ error, resource: null })),
+          of(actions.getAlbums.failure({ error, resource: null })),
         ),
       ),
     ),

@@ -20,7 +20,7 @@ const map = createReducer(initialState.map)
    *   const album = action.payload.resource
    *   return state.remove(album._id)
    * }) */
-  .handleAction(actions.getAlbumTree.success, (state, action) => {
+  .handleAction(actions.getAlbums.success, (state, action) => {
     return Map(action.payload.map(album => [album._id, album]))
   })
   .handleAction(actions.upsertAlbum, (state, action) => {
