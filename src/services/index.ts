@@ -4,6 +4,7 @@ import * as files from './files'
 import * as images from './images'
 import * as notifications from './notifications'
 import * as records from './records'
+import * as users from './users'
 
 const services = {
   albums,
@@ -12,6 +13,7 @@ const services = {
   images,
   notifications,
   records,
+  users,
 }
 
 export default services

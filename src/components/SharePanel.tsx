@@ -3,23 +3,18 @@ import cx from 'classnames'
 import React from 'react'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
-import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
 
 import GroupAddIcon from '@material-ui/icons/GroupAdd'
-
-interface Person {
-  username: string
-  initials?: string
-  imageURL?: string
-}
+import UserAvatar, { AVATAR_SIZE } from 'components/UserAvatar'
+import User from 'models/user'
 
 export interface IProps {
   className?: string
-  people: Person[]
+  onAddUser: () => void
+  users: User[]
 }
 
-const AVATAR_SIZE = 48
 const AVATAR_OVERLAP = 0.62 * AVATAR_SIZE
 const AVATAR_GAP = 6
 
@@ -56,29 +51,19 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 )
 
-function SharePanel({ className, people }: IProps) {
+function SharePanel({ className, onAddUser, users }: IProps) {
   const classes = useStyles()
 
   return (
-    <div className={cx(className, classes.container)}>
-      {_.map(people, person => {
-        const initials =
-          person.initials || person.username.slice(0, 1).toUpperCase()
-        return (
-          <Avatar
-            key={person.username}
-            alt={person.username}
-            src={person.imageURL}
-            className={classes.avatar}
-          >
-            {!person.imageURL && initials}
-          </Avatar>
-        )
-      })}
+    <div className={cx(classes.container, className)}>
+      {_.map(users, user => (
+        <UserAvatar className={classes.avatar} user={user} />
+      ))}
       <Button
-        className={classes.button}
         aria-label="add user to group"
+        className={classes.button}
         color="primary"
+        onClick={onAddUser}
         variant="contained"
       >
         <GroupAddIcon />

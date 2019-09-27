@@ -1,5 +1,5 @@
 export const DELAY_TO_LAUNCH_WORKER_QUEUE = 1000
-export const LAUNCH_WORKER_PERIOD = 1000
+export const LAUNCH_WORKER_PERIOD = 100
 export const IMAGE_PREVIEW_SIZE = 256
 export const IMAGE_GRID_GUTTER_SIZE = 6
 

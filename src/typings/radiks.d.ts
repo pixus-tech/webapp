@@ -59,7 +59,7 @@ declare module 'radiks' {
     static count(_selector?: FindQuery): Promise<number>
     static fetchOwnList<T extends Model>(_selector?: FindQuery): Promise<T[]>
     constructor(attrs?: Attrs)
-    save(): Promise<unknown>
+    save<T extends Model>(): Promise<T>
     encrypted(): Promise<{
       _id: string
       createdAt?: number

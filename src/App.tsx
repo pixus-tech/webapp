@@ -14,6 +14,7 @@ import {
 import PrivateRoute from 'components/auth/PrivateRoute'
 import AuthVerifier from 'containers/AuthVerifier'
 import Albums from 'containers/Albums'
+import ModalRoot from 'containers/ModalRoot'
 import ShowAlbum from 'containers/ShowAlbum'
 import Login from 'containers/Login'
 import AppLayout from 'layouts/App'
@@ -57,6 +58,7 @@ class App extends React.PureComponent<ComposedProps> {
         <IntlProvider locale={locale} messages={localizedMessages[locale]}>
           <Router history={history}>
             <AuthVerifier />
+            <ModalRoot />
             <Switch>
               /* TODO: Loading animation */
               <Route component={undefined} exact path={routes.authVerify} />

@@ -1,13 +1,11 @@
-import { from, Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { Observable } from 'rxjs'
 
 import NotificationRecord, { NotificationRecordFactory } from 'db/notification'
 import Notification, {
   parseNotificationRecord,
   parseNotificationRecords,
-  UnsavedNotification,
 } from 'models/notification'
-import { createUserGroup, currentUser, currentUserName } from 'utils/blockstack'
+import { currentUserName } from 'utils/blockstack'
 
 export const getNotifications = () => {
   return new Observable<Notification[]>(subscriber => {
@@ -34,8 +32,8 @@ export const createNotification = (
 
   return new Observable<{ resource: Notification }>(subscriber => {
     notificationRecord
-      .save()
-      .then((notificationRecord: NotificationRecord) => {
+      .save<NotificationRecord>()
+      .then(notificationRecord => {
         subscriber.next({
           resource: parseNotificationRecord(notificationRecord),
         })
@@ -51,8 +49,8 @@ export const setNotificationRead = (notification: Notification) => {
 
   return new Observable<{ resource: Notification }>(subscriber => {
     notificationRecord
-      .save()
-      .then((notificationRecord: NotificationRecord) => {
+      .save<NotificationRecord>()
+      .then(notificationRecord => {
         subscriber.next({
           resource: parseNotificationRecord(notificationRecord),
         })

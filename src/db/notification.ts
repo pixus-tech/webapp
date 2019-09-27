@@ -3,7 +3,6 @@ import uuid from 'uuid/v4'
 
 import BaseRecord from './index'
 import Notification, { UnsavedNotification } from 'models/notification'
-import { currentUserName } from 'utils/blockstack'
 
 export default class NotificationRecord extends BaseRecord {
   static className = 'Notification'

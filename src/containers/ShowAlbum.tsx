@@ -9,10 +9,8 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
-import withImmutablePropsToJS from 'with-immutable-props-to-js'
 
 import AppBar from '@material-ui/core/AppBar'
-import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Grid from '@material-ui/core/Grid'
 import Slider from '@material-ui/core/Slider'
@@ -29,11 +27,14 @@ import {
 
 import AlbumTitle from 'components/AlbumTitle'
 import ImageGrid from 'components/ImageGrid'
+import SharePanel from 'components/SharePanel'
 import Album from 'models/album'
 import Image from 'models/image'
 import { saveAlbum } from 'store/albums/actions'
 import { getAlbumImages, uploadImagesToAlbum } from 'store/images/actions'
 import { albumImagesSelector } from 'store/images/selectors'
+import { showModal } from 'store/modal/actions'
+import { ModalType } from 'store/modal/types'
 import { ShowAlbumURLParameters } from 'utils/routes'
 
 // TODO: extract color
@@ -83,11 +84,13 @@ interface IDispatchProps {
   dispatchUploadImagesToAlbum: typeof uploadImagesToAlbum
   dispatchGetAlbumImages: typeof getAlbumImages.request
   dispatchSaveAlbum: typeof saveAlbum.request
+  dispatchShowModal: (album: Album) => ReturnType<typeof showModal>
 }
 
 interface IStateProps {
   album?: Album
   images: Image[]
+  numberOfImages: number
 }
 
 type ComposedProps = RouteComponentProps<ShowAlbumURLParameters> &
@@ -145,6 +148,14 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
     }
   }
 
+  presentInviteUserModal = () => {
+    const { album, dispatchShowModal } = this.props
+
+    if (album !== undefined) {
+      dispatchShowModal(album)
+    }
+  }
+
   render() {
     const { album, classes, dispatchSaveAlbum, images } = this.props
     const { numberOfImageColumns } = this.state
@@ -168,14 +179,22 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
                 <AlbumTitle album={album} onSave={dispatchSaveAlbum} />
               </Grid>
               <Grid item>
-                <Button
-                  className={classes.button}
-                  variant="outlined"
-                  color="inherit"
-                  size="small"
-                >
-                  Share
-                </Button>
+                <SharePanel
+                  onAddUser={this.presentInviteUserModal}
+                  users={[
+                    {
+                      username: 'test1.id.blockstack',
+                      name: 'Jon Doe',
+                    },
+                    {
+                      username: 'test2.id.blockstack',
+                      imageURL: 'https://via.placeholder.com/64x64.jpg?text=TK',
+                    },
+                    {
+                      username: 'test3.id.blockstack',
+                    },
+                  ]}
+                />
               </Grid>
             </Grid>
           </Toolbar>
@@ -255,23 +274,30 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
   }
 }
 
-function mapStateToProps(store: RootState, props: ComposedProps) {
+function mapStateToProps(store: RootState, props: ComposedProps): IStateProps {
   const album = store.albums.map.get(props.match.params.albumId)
-  const images = album === undefined ? [] : albumImagesSelector(store, album)
+  const images =
+    album === undefined ? [] : albumImagesSelector(store, album).toArray()
 
   return {
     album,
     images,
+    numberOfImages: images.length,
   }
 }
 
-function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
+function mapDispatchToProps(
+  dispatch: Dispatch<RootAction>,
+  props: ComposedProps,
+): IDispatchProps {
   return {
     dispatchGetAlbumImages: (album: Album) =>
       dispatch(getAlbumImages.request(album)),
     dispatchUploadImagesToAlbum: albumImageFiles =>
       dispatch(uploadImagesToAlbum(albumImageFiles)),
     dispatchSaveAlbum: album => dispatch(saveAlbum.request(album)),
+    dispatchShowModal: (album: Album) =>
+      dispatch(showModal({ type: ModalType.InviteUser, props: { album } })),
   }
 }
 
@@ -281,6 +307,5 @@ export default compose<ComposedProps, {}>(
     mapStateToProps,
     mapDispatchToProps,
   ),
-  withImmutablePropsToJS,
   withStyles(styles),
 )(ShowAlbum)

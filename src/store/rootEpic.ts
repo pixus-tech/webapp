@@ -1,53 +1,22 @@
+import _ from 'lodash'
 import { combineEpics } from 'redux-observable'
 
-import {
-  addAlbumEpic,
-  fetchAlbumTreeEpic,
-  saveAlbumEpic,
-  setParentAlbumEpic,
-} from './albums/epics'
-import { readFileEpic } from './files/epics'
-import {
-  downloadPreviewImageEpic,
-  getAlbumImagesEpic,
-  uploadImageToAlbumEpic,
-  uploadImagesToAlbumEpic,
-  saveImageEpic,
-} from './images/epics'
-import { downloadEpic, uploadEpic, saveRecordEpic } from './network/epics'
-import {
-  cancelJobGroupEpic,
-  dequeueJobEpic,
-  jobProgressEpic,
-  performJobEpic,
-  queueWorkerEpic,
-} from './queue/epics'
-import {
-  subscribeWebSocketEpic,
-  unsubscribeWebSocketEpic,
-} from './webSocket/epics'
+import * as albumEpics from './albums/epics'
+import * as fileEpics from './files/epics'
+import * as imageEpics from './images/epics'
+import * as networkEpics from './network/epics'
+import * as queueEpics from './queue/epics'
+import * as webSocketEpics from './webSocket/epics'
+import * as sharingEpics from './sharing/epics'
 
 const rootEpic = combineEpics(
-  addAlbumEpic,
-  cancelJobGroupEpic,
-  dequeueJobEpic,
-  downloadPreviewImageEpic,
-  downloadEpic,
-  fetchAlbumTreeEpic,
-  getAlbumImagesEpic,
-  jobProgressEpic,
-  performJobEpic,
-  queueWorkerEpic,
-  readFileEpic,
-  saveAlbumEpic,
-  saveImageEpic,
-  saveRecordEpic,
-  setParentAlbumEpic,
-  subscribeWebSocketEpic,
-  unsubscribeWebSocketEpic,
-  uploadEpic,
-  uploadImageToAlbumEpic,
-  uploadImagesToAlbumEpic,
+  ..._.values(albumEpics),
+  ..._.values(fileEpics),
+  ..._.values(imageEpics),
+  ..._.values(networkEpics),
+  ..._.values(queueEpics),
+  ..._.values(webSocketEpics),
+  ..._.values(sharingEpics),
 )
 
 export default rootEpic

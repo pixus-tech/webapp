@@ -6,10 +6,11 @@ export default { title: 'Share Panel' }
 export const standard = () => (
   <div style={{ height: 256, width: 256 }}>
     <SharePanel
-      people={[
+      onAddUser={console.log}
+      users={[
         {
           username: 'test1.id.blockstack',
-          initials: 'TK',
+          name: 'Jon Doe',
         },
         {
           username: 'test2.id.blockstack',

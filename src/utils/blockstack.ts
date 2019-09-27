@@ -1,6 +1,7 @@
 import {
   GroupInvitation,
   GroupMembership,
+  Member,
   User as RadiksUser,
   UserGroup,
 } from 'radiks'
@@ -61,6 +62,33 @@ export async function createUserGroup<
   await createGroupMembership(username, userGroup)
 
   return userGroup
+}
+
+export async function inviteUserToGroup(
+  username: string,
+  userGroup: UserGroup,
+) {
+  let inviteId = null
+  userGroup.attrs.members.forEach((member: Member) => {
+    if (member.username === username) {
+      inviteId = member.inviteId
+    }
+  })
+
+  if (inviteId) {
+    const invitation = await GroupInvitation.findById(inviteId, {
+      decrypt: false,
+    })
+    return invitation as GroupInvitation
+  }
+
+  const invitation = await GroupInvitation.makeInvitation(username, userGroup)
+  userGroup.attrs.members.push({
+    username,
+    inviteId: invitation._id,
+  })
+  await userGroup.save()
+  return invitation
 }
 
 export function currentUser() {
