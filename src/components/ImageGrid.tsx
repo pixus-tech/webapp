@@ -61,7 +61,7 @@ class ImageGrid extends React.PureComponent<ComposedProps> {
   render() {
     const { columnCount, images, height, width } = this.props
     const cellWidth = width / columnCount
-    const cellHeight = (cellWidth * 2) / 3
+    const cellHeight = cellWidth
 
     return (
       <Grid
