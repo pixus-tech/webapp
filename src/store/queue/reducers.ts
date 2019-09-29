@@ -13,7 +13,7 @@ import {
 } from 'constants/index'
 
 export const initialState = {
-  isRunning: false,
+  isRunning: true,
   jobGroups: Map<JobGroupId, List<JobId>>(),
   jobs: OrderedMap<JobId, Job>(),
   runningJobsMap: Map<JobId, boolean>(),

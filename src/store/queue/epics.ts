@@ -4,8 +4,8 @@ import {
   filter,
   mergeMap,
   map,
-  takeUntil,
   take,
+  throttle,
   withLatestFrom,
 } from 'rxjs/operators'
 import {
@@ -17,48 +17,46 @@ import {
 
 import * as actions from './actions'
 import { Queue } from './types'
+import { WORKER_THROTTLE_INTERVAL } from 'constants/index'
 
-export const queueWorkerEpic: Epic<RootAction, RootAction, RootState> = (
+export const enqueueJobEpic: Epic<RootAction, RootAction, RootState> = (
   action$,
   state$,
 ) =>
   action$.pipe(
-    filter(isActionOf(actions.startQueueWorker)),
-    mergeMap(action =>
-      interval(action.payload).pipe(
-        withLatestFrom(state$),
-        mergeMap(([_, state]) => {
-          const dequeueActions = []
-
-          const downloadQueue = state.queue.queues.get(Queue.Download)
-          if (downloadQueue !== undefined && downloadQueue.size > 0) {
-            dequeueActions.push(actions._dequeueJob(Queue.Download))
-          }
-
-          const readFileQueue = state.queue.queues.get(Queue.ReadFile)
-          if (readFileQueue !== undefined && readFileQueue.size > 0) {
-            dequeueActions.push(actions._dequeueJob(Queue.ReadFile))
-          }
-          const recordOperationQueue = state.queue.queues.get(
-            Queue.RecordOperation,
-          )
-          if (
-            recordOperationQueue !== undefined &&
-            recordOperationQueue.size > 0
-          ) {
-            dequeueActions.push(actions._dequeueJob(Queue.RecordOperation))
-          }
-
-          const uploadQueue = state.queue.queues.get(Queue.Upload)
-          if (uploadQueue !== undefined && uploadQueue.size > 0) {
-            dequeueActions.push(actions._dequeueJob(Queue.Upload))
-          }
-
-          return of(...dequeueActions)
-        }),
-        takeUntil(action$.pipe(filter(isActionOf(actions.stopQueueWorker)))),
-      ),
+    filter(
+      action =>
+        isActionOf(actions._enqueueJob)(action) ||
+        isActionOf(actions._jobDidFail)(action) ||
+        isActionOf(actions._jobDidSucceed)(action),
     ),
+    throttle(() => interval(WORKER_THROTTLE_INTERVAL)),
+    withLatestFrom(state$),
+    filter(([_, state]) => state.queue.isRunning),
+    mergeMap(([_, state]) => {
+      const dequeueActions = []
+
+      const downloadQueue = state.queue.queues.get(Queue.Download)
+      if (downloadQueue !== undefined && downloadQueue.size > 0) {
+        dequeueActions.push(actions._dequeueJob(Queue.Download))
+      }
+
+      const readFileQueue = state.queue.queues.get(Queue.ReadFile)
+      if (readFileQueue !== undefined && readFileQueue.size > 0) {
+        dequeueActions.push(actions._dequeueJob(Queue.ReadFile))
+      }
+      const recordOperationQueue = state.queue.queues.get(Queue.RecordOperation)
+      if (recordOperationQueue !== undefined && recordOperationQueue.size > 0) {
+        dequeueActions.push(actions._dequeueJob(Queue.RecordOperation))
+      }
+
+      const uploadQueue = state.queue.queues.get(Queue.Upload)
+      if (uploadQueue !== undefined && uploadQueue.size > 0) {
+        dequeueActions.push(actions._dequeueJob(Queue.Upload))
+      }
+
+      return of(...dequeueActions)
+    }),
   )
 
 export const dequeueJobEpic: Epic<RootAction, RootAction, RootState> = (

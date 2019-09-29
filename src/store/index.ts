@@ -6,12 +6,7 @@ import { persistStore, persistReducer } from 'redux-persist'
 import services from 'services'
 import { RootAction, RootService, RootState } from 'typesafe-actions'
 
-import {
-  DELAY_TO_LAUNCH_WORKER_QUEUE,
-  LAUNCH_WORKER_PERIOD,
-} from 'constants/index'
 import { composeEnhancer } from './utils'
-import { startQueueWorker } from './queue/actions'
 
 import rootEpic from './rootEpic'
 import rootReducer from './rootReducer'
@@ -43,9 +38,5 @@ const enhancer = composeEnhancer(applyMiddleware(...middlewares))
 const store = createStore(persistedReducer, {}, enhancer)
 const persistor = persistStore(store)
 epicMiddleware.run(rootEpic)
-
-setTimeout(() => {
-  store.dispatch(startQueueWorker(LAUNCH_WORKER_PERIOD))
-}, DELAY_TO_LAUNCH_WORKER_QUEUE)
 
 export default { persistor, store }
