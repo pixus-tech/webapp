@@ -4,13 +4,14 @@ import NotificationRecord, { NotificationRecordFactory } from 'db/notification'
 import Notification, {
   parseNotificationRecord,
   parseNotificationRecords,
+  UnsavedNotification,
 } from 'models/notification'
-import { currentUserName } from 'utils/blockstack'
+import { currentUsername } from 'utils/blockstack'
 
 export const getNotifications = () => {
   return new Observable<Notification[]>(subscriber => {
     NotificationRecord.fetchList<NotificationRecord>({
-      addressee: currentUserName(),
+      addressee: currentUsername(),
       isRead: false,
     })
       .then(notificationRecords => {
@@ -22,13 +23,16 @@ export const getNotifications = () => {
 }
 
 export const createNotification = (
-  notification: Omit<Notification, 'creator' | 'isRead'>,
+  notification: Omit<UnsavedNotification, 'creator' | 'isRead'>,
+  key: string,
 ) => {
   const notificationRecord = NotificationRecordFactory.build({
     ...notification,
-    creator: currentUserName(),
+    creator: currentUsername(),
     isRead: false,
   })
+
+  notificationRecord.userPublicKey = key
 
   return new Observable<{ resource: Notification }>(subscriber => {
     notificationRecord

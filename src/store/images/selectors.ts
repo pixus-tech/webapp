@@ -1,5 +1,4 @@
 import { List } from 'immutable'
-import { createSelector } from 'reselect'
 
 import Album from 'models/album'
 import Image from 'models/image'

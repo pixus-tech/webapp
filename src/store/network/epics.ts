@@ -68,38 +68,45 @@ export const downloadEpic: Epic<
   action$.pipe(
     filter(isActionOf(actions.download.request)),
     mergeMap(action =>
-      files.download(action.payload.data.path, action.payload.data.key).pipe(
-        map(data =>
-          actions.download.success({
-            jobId: action.payload.jobId,
-            groupId: action.payload.groupId,
-            data: {
-              fileContent: data,
-              key: action.payload.data.key,
-              path: action.payload.data.path,
-            },
-          }),
-        ),
-        catchError(error =>
-          of(
-            actions.download.failure({
+      files
+        .download(
+          action.payload.data.path,
+          action.payload.data.username,
+          action.payload.data.key,
+        )
+        .pipe(
+          map(data =>
+            actions.download.success({
               jobId: action.payload.jobId,
               groupId: action.payload.groupId,
-              data: { error, resource: action.payload.data },
+              data: {
+                fileContent: data,
+                key: action.payload.data.key,
+                path: action.payload.data.path,
+                username: action.payload.data.username,
+              },
             }),
           ),
-        ),
-        takeUntil(
-          action$.pipe(
-            filter(isActionOf(actions.download.cancel)),
-            filter(
-              cancelAction =>
-                cancelAction.payload.groupId === action.payload.groupId ||
-                cancelAction.payload.jobId === action.payload.jobId,
+          catchError(error =>
+            of(
+              actions.download.failure({
+                jobId: action.payload.jobId,
+                groupId: action.payload.groupId,
+                data: { error, resource: action.payload.data },
+              }),
+            ),
+          ),
+          takeUntil(
+            action$.pipe(
+              filter(isActionOf(actions.download.cancel)),
+              filter(
+                cancelAction =>
+                  cancelAction.payload.groupId === action.payload.groupId ||
+                  cancelAction.payload.jobId === action.payload.jobId,
+              ),
             ),
           ),
         ),
-      ),
     ),
   )
 

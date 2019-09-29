@@ -23,7 +23,7 @@ export interface IProps {
 }
 
 function initialsFromName(name?: string) {
-  if (name === undefined) {
+  if (!name) {
     return undefined
   }
 

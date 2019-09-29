@@ -3,6 +3,7 @@ import uuid from 'uuid/v4'
 
 import BaseRecord from './index'
 import Notification, { UnsavedNotification } from 'models/notification'
+import userSession from 'utils/userSession'
 
 export default class NotificationRecord extends BaseRecord {
   static className = 'Notification'
@@ -19,6 +20,16 @@ export default class NotificationRecord extends BaseRecord {
     message: String,
     targetId: String,
     type: Number,
+  }
+
+  userPublicKey = ''
+
+  async encryptionPublicKey() {
+    return this.userPublicKey
+  }
+
+  encryptionPrivateKey() {
+    return userSession.loadUserData().appPrivateKey
   }
 }
 

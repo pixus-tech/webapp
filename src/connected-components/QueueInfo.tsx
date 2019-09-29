@@ -5,10 +5,7 @@ import { compose } from 'recompose'
 import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
 
-import Popper from '@material-ui/core/Popper'
 import IconButton from '@material-ui/core/IconButton'
-import Fade from '@material-ui/core/Fade'
-import Paper from '@material-ui/core/Paper'
 import { List, ListRowProps } from 'react-virtualized'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
@@ -29,6 +26,7 @@ import DownloadIcon from '@material-ui/icons/CloudDownload'
 import UploadIcon from '@material-ui/icons/CloudUpload'
 import CancelIcon from '@material-ui/icons/Cancel'
 
+import IconWithPopover from 'components/IconWithPopover'
 import { cancelJobGroup } from 'store/queue/actions'
 import { Queue } from 'store/queue/types'
 
@@ -47,12 +45,6 @@ const styles = (theme: Theme) =>
     },
     menuButton: {
       marginLeft: -theme.spacing(1),
-    },
-    paper: {
-      padding: theme.spacing(1),
-    },
-    popper: {
-      zIndex: theme.zIndex.tooltip,
     },
   })
 
@@ -75,7 +67,6 @@ interface IStateProps {
 
 interface IState {
   activeTab: number
-  anchorElement: HTMLElement | null
 }
 
 type ComposedProps = WithStyles<typeof styles> &
@@ -89,7 +80,6 @@ class QueueInfo extends React.PureComponent<ComposedProps, IState> {
 
     this.state = {
       activeTab: 0,
-      anchorElement: null,
     }
   }
 
@@ -124,13 +114,6 @@ class QueueInfo extends React.PureComponent<ComposedProps, IState> {
     )
   }
 
-  handleTogglePopper = (event: React.MouseEvent<HTMLElement>) => {
-    const target = event.currentTarget
-    this.setState(state => ({
-      anchorElement: state.anchorElement === null ? target : null,
-    }))
-  }
-
   setActiveTab = (_event: React.ChangeEvent<{}>, activeTab: number) => {
     this.setState({ activeTab })
   }
@@ -158,79 +141,59 @@ class QueueInfo extends React.PureComponent<ComposedProps, IState> {
 
   render() {
     const { classes } = this.props
-    const { activeTab, anchorElement } = this.state
+    const { activeTab } = this.state
 
     const visibleItems = this.visibleItems()
 
-    const isOpen = Boolean(anchorElement)
-    const id = isOpen ? 'queue-info-popper' : undefined
     const height = Math.max(
       ROW_HEIGHT,
       Math.min(visibleItems.length * ROW_HEIGHT, MAX_HEIGHT),
     )
 
     return (
-      <>
-        <IconButton
-          edge="end"
-          aria-label="delete"
-          aria-describedby={id}
-          onClick={this.handleTogglePopper}
+      <IconWithPopover
+        id="queue-info-popover"
+        tooltip="Running jobs"
+        Icon={<CloudIcon />}
+      >
+        <Tabs
+          value={activeTab}
+          onChange={this.setActiveTab}
+          variant="fullWidth"
+          indicatorColor="primary"
+          textColor="primary"
         >
-          <CloudIcon />
-        </IconButton>
-        <Popper
-          className={classes.popper}
-          id={id}
-          open={isOpen}
-          anchorEl={anchorElement}
-          transition
+          <Tab icon={<ListIcon />} aria-label="all" />
+          <Tab icon={<DownloadIcon />} aria-label="download" />
+          <Tab icon={<UploadIcon />} aria-label="upload" />
+        </Tabs>
+        <div
+          style={{
+            height,
+            width: MAX_WIDTH,
+          }}
         >
-          {({ TransitionProps }) => (
-            <Fade {...TransitionProps} timeout={300}>
-              <Paper className={classes.paper}>
-                <Tabs
-                  value={activeTab}
-                  onChange={this.setActiveTab}
-                  variant="fullWidth"
-                  indicatorColor="primary"
-                  textColor="primary"
-                >
-                  <Tab icon={<ListIcon />} aria-label="all" />
-                  <Tab icon={<DownloadIcon />} aria-label="download" />
-                  <Tab icon={<UploadIcon />} aria-label="upload" />
-                </Tabs>
-                <div
-                  style={{
-                    height,
-                    width: MAX_WIDTH,
-                  }}
-                >
-                  {visibleItems.length > 0 ? (
-                    <List
-                      className={classes.list}
-                      height={height}
-                      rowCount={visibleItems.length}
-                      rowHeight={ROW_HEIGHT}
-                      rowRenderer={this.JobRow}
-                      width={MAX_WIDTH}
-                    />
-                  ) : (
-                    <Typography
-                      className={classes.body}
-                      color="inherit"
-                      variant="body1"
-                      component="p"
-                    >
-                      No jobs running.
-                    </Typography>
-                  )}
-                </div>
-              </Paper>
-            </Fade>
+          {visibleItems.length > 0 ? (
+            <List
+              className={classes.list}
+              height={height}
+              rowCount={visibleItems.length}
+              rowHeight={ROW_HEIGHT}
+              rowRenderer={this.JobRow}
+              width={MAX_WIDTH}
+            />
+          ) : (
+            <Typography
+              className={classes.body}
+              color="inherit"
+              variant="body1"
+              component="p"
+            >
+              No jobs running.
+            </Typography>
           )}
-        </Popper>
-      </>
+        </div>
+      </IconWithPopover>
     )
   }
 }

@@ -1,7 +1,4 @@
-import {
-  getName,
-  getAvatarUrl,
-} from 'blockstack/lib/profiles/profileSchemas/personUtils'
+import { Person } from 'blockstack'
 
 export default interface User {
   username: string
@@ -10,10 +7,13 @@ export default interface User {
 }
 
 export function parseProfile(username: string, profile: any): User {
+  const person = new Person(profile)
+
   const user: User = {
     username,
-    name: getName(profile),
-    imageURL: getAvatarUrl(profile),
+    name: person.name(),
+    imageURL: person.avatarUrl(),
   }
+
   return user
 }

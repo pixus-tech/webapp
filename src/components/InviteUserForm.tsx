@@ -43,6 +43,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     userItem: {
       marginTop: theme.spacing(2),
+      padding: 0,
     },
     sendIcon: {
       marginLeft: theme.spacing(1),
@@ -101,7 +102,11 @@ function InviteUserForm({
       )}
       {user && (
         <>
-          <UserListItem className={classes.userItem} user={user} />
+          <UserListItem
+            className={classes.userItem}
+            user={user}
+            component="div"
+          />
           <TextField
             autoFocus
             className={classes.messageTextField}

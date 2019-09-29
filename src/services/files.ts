@@ -26,10 +26,10 @@ export function upload(
   })
 }
 
-export function download(path: string, key?: string) {
+export function download(path: string, username: string, key?: string) {
   return new Observable<ArrayBuffer | string>(subscriber => {
     userSession
-      .getFile(path, { decrypt: key || true })
+      .getFile(path, { decrypt: key || true, username })
       .then(data => {
         subscriber.next(data)
         subscriber.complete()

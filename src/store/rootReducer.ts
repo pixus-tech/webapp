@@ -10,6 +10,9 @@ import network, {
   initialState as initialNetworkState,
 } from './network/reducers'
 import queue, { initialState as initialQueueState } from './queue/reducers'
+import notifications, {
+  initialState as initialNotificationsState,
+} from './notifications/reducers'
 import sharing, {
   initialState as initialSharingState,
 } from './sharing/reducers'
@@ -25,6 +28,7 @@ const rootReducer = combineReducers({
   images,
   modal,
   network,
+  notifications,
   queue,
   sharing,
   webSocket,
@@ -38,6 +42,7 @@ export const initialState = {
   images: initialImagesState,
   modal: initialModalState,
   network: initialNetworkState,
+  notifications: initialNotificationsState,
   queue: initialQueueState,
   sharing: initialSharingState,
   webSocket: initialWebSocketState,

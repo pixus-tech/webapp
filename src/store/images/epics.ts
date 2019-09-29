@@ -111,6 +111,7 @@ export const downloadPreviewImageEpic: Epic<
         payload: {
           key: requestData.album.privateKey,
           path: imagePreviewUploadPath(requestData.image._id),
+          username: requestData.image.username,
         },
       },
     ])

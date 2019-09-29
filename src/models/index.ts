@@ -1,10 +1,16 @@
-import * as _ from 'lodash'
-
 export default interface BaseModel {
   _id: string
 }
 
 export type UnsavedModel<T extends BaseModel> = Omit<T, '_id'>
+
+export function parseAttribute(attributeValue: string | object) {
+  if (typeof attributeValue === 'object') {
+    return 'ENCRYPTED'
+  }
+
+  return attributeValue
+}
 
 /* import uuid from 'uuid/v4'
  * export function buildModel<T extends BaseModel>(model: UnsavedModel<T>): T {

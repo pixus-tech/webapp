@@ -1,12 +1,12 @@
 import * as _ from 'lodash'
 import * as Yup from 'yup'
 
-import BaseModel, { UnsavedModel } from './'
+import BaseModel, { UnsavedModel, parseAttribute } from './'
 import NotificationRecord from 'db/notification'
 
 export enum NotificationType {
   Unknown = 0,
-  Invite = 1,
+  AlbumInvite = 1,
   NewAlbumImages = 2,
   UserJoinedGroup = 4,
 }
@@ -14,6 +14,7 @@ export enum NotificationType {
 export default interface Notification extends BaseModel {
   addressee: string
   creator: string
+  createdAt?: number
   isRead: boolean
   message?: string
   targetId?: string
@@ -24,7 +25,7 @@ export type UnsavedNotification = UnsavedModel<Notification>
 
 function parseNotificationType(type: any) {
   if (type === 1) {
-    return NotificationType.Invite
+    return NotificationType.AlbumInvite
   }
 
   if (type === 2) {
@@ -44,9 +45,10 @@ export function parseNotificationRecord(
   return {
     _id: record._id,
     addressee: record.attrs.addressee,
-    creator: record.attrs.creator,
+    creator: parseAttribute(record.attrs.creator),
+    createdAt: record.attrs.createdAt,
     isRead: record.attrs.isRead,
-    message: record.attrs.message,
+    message: parseAttribute(record.attrs.message),
     targetId: record.attrs.targetId,
     type: parseNotificationType(record.attrs.type),
   }

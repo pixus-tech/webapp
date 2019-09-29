@@ -7,7 +7,6 @@ import {
 } from '@material-ui/core/styles'
 import Hidden from '@material-ui/core/Hidden'
 
-import Copyright from './elements/Copyright'
 import Header from 'containers/Header'
 import Menu from 'containers/Menu'
 
@@ -65,9 +64,6 @@ const AppLayout: React.SFC<StyleProps> = ({ children, classes }) => {
       <div className={classes.app}>
         <Header onDrawerToggle={handleDrawerToggle} />
         <main className={classes.main}>{children}</main>
-        <footer className={classes.footer}>
-          <Copyright />
-        </footer>
       </div>
     </>
   )

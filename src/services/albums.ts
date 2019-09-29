@@ -8,11 +8,11 @@ import Album, {
   parseAlbumRecords,
   UnsavedAlbum,
 } from 'models/album'
-import { createUserGroup, currentUser, currentUserName } from 'utils/blockstack'
+import { createUserGroup, currentUser, currentUsername } from 'utils/blockstack'
 
 export const getAlbums = () => {
   return new Observable<Album[]>(subscriber => {
-    AlbumRecord.fetchList<AlbumRecord>({ users: currentUserName() })
+    AlbumRecord.fetchList<AlbumRecord>({ users: currentUsername() })
       .then(albumRecords => {
         subscriber.next(parseAlbumRecords(albumRecords))
         subscriber.complete()

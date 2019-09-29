@@ -12,27 +12,26 @@ import User from 'models/user'
 
 export interface IProps {
   className?: string
+  component?: React.ElementType
   user: User
   message?: string
 }
 
 const useStyles = makeStyles((_theme: Theme) =>
   createStyles({
-    root: {
-      padding: 0,
-    },
+    root: {},
     inline: {
       display: 'inline',
     },
   }),
 )
 
-function UserListItem({ className, message, user }: IProps) {
+function UserListItem({ className, component, message, user }: IProps) {
   const classes = useStyles()
 
   return (
     <ListItem
-      component="div"
+      component={component || 'li'}
       className={cx(classes.root, className)}
       alignItems="flex-start"
     >

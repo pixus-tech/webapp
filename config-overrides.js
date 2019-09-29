@@ -29,7 +29,6 @@ module.exports = {
 
   webpack: function override(config, env) {
     config.output.globalObject = `self`
-
     return config
   },
 

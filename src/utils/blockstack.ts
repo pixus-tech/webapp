@@ -23,7 +23,10 @@ async function createInvitation(user: RadiksUser, userGroup: UserGroup) {
   return invitation
 }
 
-async function createGroupMembership(username: string, userGroup: UserGroup) {
+export async function createGroupMembership(
+  username: string,
+  userGroup: UserGroup,
+) {
   const groupMembership = new GroupMembership({
     userGroupId: userGroup._id,
     username: username,
@@ -95,6 +98,6 @@ export function currentUser() {
   return RadiksUser.currentUser()
 }
 
-export function currentUserName() {
+export function currentUsername() {
   return RadiksUser.currentUser().attrs.username
 }
