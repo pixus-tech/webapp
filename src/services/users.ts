@@ -1,6 +1,5 @@
 import { lookupProfile } from 'blockstack'
 import { GroupInvitation, GroupMembership } from 'radiks'
-import { Observable } from 'rxjs'
 
 import Album from 'models/album'
 import AlbumRecord, { AlbumRecordFactory } from 'db/album'
@@ -8,73 +7,82 @@ import User, { parseProfile } from 'models/user'
 import { NotificationType } from 'models/notification'
 import { currentUsername, inviteUserToGroup } from 'utils/blockstack'
 
-import { createNotification } from './notifications'
+import notifications from './notifications'
+import BaseService from './baseService'
+import { Queue } from './dispatcher'
 
-export function findUser(username: string) {
-  return new Observable<User>(subscriber => {
-    lookupProfile(username)
-      .then((profile: any) => {
-        subscriber.next(parseProfile(username, profile))
-        subscriber.complete()
-      })
-      .catch((error: string) => {
-        subscriber.error(error)
-      })
-  })
-}
-
-export function inviteUserToAlbum(user: User, album: Album, message?: string) {
-  const userGroup = AlbumRecordFactory.build(album)
-
-  return new Observable<undefined>(subscriber => {
-    inviteUserToGroup(user.username, userGroup)
-      .then(invite => {
-        createNotification(
-          {
-            addressee: user.username,
-            message,
-            targetId: invite._id,
-            type: NotificationType.AlbumInvite,
-          },
-          invite.userPublicKey,
-        ).subscribe({
-          next() {
-            subscriber.next()
-          },
-          error(error) {
-            subscriber.error(error)
-          },
-          complete() {
-            subscriber.complete()
-          },
+class Users extends BaseService {
+  find = (username: string) =>
+    this.dispatcher.performAsync<User>(Queue.RecordOperation, function(
+      resolve,
+      reject,
+    ) {
+      lookupProfile(username)
+        .then((profile: any) => {
+          resolve(parseProfile(username, profile))
         })
-      })
-      .catch((error: string) => {
-        subscriber.error(error)
-      })
-  })
+        .catch(reject)
+    })
+
+  inviteUserToAlbum = (user: User, album: Album, message?: string) =>
+    this.dispatcher.performAsync<undefined>(Queue.RecordOperation, function(
+      resolve,
+      reject,
+    ) {
+      const userGroup = AlbumRecordFactory.build(album)
+      inviteUserToGroup(user.username, userGroup)
+        .then(invite => {
+          notifications
+            .createNotification(
+              {
+                addressee: user.username,
+                message,
+                targetId: invite._id,
+                type: NotificationType.AlbumInvite,
+              },
+              invite.userPublicKey,
+            )
+            .subscribe({
+              error(error) {
+                reject(error)
+              },
+              complete() {
+                resolve(undefined)
+              },
+            })
+        })
+        .catch(reject)
+    })
+
+  async _acceptInvitation(invitationId: string) {
+    const username = currentUsername()
+    const invitation = (await GroupInvitation.findById(
+      invitationId,
+    )) as GroupInvitation
+    const albumId = invitation.attrs.userGroupId as string
+    const groupMembership = new GroupMembership({
+      userGroupId: albumId,
+      username: username,
+      signingKeyPrivateKey: invitation.attrs.signingKeyPrivateKey,
+      signingKeyId: invitation.attrs.signingKeyId,
+      updatable: false,
+    })
+    await groupMembership.save()
+    await GroupMembership.cacheKeys()
+    const albumRecord = (await AlbumRecord.findById(albumId)) as AlbumRecord
+    albumRecord.privateKey = albumRecord.encryptionPrivateKey()
+    albumRecord.update({ users: [...albumRecord.attrs.users, username] })
+    await albumRecord.save()
+  }
+
+  acceptInvitation = (invitationId: string) =>
+    this.dispatcher.performAsync<undefined>(
+      Queue.RecordOperation,
+      (resolve, reject) =>
+        this._acceptInvitation(invitationId)
+          .then(() => resolve(undefined))
+          .catch(reject),
+    )
 }
 
-export async function acceptInvitation(invitationId: string) {
-  const username = currentUsername()
-  const invitation = (await GroupInvitation.findById(
-    invitationId,
-  )) as GroupInvitation
-  const albumId = invitation.attrs.userGroupId as string
-  const groupMembership = new GroupMembership({
-    userGroupId: albumId,
-    username: username,
-    signingKeyPrivateKey: invitation.attrs.signingKeyPrivateKey,
-    signingKeyId: invitation.attrs.signingKeyId,
-    updatable: false,
-  })
-  await groupMembership.save()
-  await GroupMembership.cacheKeys()
-  const albumRecord = (await AlbumRecord.findById(albumId)) as AlbumRecord
-  albumRecord.privateKey = albumRecord.encryptionPrivateKey()
-  albumRecord.update({ users: [...albumRecord.attrs.users, username] })
-  await albumRecord.save()
-}
-
-// @ts-ignore
-window.AI = acceptInvitation
+export default new Users()

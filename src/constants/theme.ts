@@ -14,7 +14,7 @@ const sourceSansPro = {
     url(${SourceSansProRegularWoff2}) format('woff2'),
     url(${SourceSansProRegularWoff}) format('woff')
     `,
-  }
+  },
 }
 
 let theme = createMuiTheme({

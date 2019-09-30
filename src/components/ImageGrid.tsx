@@ -26,14 +26,17 @@ const styles = (_theme: Theme) =>
 interface IProps {
   album: Album
   columnCount: number
-  images: Image[]
-  width: number
   height: number
+  images: Image[]
+  numberOfImages: number
+  width: number
 }
 
 type ComposedProps = IProps & WithStyles<typeof styles>
 
 class ImageGrid extends React.PureComponent<ComposedProps> {
+  private gridRef = React.createRef<Grid>()
+
   renderCell: GridCellRenderer = ({
     columnIndex,
     isVisible,
@@ -58,6 +61,18 @@ class ImageGrid extends React.PureComponent<ComposedProps> {
     )
   }
 
+  componentDidUpdate(prevProps: ComposedProps) {
+    if (
+      prevProps.album._id === this.props.album._id &&
+      prevProps.numberOfImages !== this.props.numberOfImages
+    ) {
+      const gridRef = this.gridRef.current
+      if (gridRef !== null) {
+        gridRef.forceUpdate()
+      }
+    }
+  }
+
   render() {
     const { columnCount, images, height, width } = this.props
     const cellWidth = width / columnCount
@@ -69,6 +84,7 @@ class ImageGrid extends React.PureComponent<ComposedProps> {
         columnCount={columnCount}
         columnWidth={cellWidth}
         height={height}
+        ref={this.gridRef}
         rowCount={Math.ceil(images.length / columnCount)}
         rowHeight={cellHeight}
         width={width}

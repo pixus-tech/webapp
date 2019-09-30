@@ -1,6 +1,5 @@
 import localForage from 'localforage'
 import { createStore, applyMiddleware } from 'redux'
-import logger from 'redux-logger'
 import { createEpicMiddleware } from 'redux-observable'
 import { persistStore, persistReducer } from 'redux-persist'
 import services from 'services'
@@ -33,7 +32,7 @@ const persistConfig = {
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
-const middlewares = [epicMiddleware, logger]
+const middlewares = [epicMiddleware]
 const enhancer = composeEnhancer(applyMiddleware(...middlewares))
 const store = createStore(persistedReducer, {}, enhancer)
 const persistor = persistStore(store)

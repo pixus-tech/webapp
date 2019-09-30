@@ -11,14 +11,8 @@ import {
 import uuid from 'uuid/v4'
 
 import * as actions from './actions'
-import { ImageRecordFactory } from 'db/image'
 import { FileHandle } from 'models/fileHandle'
 import { imagePreviewUploadPath } from 'models/image'
-import { download, saveRecord } from 'store/network/actions'
-import { Queue } from 'store/queue/types'
-import { listenToActionStream } from 'utils/queue'
-
-export { uploadImageToAlbumEpic } from './uploadImageToAlbum.epic'
 
 export const getAlbumImagesEpic: Epic<
   RootAction,
@@ -72,60 +66,63 @@ export const uploadImagesToAlbumEpic: Epic<
     }),
   )
 
-export const saveImageEpic: Epic<RootAction, RootAction, RootState> = (
-  action$,
-  state$,
-) =>
-  listenToActionStream(action$, state$)
-    .andPerformAction(actions.saveImage)
-    .byAsynchronouslyExecuting(saveRecord)
-    .withGroupId(requestData => `${requestData._id}-saveImage`)
-    .andJobs(requestData => [
-      {
-        queue: Queue.RecordOperation,
-        payload: ImageRecordFactory.build(requestData),
-      },
-    ])
-    .andResultCallbacks({
-      success: (request, success) => [actions.saveImage.success(request)],
-      error: (request, error) => [
-        actions.saveImage.failure({
-          error: Error('Image could not be saved'),
-          resource: request,
-        }),
-      ],
-    })
+export const uploadImageToAlbumEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'images'>
+> = (action$, state$, { images }) =>
+  action$.pipe(
+    filter(isActionOf(actions.uploadImageToAlbum.request)),
+    mergeMap(action => {
+      const { album, fileHandle } = action.payload
+      return images.uploadImageToAlbum(album, fileHandle).pipe(
+        map(image => actions.uploadImageToAlbum.success({ album, image })),
+        takeUntil(
+          action$.pipe(filter(isActionOf(actions.uploadImageToAlbum.cancel))), // TODO: should respect filehandle id
+        ),
+        catchError(error =>
+          of(
+            actions.uploadImageToAlbum.failure({
+              error,
+              resource: { album, fileHandle },
+            }),
+          ),
+        ),
+      )
+    }),
+  )
 
 export const downloadPreviewImageEpic: Epic<
   RootAction,
   RootAction,
-  RootState
-> = (action$, state$) =>
-  listenToActionStream(action$, state$)
-    .andPerformAction(actions.downloadPreviewImage)
-    .byAsynchronouslyExecuting(download)
-    .withGroupId(requestData => `${requestData.image._id}-downloadPreviewImage`)
-    .andJobs(requestData => [
-      {
-        queue: Queue.Download,
-        payload: {
-          key: requestData.album.privateKey,
-          path: imagePreviewUploadPath(requestData.image._id),
-          username: requestData.image.username,
-        },
-      },
-    ])
-    .andResultCallbacks({
-      success: (request, success) => [
-        actions.downloadPreviewImage.success({
-          image: request.image,
-          fileContent: success.fileContent,
-        }),
-      ],
-      error: (request, error) => [
-        actions.downloadPreviewImage.failure({
-          error: Error('Image could not be downloaded'),
-          resource: request.image,
-        }),
-      ],
-    })
+  RootState,
+  Pick<RootService, 'files'>
+> = (action$, state$, { files }) =>
+  action$.pipe(
+    filter(isActionOf(actions.downloadPreviewImage.request)),
+    mergeMap(action => {
+      const { album, image } = action.payload
+      return files
+        .download(
+          imagePreviewUploadPath(image._id),
+          image.username,
+          album.privateKey,
+        )
+        .pipe(
+          map(fileContent =>
+            actions.downloadPreviewImage.success({ image, fileContent }),
+          ),
+          takeUntil(
+            action$.pipe(
+              filter(isActionOf(actions.downloadPreviewImage.cancel)),
+            ),
+          ),
+          catchError(error =>
+            of(
+              actions.downloadPreviewImage.failure({ error, resource: image }),
+            ),
+          ),
+        )
+    }),
+  )

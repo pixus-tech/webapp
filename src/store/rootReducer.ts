@@ -2,14 +2,9 @@ import { combineReducers } from 'redux'
 
 import albums, { initialState as initialAlbumsState } from './albums/reducers'
 import auth, { initialState as initialAuthState } from './auth/reducers'
-import files, { initialState as initialFilesState } from './files/reducers'
 import i18n, { initialState as initialI18nState } from './i18n/reducers'
 import images, { initialState as initialImagesState } from './images/reducers'
 import modal, { initialState as initialModalState } from './modal/reducers'
-import network, {
-  initialState as initialNetworkState,
-} from './network/reducers'
-import queue, { initialState as initialQueueState } from './queue/reducers'
 import notifications, {
   initialState as initialNotificationsState,
 } from './notifications/reducers'
@@ -23,13 +18,10 @@ import webSocket, {
 const rootReducer = combineReducers({
   albums,
   auth,
-  files,
   i18n,
   images,
   modal,
-  network,
   notifications,
-  queue,
   sharing,
   webSocket,
 })
@@ -37,13 +29,10 @@ const rootReducer = combineReducers({
 export const initialState = {
   albums: initialAlbumsState,
   auth: initialAuthState,
-  files: initialFilesState,
   i18n: initialI18nState,
   images: initialImagesState,
   modal: initialModalState,
-  network: initialNetworkState,
   notifications: initialNotificationsState,
-  queue: initialQueueState,
   sharing: initialSharingState,
   webSocket: initialWebSocketState,
 }

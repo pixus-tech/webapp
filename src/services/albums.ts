@@ -1,5 +1,4 @@
-import { from, Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { Observable } from 'rxjs'
 
 import AlbumRecord, { AlbumRecordFactory } from 'db/album'
 import Album, {
@@ -10,74 +9,96 @@ import Album, {
 } from 'models/album'
 import { createUserGroup, currentUser, currentUsername } from 'utils/blockstack'
 
-export const getAlbums = () => {
-  return new Observable<Album[]>(subscriber => {
-    AlbumRecord.fetchList<AlbumRecord>({ users: currentUsername() })
-      .then(albumRecords => {
-        subscriber.next(parseAlbumRecords(albumRecords))
-        subscriber.complete()
-      })
-      .catch(error => subscriber.error(error))
-  })
-}
-
-export const addAlbum = (name: string) => {
-  const user = currentUser()
-
-  const album: UnsavedAlbum = {
-    index: 0,
-    name,
-    users: [user.attrs.username],
-  }
-
-  return new Observable<{ resource: Album }>(subscriber => {
-    createUserGroup(AlbumRecordFactory.build, album)
-      .then(albumRecord => {
-        subscriber.next({ resource: parseAlbumRecord(albumRecord) })
-        subscriber.complete()
-      })
-      .catch(error => subscriber.error(error))
-  })
-}
-
-export const updateAlbum = (album: Album, updates: Partial<Album>) => {
-  const albumRecord = buildAlbumRecord(album)
-  return from(albumRecord.save()).pipe(
-    map(response => {
-      return { resource: parseAlbumRecord(albumRecord) }
-    }),
-  )
-}
+import BaseService from './baseService'
+import { Queue } from './dispatcher'
+import records from './records'
 
 type StreamCallback = (record: AlbumRecord) => void
 
-let streamCallback: StreamCallback | undefined = undefined
+class Albums extends BaseService {
+  private streamCallback: StreamCallback | undefined = undefined
 
-export const unsubscribe = () => {
-  AlbumRecord.removeStreamListener(streamCallback as any) // TODO: Wrong type in radiks
-  streamCallback = undefined
+  addAlbum = (name: string) =>
+    this.dispatcher.performAsync<{ resource: Album }>(
+      Queue.RecordOperation,
+      function(resolve, reject) {
+        const user = currentUser()
 
-  return new Observable<undefined>(subscriber => {
-    subscriber.complete()
-  })
-}
+        const album: UnsavedAlbum = {
+          index: 0,
+          name,
+          users: [user.attrs.username],
+        }
 
-export const subscribe = () => {
-  if (streamCallback) {
-    unsubscribe()
+        createUserGroup(AlbumRecordFactory.build, album)
+          .then(albumRecord => {
+            resolve({ resource: parseAlbumRecord(albumRecord) })
+          })
+          .catch(reject)
+      },
+    )
+
+  getAlbums = () =>
+    this.dispatcher.performAsync<Album[]>(Queue.RecordOperation, function(
+      resolve,
+      reject,
+    ) {
+      AlbumRecord.fetchList<AlbumRecord>({ users: currentUsername() })
+        .then(albumRecords => {
+          resolve(parseAlbumRecords(albumRecords))
+        })
+        .catch(reject)
+    })
+
+  save = (album: Album | UnsavedAlbum) => {
+    const albumRecord = AlbumRecordFactory.build(album)
+    return records.save(albumRecord)
   }
 
-  return new Observable<Album>(subscriber => {
-    streamCallback = function streamCallback(record: AlbumRecord) {
-      const album = parseAlbumRecord(record)
+  updateAlbum = (album: Album, updates: Partial<Album>) =>
+    this.dispatcher.performAsync<{ resource: Album }>(
+      Queue.RecordOperation,
+      function(resolve, reject) {
+        const albumRecord = buildAlbumRecord(album)
+        records.save(albumRecord).subscribe({
+          next() {
+            resolve({ resource: parseAlbumRecord(albumRecord) })
+          },
+          error(error) {
+            reject(error)
+          },
+        })
+      },
+    )
 
-      if (album === null) {
-        return
-      }
+  unsubscribe = () => {
+    AlbumRecord.removeStreamListener(this.streamCallback as any) // TODO: Wrong type in radiks
+    this.streamCallback = undefined
 
-      subscriber.next(album)
+    return new Observable<undefined>(subscriber => {
+      subscriber.complete()
+    })
+  }
+
+  subscribe = () => {
+    if (this.streamCallback) {
+      this.unsubscribe()
     }
 
-    AlbumRecord.addStreamListener(streamCallback as any) // TODO: Wrong type in radiks
-  })
+    return new Observable<Album>(subscriber => {
+      this.streamCallback = function streamCallback(record: AlbumRecord) {
+        const album = parseAlbumRecord(record)
+
+        if (album === null) {
+          return
+        }
+
+        subscriber.next(album)
+      }
+
+      AlbumRecord.addStreamListener(this.streamCallback as any) // TODO: Wrong type in radiks
+    })
+  }
 }
+
+export default new Albums()

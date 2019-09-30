@@ -9,10 +9,6 @@ import {
 } from 'typesafe-actions'
 
 import * as actions from './actions'
-import { saveRecord } from 'store/network/actions'
-import { AlbumRecordFactory } from 'db/album'
-import { Queue } from 'store/queue/types'
-import { listenToActionStream } from 'utils/queue'
 
 export const fetchAlbumTreeEpic: Epic<
   RootAction,
@@ -52,29 +48,24 @@ export const addAlbumEpic: Epic<
     ),
   )
 
-export const saveAlbumEpic: Epic<RootAction, RootAction, RootState> = (
-  action$,
-  state$,
-) =>
-  listenToActionStream(action$, state$)
-    .andPerformAction(actions.saveAlbum)
-    .byAsynchronouslyExecuting(saveRecord)
-    .withGroupId(requestData => `${requestData._id}-saveAlbum`)
-    .andJobs(requestData => [
-      {
-        queue: Queue.RecordOperation,
-        payload: AlbumRecordFactory.build(requestData),
-      },
-    ])
-    .andResultCallbacks({
-      success: (request, success) => [actions.saveAlbum.success(request)],
-      error: (request, error) => [
-        actions.saveAlbum.failure({
-          error: Error('Album could not be saved'),
-          resource: request,
-        }),
-      ],
-    })
+export const saveAlbumEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'albums'>
+> = (action$, state$, { albums }) =>
+  action$.pipe(
+    filter(isActionOf(actions.saveAlbum.request)),
+    mergeMap(action =>
+      albums.save(action.payload).pipe(
+        mergeMap(response => of(actions.saveAlbum.success(action.payload))),
+        takeUntil(action$.pipe(filter(isActionOf(actions.saveAlbum.cancel)))), // TODO: respect cancel id
+        catchError(error =>
+          of(actions.saveAlbum.failure({ error, resource: action.payload })),
+        ),
+      ),
+    ),
+  )
 
 export const setParentAlbumEpic: Epic<
   RootAction,

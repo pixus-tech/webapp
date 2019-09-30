@@ -50,13 +50,6 @@ export const uploadImageToAlbum = createAsyncAction(
   }
 >()
 
-export const saveImage = createAsyncAction(
-  'IMAGES__SAVE_IMAGE__REQUEST',
-  'IMAGES__SAVE_IMAGE__SUCCESS',
-  'IMAGES__SAVE_IMAGE__FAILURE',
-  'IMAGES__SAVE_IMAGE__CANCEL',
-)<Image, Image, API.ErrorResponse<Image>, Image>()
-
 interface DownloadPreviewImageRequest {
   album: Album
   image: Image

@@ -157,7 +157,13 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
   }
 
   render() {
-    const { album, classes, dispatchSaveAlbum, images } = this.props
+    const {
+      album,
+      classes,
+      dispatchSaveAlbum,
+      images,
+      numberOfImages,
+    } = this.props
     const { numberOfImageColumns } = this.state
 
     if (!album) {
@@ -263,6 +269,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
                   height={height}
                   images={images}
                   key={album._id}
+                  numberOfImages={numberOfImages}
                   width={width}
                 />
               )

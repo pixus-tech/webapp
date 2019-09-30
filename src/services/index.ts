@@ -1,10 +1,10 @@
-import * as albums from './albums'
+import albums from './albums'
 import * as config from './config'
-import * as files from './files'
-import * as images from './images'
-import * as notifications from './notifications'
-import * as records from './records'
-import * as users from './users'
+import files from './files'
+import images from './images'
+import notifications from './notifications'
+import records from './records'
+import users from './users'
 
 const services = {
   albums,

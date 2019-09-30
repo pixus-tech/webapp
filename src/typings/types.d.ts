@@ -1,17 +1,15 @@
 import { ActionType } from 'typesafe-actions'
 
 import rootService from 'services'
-import rootAction, { enqueueableActions } from 'store/rootAction'
+import rootAction from 'store/rootAction'
 import rootReducer from 'store/rootReducer'
 
 declare module 'typesafe-actions' {
-  export type EnqueueableAction = ActionType<typeof enqueueableActions>
   export type RootAction = ActionType<typeof rootAction>
   export type RootState = ReturnType<typeof rootReducer>
   export type RootService = typeof rootService
 
   interface Types {
-    EnqueueableAction: EnqueueableAction
     RootAction: RootAction
     RootService: RootService
     RootState: RootState

@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
@@ -27,8 +26,6 @@ import UploadIcon from '@material-ui/icons/CloudUpload'
 import CancelIcon from '@material-ui/icons/Cancel'
 
 import IconWithPopover from 'components/IconWithPopover'
-import { cancelJobGroup } from 'store/queue/actions'
-import { Queue } from 'store/queue/types'
 
 const ROW_HEIGHT = 52
 const MAX_HEIGHT = 4 * ROW_HEIGHT
@@ -51,19 +48,14 @@ const styles = (theme: Theme) =>
 interface ListItem {
   id: string
   title: string
-  queue: Queue
   subtitle?: string
 }
 
 interface IProps {}
 
-interface IDispatchProps {
-  dispatchCancelJobGroup: typeof cancelJobGroup
-}
+interface IDispatchProps {}
 
-interface IStateProps {
-  items: ListItem[]
-}
+interface IStateProps {}
 
 interface IState {
   activeTab: number
@@ -84,15 +76,14 @@ class QueueInfo extends React.PureComponent<ComposedProps, IState> {
   }
 
   cancelJob = (event: React.MouseEvent<HTMLElement>) => {
-    const { dispatchCancelJobGroup } = this.props
     const { id } = event.currentTarget.dataset
     if (typeof id === 'string') {
-      dispatchCancelJobGroup(id)
+      // dispatchCancelJobGroup(id)
     }
   }
 
   JobRow = ({ key, style, index }: ListRowProps) => {
-    const { items } = this.props
+    const items = [] as ListItem[]
     const item = items[index % items.length]
 
     return (
@@ -118,36 +109,14 @@ class QueueInfo extends React.PureComponent<ComposedProps, IState> {
     this.setState({ activeTab })
   }
 
-  visibleItems = () => {
-    const { items } = this.props
-    const { activeTab } = this.state
-
-    if (activeTab === 1) {
-      return _.filter(items, item => item.queue === Queue.Download)
-    }
-
-    if (activeTab === 2) {
-      return _.filter(
-        items,
-        item =>
-          item.queue === Queue.Upload ||
-          item.queue === Queue.ReadFile ||
-          item.queue === Queue.RecordOperation,
-      )
-    }
-
-    return items
-  }
-
   render() {
+    const items = [] as ListItem[]
     const { classes } = this.props
     const { activeTab } = this.state
 
-    const visibleItems = this.visibleItems()
-
     const height = Math.max(
       ROW_HEIGHT,
-      Math.min(visibleItems.length * ROW_HEIGHT, MAX_HEIGHT),
+      Math.min(items.length * ROW_HEIGHT, MAX_HEIGHT),
     )
 
     return (
@@ -173,11 +142,11 @@ class QueueInfo extends React.PureComponent<ComposedProps, IState> {
             width: MAX_WIDTH,
           }}
         >
-          {visibleItems.length > 0 ? (
+          {items.length > 0 ? (
             <List
               className={classes.list}
               height={height}
-              rowCount={visibleItems.length}
+              rowCount={items.length}
               rowHeight={ROW_HEIGHT}
               rowRenderer={this.JobRow}
               width={MAX_WIDTH}
@@ -199,22 +168,11 @@ class QueueInfo extends React.PureComponent<ComposedProps, IState> {
 }
 
 function mapStateToProps(state: RootState): IStateProps {
-  return {
-    items: state.queue.jobs
-      .valueSeq()
-      .map(job => ({
-        id: job.groupId,
-        queue: job.queue,
-        title: job.action.type,
-      }))
-      .toArray(),
-  }
+  return {}
 }
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
-  return {
-    dispatchCancelJobGroup: groupId => dispatch(cancelJobGroup(groupId)),
-  }
+  return {}
 }
 
 export default compose<ComposedProps, IProps>(

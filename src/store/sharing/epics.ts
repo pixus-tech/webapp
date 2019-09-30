@@ -19,7 +19,7 @@ export const findUserEpic: Epic<
   action$.pipe(
     filter(isActionOf(actions.findUser.request)),
     mergeMap(action =>
-      users.findUser(action.payload).pipe(
+      users.find(action.payload).pipe(
         map(user => actions.findUser.success(user)),
         takeUntil(action$.pipe(filter(isActionOf(actions.findUser.cancel)))),
         catchError(error =>

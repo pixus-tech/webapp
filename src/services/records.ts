@@ -1,17 +1,20 @@
-import { Observable } from 'rxjs'
-
 import BaseRecord from 'db/index'
+import BaseService from './baseService'
+import { Queue } from './dispatcher'
 
-export function saveRecord<T extends BaseRecord>(record: T) {
-  return new Observable<T>(subscriber => {
-    record
-      .save()
-      .then(() => {
-        subscriber.next(record)
-        subscriber.complete()
-      })
-      .catch((error: string) => {
-        subscriber.error(error)
-      })
-  })
+class Records extends BaseService {
+  save = <T extends BaseRecord>(record: T) =>
+    this.dispatcher.performAsync<T>(Queue.RecordOperation, function(
+      resolve,
+      reject,
+    ) {
+      record
+        .save()
+        .then(() => {
+          resolve(record)
+        })
+        .catch(reject)
+    })
 }
+
+export default new Records()
