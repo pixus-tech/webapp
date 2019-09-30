@@ -10,6 +10,7 @@ import {
 } from '@material-ui/core/styles'
 
 import LazyImage from 'connected-components/LazyImage'
+import Slideshow from 'components/Slideshow'
 import Album from 'models/album'
 import Image from 'models/image'
 import { IMAGE_GRID_GUTTER_SIZE } from 'constants/index'
@@ -32,10 +33,38 @@ interface IProps {
   width: number
 }
 
+interface IState {
+  selection?: number
+}
+
 type ComposedProps = IProps & WithStyles<typeof styles>
 
-class ImageGrid extends React.PureComponent<ComposedProps> {
+class ImageGrid extends React.PureComponent<ComposedProps, IState> {
   private gridRef = React.createRef<Grid>()
+
+  constructor(props: ComposedProps) {
+    super(props)
+
+    this.state = {
+      selection: undefined,
+    }
+  }
+
+  updateGrid = () => {
+    const gridRef = this.gridRef.current
+    if (gridRef !== null) {
+      gridRef.forceUpdate()
+    }
+  }
+
+  setCellSelection = (event: React.MouseEvent<HTMLElement>) => {
+    const { index } = event.currentTarget.dataset
+    if (typeof index === 'string') {
+      this.setState({
+        selection: parseInt(index, 10),
+      })
+    }
+  }
 
   renderCell: GridCellRenderer = ({
     columnIndex,
@@ -55,7 +84,13 @@ class ImageGrid extends React.PureComponent<ComposedProps> {
     const image = images[index]
 
     return (
-      <div className={classes.cell} key={key} style={style}>
+      <div
+        className={classes.cell}
+        data-index={index}
+        key={key}
+        onClick={this.setCellSelection}
+        style={style}
+      >
         <LazyImage album={album} image={image} isVisible={isVisible} />
       </div>
     )
@@ -66,29 +101,31 @@ class ImageGrid extends React.PureComponent<ComposedProps> {
       prevProps.album._id === this.props.album._id &&
       prevProps.numberOfImages !== this.props.numberOfImages
     ) {
-      const gridRef = this.gridRef.current
-      if (gridRef !== null) {
-        gridRef.forceUpdate()
-      }
+      this.updateGrid()
     }
   }
 
   render() {
-    const { columnCount, images, height, width } = this.props
+    const { album, columnCount, images, height, width } = this.props
+    const { selection } = this.state
+
     const cellWidth = width / columnCount
     const cellHeight = cellWidth
 
     return (
-      <Grid
-        cellRenderer={this.renderCell}
-        columnCount={columnCount}
-        columnWidth={cellWidth}
-        height={height}
-        ref={this.gridRef}
-        rowCount={Math.ceil(images.length / columnCount)}
-        rowHeight={cellHeight}
-        width={width}
-      />
+      <>
+        <Grid
+          cellRenderer={this.renderCell}
+          columnCount={columnCount}
+          columnWidth={cellWidth}
+          height={height}
+          ref={this.gridRef}
+          rowCount={Math.ceil(images.length / columnCount)}
+          rowHeight={cellHeight}
+          width={width}
+        />
+        {selection !== undefined && <Slideshow album={album} images={images} />}
+      </>
     )
   }
 }

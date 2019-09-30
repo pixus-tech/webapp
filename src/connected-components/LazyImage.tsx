@@ -50,6 +50,7 @@ const styles = (_theme: Theme) =>
 
 export interface IProps {
   album: Album
+  className?: string
   image: Image
   isVisible: boolean
 }
@@ -108,7 +109,7 @@ class LazyImage extends React.PureComponent<ComposedProps> {
   }
 
   render() {
-    const { classes, image, imageObjectURL } = this.props
+    const { classes, className, image, imageObjectURL } = this.props
 
     const isImageLoaded = imageObjectURL !== undefined
 
@@ -117,7 +118,7 @@ class LazyImage extends React.PureComponent<ComposedProps> {
     }
 
     return (
-      <div className={classes.container}>
+      <div className={cx(classes.container, className)}>
         {isImageLoaded && (
           <img
             alt={image.name}
