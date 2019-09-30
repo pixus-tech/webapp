@@ -1,6 +1,6 @@
 {
-  "short_name": "Reveries",
-  "name": "Reveries Photos",
+  "short_name": "phtgrph",
+  "name": "photo graph",
   "description": "Private AI driven photo library.",
   "start_url": "192.168.1.158:3000",
   "icons": [

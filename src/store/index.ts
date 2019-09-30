@@ -21,9 +21,9 @@ const epicMiddleware = createEpicMiddleware<
 })
 
 localForage.config({
-  name: 'reveries',
+  name: 'photo-graph',
   version: 0.1,
-  storeName: 'reveries',
+  storeName: 'photo-graph',
 })
 
 const persistConfig = {

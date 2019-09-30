@@ -25,9 +25,9 @@ const useStyles = makeStyles((theme: Theme) =>
       width: AVATAR_SIZE,
     },
     button: {
-      backgroundColor: theme.palette.primary.main,
+      backgroundColor: theme.palette.secondary.main,
       borderRadius: '50%',
-      color: theme.palette.primary.contrastText,
+      color: theme.palette.secondary.contrastText,
       height: AVATAR_SIZE,
       minWidth: AVATAR_SIZE,
       padding: 0,
@@ -62,7 +62,7 @@ function SharePanel({ className, onAddUser, users }: IProps) {
       <Button
         aria-label="add user to group"
         className={classes.button}
-        color="primary"
+        color="secondary"
         onClick={onAddUser}
         variant="contained"
       >

@@ -1,4 +1,4 @@
-import * as _ from 'lodash'
+import _ from 'lodash'
 import React from 'react'
 import cx from 'classnames'
 import { connect } from 'react-redux'
@@ -20,7 +20,6 @@ import Button from '@material-ui/core/Button'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
-import Divider from '@material-ui/core/Divider'
 import Drawer, { DrawerProps } from '@material-ui/core/Drawer'
 import List from '@material-ui/core/List'
 import HomeIcon from '@material-ui/icons/Home'
@@ -58,7 +57,7 @@ const styles = (theme: Theme) =>
     },
     itemCategory: {
       // TODO: Get rid of static colors
-      backgroundColor: '#232f3e',
+      backgroundColor: theme.palette.primary.dark,
       boxShadow: '0 -1px 0 #404854 inset',
       paddingTop: theme.spacing(2),
       paddingBottom: theme.spacing(2),
@@ -67,7 +66,7 @@ const styles = (theme: Theme) =>
       fontSize: 20,
       marginRight: theme.spacing(1),
     },
-    firebase: {
+    headline: {
       fontSize: 24,
       color: theme.palette.common.white,
     },
@@ -81,6 +80,9 @@ const styles = (theme: Theme) =>
     itemIcon: {
       minWidth: 'auto',
       marginRight: theme.spacing(2),
+    },
+    highlight: {
+      color: theme.palette.secondary.main,
     },
     divider: {
       marginTop: theme.spacing(2),
@@ -142,9 +144,9 @@ class Menu extends React.Component<ComposedProps> {
             component={NavLink}
             to={routes.applicationRoot}
             exact
-            className={cx(classes.firebase, classes.item, classes.itemCategory)}
+            className={cx(classes.headline, classes.item, classes.itemCategory)}
           >
-            Reveries
+            <span className={classes.highlight}>photo</span>&nbsp;graph
           </ListItem>
           <ListItem className={cx(classes.item, classes.itemCategory)}>
             <ListItemIcon className={classes.itemIcon}>
@@ -176,23 +178,20 @@ class Menu extends React.Component<ComposedProps> {
               Albums ({albumCount})
             </ListItemText>
           </ListItem>
-
-          <Divider className={classes.divider} />
-
-          <Button
-            variant="outlined"
-            color="primary"
-            className={classes.button}
-            onClick={() => this.addAlbum('New Album')}
-          >
-            <AddDirectoryIcon className={classes.leftIcon} />
-            Add Album
-          </Button>
         </List>
         <AlbumTreeView
           albums={_.values(albums)}
           setParentAlbum={this.setParentAlbum}
         />
+        <Button
+          variant="outlined"
+          color="secondary"
+          className={classes.button}
+          onClick={() => this.addAlbum('New Album')}
+        >
+          <AddDirectoryIcon className={classes.leftIcon} />
+          Add Album
+        </Button>
       </Drawer>
     )
   }

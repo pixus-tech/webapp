@@ -1,4 +1,4 @@
-# Reveries Photos App
+# photo graph
 
 ## Development
 

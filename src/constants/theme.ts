@@ -1,15 +1,37 @@
 import { createMuiTheme } from '@material-ui/core/styles'
-import 'typeface-roboto'
+
+import SourceSansProRegularWoff2 from 'fonts/SourceSansPro-Regular.otf.woff2'
+import SourceSansProRegularWoff from 'fonts/SourceSansPro-Regular.otf.woff'
+
+const sourceSansPro = {
+  regular: {
+    fontFamily: 'SourceSansPro',
+    fontStyle: 'normal',
+    fontWeight: 'normal',
+    src: `
+    local('SourceSansPro'),
+    local('SourceSansPro-Regular'),
+    url(${SourceSansProRegularWoff2}) format('woff2'),
+    url(${SourceSansProRegularWoff}) format('woff')
+    `,
+  }
+}
 
 let theme = createMuiTheme({
   palette: {
     primary: {
-      light: '#63ccff',
-      main: '#009be5',
-      dark: '#006db3',
+      light: '#7e8080',
+      main: '#525454',
+      dark: '#282828',
+    },
+    secondary: {
+      light: '#59c9eb',
+      main: '#0098b9',
+      dark: '#006a89',
     },
   },
   typography: {
+    fontFamily: 'SourceSansPro, sans-serif',
     h5: {
       fontWeight: 500,
       fontSize: 26,
@@ -34,9 +56,14 @@ let theme = createMuiTheme({
 theme = {
   ...theme,
   overrides: {
+    MuiCssBaseline: {
+      '@global': {
+        '@font-face': [sourceSansPro.regular],
+      },
+    },
     MuiDrawer: {
       paper: {
-        backgroundColor: '#18202c',
+        backgroundColor: '#282828',
       },
     },
     MuiButton: {

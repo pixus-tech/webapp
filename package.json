@@ -1,5 +1,5 @@
 {
-  "name": "reveries-photos",
+  "name": "photo-graph",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -35,7 +35,6 @@
     "redux-persist": "^6.0.0",
     "reselect": "^4.0.0",
     "rxjs": "^6.5.2",
-    "typeface-roboto": "0.0.75",
     "typesafe-actions": "^4.4.0",
     "typescript": "^3.6.3",
     "utility-types": "^3.8.0",
