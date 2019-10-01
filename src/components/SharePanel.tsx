@@ -15,15 +15,11 @@ export interface IProps {
   users: User[]
 }
 
-const AVATAR_OVERLAP = 0.62 * AVATAR_SIZE
+const AVATAR_OVERLAP = 0.42 * AVATAR_SIZE
 const AVATAR_GAP = 6
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    avatar: {
-      height: AVATAR_SIZE,
-      width: AVATAR_SIZE,
-    },
     button: {
       backgroundColor: theme.palette.secondary.main,
       borderRadius: '50%',
@@ -35,18 +31,18 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     container: {
       '& > *': {
-        marginLeft: -AVATAR_OVERLAP,
-        transition: 'margin-left 100ms ease-out',
+        marginRight: -AVATAR_OVERLAP,
+        transition: 'margin-right 100ms ease-out',
       },
       '&:hover': {
-        paddingLeft: -AVATAR_GAP,
+        paddingRight: -AVATAR_GAP,
       },
       '&:hover > *': {
-        marginLeft: AVATAR_GAP,
+        marginRight: AVATAR_GAP,
       },
       display: 'flex',
       justifyContent: 'flex-end',
-      paddingLeft: AVATAR_OVERLAP,
+      paddingRight: AVATAR_OVERLAP,
     },
   }),
 )
@@ -56,9 +52,6 @@ function SharePanel({ className, onAddUser, users }: IProps) {
 
   return (
     <div className={cx(classes.container, className)}>
-      {_.map(users, (user, index) => (
-        <UserAvatar key={index} className={classes.avatar} user={user} />
-      ))}
       <Button
         aria-label="add user to group"
         className={classes.button}
@@ -68,6 +61,9 @@ function SharePanel({ className, onAddUser, users }: IProps) {
       >
         <GroupAddIcon />
       </Button>
+      {_.map(users, (user, index) => (
+        <UserAvatar key={index} user={user} />
+      ))}
     </div>
   )
 }

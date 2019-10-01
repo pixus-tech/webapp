@@ -8,7 +8,7 @@ import { compose } from 'recompose'
 import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
 import withImmutablePropsToJS from 'with-immutable-props-to-js'
-import routes from 'utils/routes'
+import routes, { ShowAlbumURLParameters } from 'utils/routes'
 
 import {
   createStyles,
@@ -18,11 +18,9 @@ import {
 } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import Drawer, { DrawerProps } from '@material-ui/core/Drawer'
 import List from '@material-ui/core/List'
-import HomeIcon from '@material-ui/icons/Home'
 import AddDirectoryIcon from '@material-ui/icons/CreateNewFolder'
 
 import AlbumTreeView from 'components/menu/AlbumTreeView'
@@ -42,18 +40,11 @@ const styles = (theme: Theme) =>
     categoryHeader: {
       color: 'rgba(255, 255, 255, 0.7)',
       paddingTop: theme.spacing(2),
-      paddingBottom: theme.spacing(2),
+      paddingBottom: theme.spacing(1),
     },
     categoryHeaderPrimary: {
       color: theme.palette.common.white,
-    },
-    item: {
-      paddingTop: 1,
-      paddingBottom: 1,
-      color: 'rgba(255, 255, 255, 0.7)',
-      '&:hover,&:focus': {
-        backgroundColor: 'rgba(255, 255, 255, 0.08)',
-      },
+      textTransform: 'uppercase',
     },
     itemCategory: {
       // TODO: Get rid of static colors
@@ -66,26 +57,9 @@ const styles = (theme: Theme) =>
       fontSize: 20,
       marginRight: theme.spacing(1),
     },
-    headline: {
-      fontSize: 24,
-      color: theme.palette.common.white,
-    },
     itemActiveItem: {
       // TODO: Get rid of static colors
       color: '#4fc3f7',
-    },
-    itemPrimary: {
-      fontSize: 'inherit',
-    },
-    itemIcon: {
-      minWidth: 'auto',
-      marginRight: theme.spacing(2),
-    },
-    highlight: {
-      color: theme.palette.secondary.main,
-    },
-    divider: {
-      marginTop: theme.spacing(2),
     },
   })
 
@@ -102,7 +76,7 @@ interface IStateProps {
 
 interface IProps extends Omit<DrawerProps, 'classes'> {}
 
-type ComposedProps = RouteComponentProps &
+type ComposedProps = RouteComponentProps<ShowAlbumURLParameters> &
   IDispatchProps &
   IStateProps &
   WithStyles<typeof styles> &
@@ -135,32 +109,12 @@ class Menu extends React.Component<ComposedProps> {
       ...other
     } = this.props
 
+    // TODO: match params are currently not correct
+    const activeId = match.params.albumId
+
     return (
       <Drawer variant="permanent" {...other}>
         <List disablePadding>
-          <ListItem
-            activeClassName={classes.active}
-            button
-            component={NavLink}
-            to={routes.applicationRoot}
-            exact
-            className={cx(classes.headline, classes.item, classes.itemCategory)}
-          >
-            <span className={classes.highlight}>photo</span>&nbsp;graph
-          </ListItem>
-          <ListItem className={cx(classes.item, classes.itemCategory)}>
-            <ListItemIcon className={classes.itemIcon}>
-              <HomeIcon />
-            </ListItemIcon>
-            <ListItemText
-              classes={{
-                primary: classes.itemPrimary,
-              }}
-            >
-              Home
-            </ListItemText>
-          </ListItem>
-
           <ListItem
             button
             className={cx(classes.categoryHeader, {
@@ -175,11 +129,12 @@ class Menu extends React.Component<ComposedProps> {
                 primary: classes.categoryHeaderPrimary,
               }}
             >
-              Albums ({albumCount})
+              Albums
             </ListItemText>
           </ListItem>
         </List>
         <AlbumTreeView
+          activeId={activeId}
           albums={_.values(albums)}
           setParentAlbum={this.setParentAlbum}
         />

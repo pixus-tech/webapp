@@ -1,6 +1,6 @@
 import workerize from 'workerize'
 
-// eslint-disable-next-line import/no-webpack-loader-syntax
+// eslint-disable-next-line
 import fileReaderSource from 'raw-loader!./fileReader'
 import * as FileReaderType from './fileReader'
 

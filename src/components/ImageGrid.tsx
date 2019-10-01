@@ -13,14 +13,20 @@ import LazyImage from 'connected-components/LazyImage'
 import Slideshow from 'components/Slideshow'
 import Album from 'models/album'
 import Image from 'models/image'
-import { IMAGE_GRID_GUTTER_SIZE } from 'constants/index'
 
-const styles = (_theme: Theme) =>
+const styles = (theme: Theme) =>
   createStyles({
     cell: {
       overflow: 'hidden',
-      paddingBottom: IMAGE_GRID_GUTTER_SIZE,
-      paddingRight: IMAGE_GRID_GUTTER_SIZE,
+      padding: theme.spacing(0, 1, 1, 0),
+    },
+    hideScrollbar: {
+      '&::-webkit-scrollbar': {
+        display: 'none',
+      },
+      msOverflowStyle: 'none',
+      overflow: '-moz-scrollbars-none',
+      scrollbarWidth: 'none',
     },
   })
 
@@ -106,22 +112,24 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
   }
 
   render() {
-    const { album, columnCount, images, height, width } = this.props
+    const { album, classes, columnCount, images, height, width } = this.props
     const { selection } = this.state
 
-    const cellWidth = width / columnCount
+    const cellWidth = Math.floor(width / columnCount)
     const cellHeight = cellWidth
 
     return (
       <>
         <Grid
           cellRenderer={this.renderCell}
+          className={classes.hideScrollbar}
           columnCount={columnCount}
           columnWidth={cellWidth}
           height={height}
           ref={this.gridRef}
           rowCount={Math.ceil(images.length / columnCount)}
           rowHeight={cellHeight}
+          style={{ overflowX: 'hidden' }}
           width={width}
         />
         {selection !== undefined && <Slideshow album={album} images={images} />}

@@ -1,4 +1,4 @@
-import * as _ from 'lodash'
+import _ from 'lodash'
 import React from 'react'
 import { DndProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
@@ -23,11 +23,16 @@ const useStyles = makeStyles(
 )
 
 interface IProps {
+  activeId?: string
   albums: Album[]
   setParentAlbum: (album: Album, parentAlbum: Album) => void
 }
 
-const AlbumTreeView: React.SFC<IProps> = ({ albums, setParentAlbum }) => {
+const AlbumTreeView: React.SFC<IProps> = ({
+  activeId,
+  albums,
+  setParentAlbum,
+}) => {
   const classes = useStyles()
 
   const rootAlbums = _.filter(
@@ -46,6 +51,7 @@ const AlbumTreeView: React.SFC<IProps> = ({ albums, setParentAlbum }) => {
       >
         {_.map(rootAlbums, (album, index) => (
           <AlbumTreeItem
+            activeId={activeId}
             album={album}
             albums={albums}
             key={index}

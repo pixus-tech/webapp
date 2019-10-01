@@ -16,8 +16,6 @@ import Grid from '@material-ui/core/Grid'
 import Slider from '@material-ui/core/Slider'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
-import PhotoSizeUp from '@material-ui/icons/PhotoSizeSelectLarge'
-import PhotoSizeDown from '@material-ui/icons/PhotoSizeSelectSmall'
 import {
   createStyles,
   Theme,
@@ -50,20 +48,24 @@ const styles = (theme: Theme) =>
     button: {
       borderColor: lightColor,
     },
+    center: {
+      textAlign: 'center',
+    },
     container: {
       height: '100%',
       overflow: 'hidden',
+      display: 'flex',
+      flexFlow: 'column',
     },
-    secondaryBar: {
-      zIndex: 0,
+    content: {
+      background: theme.palette.primary.main,
+      flex: 1,
+      padding: theme.spacing(1, 2, 0),
     },
     root: {
       border: '1px solid black',
       marginBottom: theme.spacing(1),
       width: '100%',
-    },
-    center: {
-      textAlign: 'center',
     },
     leftRightContainer: {
       display: 'flex',
@@ -172,18 +174,21 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
 
     return (
       <div className={classes.container}>
-        <AppBar
-          component="div"
-          className={classes.secondaryBar}
-          color="primary"
-          position="static"
-          elevation={0}
-        >
+        <AppBar component="div" color="primary" position="static" elevation={2}>
           <Toolbar>
-            <Grid container alignItems="center" spacing={1}>
-              <Grid item xs>
+            <Grid container alignItems="flex-start" spacing={1}>
+              <Grid item>
                 <AlbumTitle album={album} onSave={dispatchSaveAlbum} />
               </Grid>
+              <Grid item xs>
+                <Typography color="inherit" variant="body1" component="p">
+                  ({images.length} Images)
+                </Typography>
+              </Grid>
+            </Grid>
+          </Toolbar>
+          <Toolbar>
+            <Grid container alignItems="center" spacing={1}>
               <Grid item>
                 <SharePanel
                   onAddUser={this.presentInviteUserModal}
@@ -194,7 +199,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
                     },
                     {
                       username: 'test2.id.blockstack',
-                      imageURL: 'https://via.placeholder.com/64x64.jpg?text=TK',
+                      imageURL: 'https://picsum.photos/id/1005/5760/3840',
                     },
                     {
                       username: 'test3.id.blockstack',
@@ -202,34 +207,14 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
                   ]}
                 />
               </Grid>
-            </Grid>
-          </Toolbar>
-        </AppBar>
-        <AppBar
-          component="div"
-          className={classes.secondaryBar}
-          color="primary"
-          position="static"
-          elevation={0}
-        >
-          <Toolbar>
-            <Grid container alignItems="center" spacing={1}>
-              <Grid item xs>
-                <Typography color="inherit" variant="body1" component="p">
-                  {images.length} Images
-                </Typography>
-              </Grid>
+              <Grid item xs />
               <Grid item>
                 <Grid container spacing={2}>
-                  <Grid item>
-                    <PhotoSizeDown />
-                  </Grid>
                   <Grid item>
                     <Slider
                       className={classes.slider}
                       color="secondary"
                       value={numberOfImageColumns}
-                      marks
                       step={1}
                       min={2}
                       max={10}
@@ -237,44 +222,37 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
                       valueLabelDisplay="auto"
                     />
                   </Grid>
-                  <Grid item>
-                    <PhotoSizeUp />
-                  </Grid>
                 </Grid>
               </Grid>
             </Grid>
           </Toolbar>
         </AppBar>
-        <Dropzone onDrop={this.onDropFiles}>
-          {({ getRootProps, getInputProps }) => (
-            <section>
-              <div {...getRootProps()}>
-                <input {...getInputProps()} />
-                <p>Drag and drop some files here, or click to select files</p>
-              </div>
-            </section>
-          )}
-        </Dropzone>
-        <div className={classes.autosizeContainer}>
-          <AutoSizer>
-            {({ height, width }) => {
-              if (height === 0 || width === 0) {
-                return null
-              }
+        <div className={classes.content}>
+          <Dropzone onDrop={this.onDropFiles}>
+            {({ getRootProps }) => (
+              <div className={classes.autosizeContainer} {...getRootProps()}>
+                <AutoSizer>
+                  {({ height, width }) => {
+                    if (height === 0 || width === 0) {
+                      return null
+                    }
 
-              return (
-                <ImageGrid
-                  album={album}
-                  columnCount={numberOfImageColumns}
-                  height={height}
-                  images={images}
-                  key={album._id}
-                  numberOfImages={numberOfImages}
-                  width={width}
-                />
-              )
-            }}
-          </AutoSizer>
+                    return (
+                      <ImageGrid
+                        album={album}
+                        columnCount={numberOfImageColumns}
+                        height={height}
+                        images={images}
+                        key={album._id}
+                        numberOfImages={numberOfImages}
+                        width={width}
+                      />
+                    )
+                  }}
+                </AutoSizer>
+              </div>
+            )}
+          </Dropzone>
         </div>
       </div>
     )

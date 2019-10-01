@@ -5,6 +5,7 @@ import uuid from 'uuid/v4'
 
 import {
   DEFAULT_CONCURRENT_DOWNLOADS_LIMIT,
+  DEFAULT_CONCURRENT_ENCRYPTION_LIMIT,
   DEFAULT_CONCURRENT_FILE_READS_LIMIT,
   DEFAULT_CONCURRENT_RAF_LIMIT,
   DEFAULT_CONCURRENT_RECORD_OPERATIONS_LIMIT,
@@ -14,6 +15,7 @@ import {
 
 export enum Queue {
   Download = 'Download',
+  Encryption = 'Encryption',
   RAF = 'RAF',
   ReadFile = 'ReadFile',
   RecordOperation = 'RecordOperation',
@@ -49,6 +51,7 @@ export default class Dispatcher {
   private jobs = OrderedMap<string, Job>()
   private limits = Map<QueueKeys, number>([
     [Queue.Download, DEFAULT_CONCURRENT_DOWNLOADS_LIMIT],
+    [Queue.Encryption, DEFAULT_CONCURRENT_ENCRYPTION_LIMIT],
     [Queue.RAF, DEFAULT_CONCURRENT_RAF_LIMIT],
     [Queue.ReadFile, DEFAULT_CONCURRENT_FILE_READS_LIMIT],
     [Queue.RecordOperation, DEFAULT_CONCURRENT_RECORD_OPERATIONS_LIMIT],
@@ -56,6 +59,7 @@ export default class Dispatcher {
   ])
   private queues = Map<QueueKeys, List<string>>([
     [Queue.Download, List<string>()],
+    [Queue.Encryption, List<string>()],
     [Queue.RAF, List<string>()],
     [Queue.ReadFile, List<string>()],
     [Queue.RecordOperation, List<string>()],
@@ -63,6 +67,7 @@ export default class Dispatcher {
   ])
   private activeCounts = Map<QueueKeys, number>([
     [Queue.Download, 0],
+    [Queue.Encryption, 0],
     [Queue.RAF, 0],
     [Queue.ReadFile, 0],
     [Queue.RecordOperation, 0],
@@ -118,7 +123,13 @@ export default class Dispatcher {
     }
 
     _.each(
-      [Queue.Download, Queue.ReadFile, Queue.RecordOperation, Queue.Upload],
+      [
+        Queue.Download,
+        Queue.Encryption,
+        Queue.ReadFile,
+        Queue.RecordOperation,
+        Queue.Upload,
+      ],
       queueKey => {
         this.dequeueJobsFromQueueWithKey(queueKey).forEach(this.performJobNow)
       },

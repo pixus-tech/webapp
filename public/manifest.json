@@ -1,6 +1,6 @@
 {
   "short_name": "phtgrph",
-  "name": "photo graph",
+  "name": "graphoto",
   "description": "Private AI driven photo library.",
   "start_url": "192.168.1.158:3000",
   "icons": [

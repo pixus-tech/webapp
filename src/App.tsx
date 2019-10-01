@@ -31,12 +31,15 @@ const styles = (theme: Theme) =>
   createStyles({
     '@global': {
       body: {
-        backgroundColor: theme.palette.common.white,
+        backgroundColor: theme.palette.primary.dark,
       },
     },
     root: {
-      display: 'flex',
-      minHeight: '100vh',
+      bottom: 0,
+      left: 0,
+      position: 'absolute',
+      right: 0,
+      top: 0,
     },
   })
 

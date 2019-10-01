@@ -43,6 +43,12 @@ class Images extends BaseService {
           images.processImage(fileHandleWithData.objectURL).subscribe({
             next(imageMetaData) {
               const imageId = fileHandle._id
+              if (album.publicKey === undefined) {
+                return subscriber.error(
+                  `Public key of album '${album.name}' is missing`,
+                )
+              }
+
               forkJoin({
                 original: files.upload(
                   imageUploadPath(imageId),

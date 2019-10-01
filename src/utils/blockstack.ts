@@ -10,6 +10,14 @@ import { addUserGroupKey } from 'radiks/lib/helpers'
 
 import BaseModel, { UnsavedModel } from 'models/index'
 
+export function currentUser() {
+  return RadiksUser.currentUser()
+}
+
+export function currentUsername() {
+  return RadiksUser.currentUser().attrs.username
+}
+
 async function createInvitation(user: RadiksUser, userGroup: UserGroup) {
   const { publicKey } = user.attrs
 
@@ -92,12 +100,4 @@ export async function inviteUserToGroup(
   })
   await userGroup.save()
   return invitation
-}
-
-export function currentUser() {
-  return RadiksUser.currentUser()
-}
-
-export function currentUsername() {
-  return RadiksUser.currentUser().attrs.username
 }

@@ -1,4 +1,4 @@
-import * as _ from 'lodash'
+import _ from 'lodash'
 import cx from 'classnames'
 import React from 'react'
 import { DragObjectWithType, useDrag, useDrop } from 'react-dnd'
@@ -7,7 +7,6 @@ import { NavLink } from 'react-router-dom'
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
 import TreeItem from '@material-ui/lab/TreeItem'
 import Typography from '@material-ui/core/Typography'
-import PermMediaOutlinedIcon from '@material-ui/icons/PhotoSizeSelectActual'
 
 import Album from 'models/album'
 import { buildAlbumRoute } from 'utils/routes'
@@ -21,6 +20,9 @@ declare module 'csstype' {
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    active: {
+      color: theme.palette.secondary.main,
+    },
     root: {
       color: 'rgba(255, 255, 255, 0.7)',
       '&:focus > $content': {
@@ -58,9 +60,6 @@ const useStyles = makeStyles((theme: Theme) =>
     labelRoot: {
       padding: theme.spacing(0.5, 0),
     },
-    labelIcon: {
-      marginRight: theme.spacing(1),
-    },
     labelText: {
       fontWeight: 'inherit',
       flexGrow: 1,
@@ -76,6 +75,7 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 interface IProps {
+  activeId?: string
   album: Album
   albums: Album[]
   setParentAlbum: (album: Album, parentAlbum: Album) => void
@@ -91,6 +91,7 @@ function preventClickThrough(event: React.MouseEvent<HTMLElement, MouseEvent>) {
 }
 
 const AlbumTreeItem: React.SFC<IProps> = ({
+  activeId,
   album,
   albums,
   setParentAlbum,
@@ -141,15 +142,13 @@ const AlbumTreeItem: React.SFC<IProps> = ({
           ref={dropRef}
         >
           <NavLink className={classes.link} to={buildAlbumRoute(album)}>
-            <PermMediaOutlinedIcon
-              className={classes.labelIcon}
-              color="inherit"
-            />
-            <Typography variant="body2" className={classes.labelText}>
+            <Typography
+              variant="body1"
+              className={cx(classes.labelText, {
+                [classes.active]: activeId === album._id,
+              })}
+            >
               {album.name}
-            </Typography>
-            <Typography variant="caption" color="inherit">
-              {1337}
             </Typography>
           </NavLink>
         </div>
@@ -160,6 +159,7 @@ const AlbumTreeItem: React.SFC<IProps> = ({
         ? null
         : _.map(childAlbums, (album, index) => (
             <AlbumTreeItem
+              activeId={activeId}
               album={album}
               albums={albums}
               key={index}

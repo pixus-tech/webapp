@@ -5,7 +5,6 @@ import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
 
 import AppBar from '@material-ui/core/AppBar'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Grid from '@material-ui/core/Grid'
 import Hidden from '@material-ui/core/Hidden'
 import IconButton from '@material-ui/core/IconButton'
@@ -13,15 +12,11 @@ import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import MenuIcon from '@material-ui/icons/Menu'
-import Switch from '@material-ui/core/Switch'
 import Toolbar from '@material-ui/core/Toolbar'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
-import {
-  subscribeWebSocket,
-  unsubscribeWebSocket,
-} from 'store/webSocket/actions'
 import IconWithPopover from 'components/IconWithPopover'
+import Logo from 'components/Logo'
 import UserAvatar from 'components/UserAvatar'
 import Notifications from 'connected-components/Notifications'
 import QueueInfo from 'connected-components/QueueInfo'
@@ -33,6 +28,10 @@ const lightColor = 'rgba(255, 255, 255, 0.7)'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    appBar: {
+      backgroundColor: theme.palette.primary.dark,
+      zIndex: theme.zIndex.drawer + 1,
+    },
     menuButton: {
       marginLeft: -theme.spacing(1),
     },
@@ -49,13 +48,10 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 interface IDispatchProps {
-  dispatchSubscribeWebSocket: typeof subscribeWebSocket
-  dispatchUnsubscribeWebSocket: typeof unsubscribeWebSocket
   dispatchLogout: typeof logout
 }
 
 interface IStateProps {
-  isWebSocketEnabled: boolean
   user: User | null
 }
 
@@ -65,28 +61,16 @@ interface IProps {
 
 type ComposedProps = IDispatchProps & IStateProps & IProps
 
-function Header({
-  dispatchLogout,
-  dispatchSubscribeWebSocket,
-  dispatchUnsubscribeWebSocket,
-  isWebSocketEnabled,
-  onDrawerToggle,
-  user,
-}: ComposedProps) {
+function Header({ dispatchLogout, onDrawerToggle, user }: ComposedProps) {
   const classes = useStyles()
 
-  const toggleWebSocketConnection = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    if (event.target.checked) {
-      dispatchSubscribeWebSocket()
-    } else {
-      dispatchUnsubscribeWebSocket()
-    }
-  }
-
   return (
-    <AppBar color="primary" position="sticky" elevation={0}>
+    <AppBar
+      className={classes.appBar}
+      color="primary"
+      elevation={3}
+      position="static"
+    >
       <Toolbar>
         <Grid container spacing={1} alignItems="center">
           <Hidden smUp>
@@ -102,25 +86,12 @@ function Header({
             </Grid>
           </Hidden>
           <Grid item>
+            <Logo />
+          </Grid>
+          <Grid item xs />
+          <Grid item>
             <QueueInfo />
           </Grid>
-          <Hidden mdDown>
-            <Grid item>
-              <FormControlLabel
-                className={classes.toggle}
-                control={
-                  <Switch
-                    checked={isWebSocketEnabled}
-                    onChange={toggleWebSocketConnection}
-                    value="isWebSocketEnabled"
-                    color="secondary"
-                  />
-                }
-                label="Live Editing (Experimental)"
-              />
-            </Grid>
-          </Hidden>
-          <Grid item xs />
           <Grid item>
             <Notifications />
           </Grid>
@@ -147,15 +118,12 @@ function Header({
 
 function mapStateToProps(state: RootState): IStateProps {
   return {
-    isWebSocketEnabled: state.webSocket.isEnabled,
     user: state.auth.user,
   }
 }
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
-    dispatchSubscribeWebSocket: () => dispatch(subscribeWebSocket()),
-    dispatchUnsubscribeWebSocket: () => dispatch(unsubscribeWebSocket()),
     dispatchLogout: () => dispatch(logout()),
   }
 }

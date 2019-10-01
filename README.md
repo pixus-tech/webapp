@@ -1,4 +1,4 @@
-# photo graph
+# graphoto
 
 ## Development
 

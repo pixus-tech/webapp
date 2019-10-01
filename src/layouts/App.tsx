@@ -10,30 +10,31 @@ import Hidden from '@material-ui/core/Hidden'
 import Header from 'connected-components/Header'
 import Menu from 'connected-components/Menu'
 
-const menuWidth = 256
+const DRAWER_WIDTH = 256
+const APP_BAR_HEIGHT = 56
 
 const styles = (theme: Theme) =>
   createStyles({
+    root: {
+      height: '100%',
+      position: 'relative',
+      width: '100%',
+      display: 'flex',
+      flexFlow: 'column',
+    },
+    content: {
+      flex: 1,
+      display: 'flex',
+      flexFlow: 'row',
+    },
     drawer: {
       [theme.breakpoints.up('sm')]: {
-        width: menuWidth,
+        width: DRAWER_WIDTH,
         flexShrink: 0,
       },
     },
     app: {
       flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-    },
-    main: {
-      flex: 1,
-      // TODO: get rid of static color here
-      background: '#eaeff1',
-    },
-    footer: {
-      padding: theme.spacing(2),
-      // TODO: get rid of static color here
-      background: '#eaeff1',
     },
   })
 
@@ -47,25 +48,29 @@ const AppLayout: React.SFC<StyleProps> = ({ children, classes }) => {
   }
 
   return (
-    <>
-      <nav className={classes.drawer}>
-        <Hidden smUp implementation="js">
-          <Menu
-            PaperProps={{ style: { width: menuWidth } }}
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-          />
-        </Hidden>
-        <Hidden xsDown implementation="css">
-          <Menu PaperProps={{ style: { width: menuWidth } }} />
-        </Hidden>
-      </nav>
-      <div className={classes.app}>
-        <Header onDrawerToggle={handleDrawerToggle} />
-        <main className={classes.main}>{children}</main>
+    <div className={classes.root}>
+      <Header onDrawerToggle={handleDrawerToggle} />
+      <div className={classes.content}>
+        <nav className={classes.drawer}>
+          <Hidden smUp implementation="js">
+            <Menu
+              PaperProps={{ style: { width: DRAWER_WIDTH } }}
+              variant="temporary"
+              open={mobileOpen}
+              onClose={handleDrawerToggle}
+            />
+          </Hidden>
+          <Hidden xsDown implementation="css">
+            <Menu
+              PaperProps={{
+                style: { width: DRAWER_WIDTH, top: APP_BAR_HEIGHT },
+              }}
+            />
+          </Hidden>
+        </nav>
+        <main className={classes.app}>{children}</main>
       </div>
-    </>
+    </div>
   )
 }
 
