@@ -1,3 +1,4 @@
+export const TOAST_SHOW_DURATION = 3000
 export const DISPATCHER_THROTTLE_INTERVAL = 100
 export const IMAGE_PREVIEW_SIZE = 512
 export const IMAGE_GRID_GUTTER_SIZE = 6

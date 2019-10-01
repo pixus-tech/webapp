@@ -56,8 +56,8 @@ function SharePanel({ className, onAddUser, users }: IProps) {
 
   return (
     <div className={cx(classes.container, className)}>
-      {_.map(users, user => (
-        <UserAvatar className={classes.avatar} user={user} />
+      {_.map(users, (user, index) => (
+        <UserAvatar key={index} className={classes.avatar} user={user} />
       ))}
       <Button
         aria-label="add user to group"

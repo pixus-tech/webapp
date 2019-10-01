@@ -5,6 +5,7 @@ import * as imagesActions from './images/actions'
 import * as modalActions from './modal/actions'
 import * as notificationsActions from './notifications/actions'
 import * as sharingActions from './sharing/actions'
+import * as toastsActions from './toasts/actions'
 import * as webSocketActions from './webSocket/actions'
 
 const rootAction = {
@@ -15,6 +16,7 @@ const rootAction = {
   ...modalActions,
   ...notificationsActions,
   ...sharingActions,
+  ...toastsActions,
   ...webSocketActions,
 }
 

@@ -7,8 +7,8 @@ import {
 } from '@material-ui/core/styles'
 import Hidden from '@material-ui/core/Hidden'
 
-import Header from 'containers/Header'
-import Menu from 'containers/Menu'
+import Header from 'connected-components/Header'
+import Menu from 'connected-components/Menu'
 
 const menuWidth = 256
 

@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { Dispatch } from 'redux'
@@ -54,7 +55,7 @@ function ModalRoot({
   const isOpen = modalType !== null && modalProps !== null
   const SpecificModal = modalType !== null ? MODAL_COMPONENTS[modalType] : null
 
-  return (
+  return ReactDOM.createPortal(
     <Modal
       aria-labelledby="modal-title"
       className={classes.modal}
@@ -75,7 +76,8 @@ function ModalRoot({
           <div />
         )}
       </Fade>
-    </Modal>
+    </Modal>,
+    document.body,
   )
 }
 
