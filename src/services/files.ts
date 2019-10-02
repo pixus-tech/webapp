@@ -37,7 +37,10 @@ class Files extends BaseService {
       resolve,
       reject,
     ) {
-      const contentType = typeof payload === 'string' ? 'application/json' : 'application/octet-stream'
+      const contentType =
+        typeof payload === 'string'
+          ? 'application/json'
+          : 'application/octet-stream'
       userSession
         .getOrSetLocalGaiaHubConnection()
         .then(hubConfig => {
@@ -59,45 +62,46 @@ class Files extends BaseService {
   }
 
   private getFile = (username: string) => (path: string) => {
-    return this.dispatcher.performAsync<Buffer | string>(Queue.Download, function(
-      resolve,
-      reject,
-    ) {
-      return userSession
-        .getFile(path, { decrypt: false, username })
-        .then(result => {
-          if (typeof result === 'string')  {
-            resolve(result)
-          } else {
-            resolve(Buffer.from(result))
-          }
-        })
-        .catch(reject)
-    })
+    return this.dispatcher.performAsync<Buffer | string>(
+      Queue.Download,
+      function(resolve, reject) {
+        return userSession
+          .getFile(path, { decrypt: false, username })
+          .then(result => {
+            if (typeof result === 'string') {
+              resolve(result)
+            } else {
+              resolve(Buffer.from(result))
+            }
+          })
+          .catch(reject)
+      },
+    )
   }
 
   upload = (path: string, payload: ArrayBuffer | string, publicKey: string) => {
     const self = this
     return new Observable<string>(subscriber => {
-      this.dispatcher.performAsync<Buffer[]>(
-        Queue.Encryption,
-        resolve => resolve(encryptAndChunkPayload(payload, publicKey)),
-      ).subscribe({
-        next(chunks) {
-          putChunks(path, chunks, self.putFile).subscribe({
-            next(publicURL) {
-              subscriber.next(publicURL)
-              subscriber.complete()
-            },
-            error(error) {
-              subscriber.error(error)
-            },
-          })
-        },
-        error(error) {
-          subscriber.error(error)
-        },
-      })
+      this.dispatcher
+        .performAsync<Buffer[]>(Queue.Encryption, resolve =>
+          resolve(encryptAndChunkPayload(payload, publicKey)),
+        )
+        .subscribe({
+          next(chunks) {
+            putChunks(path, chunks, self.putFile).subscribe({
+              next(publicURL) {
+                subscriber.next(publicURL)
+                subscriber.complete()
+              },
+              error(error) {
+                subscriber.error(error)
+              },
+            })
+          },
+          error(error) {
+            subscriber.error(error)
+          },
+        })
     })
   }
 
@@ -106,9 +110,13 @@ class Files extends BaseService {
       getAssembledChunks(path, this.getFile(username)).subscribe({
         next(encryptedBuffer) {
           try {
-            subscriber.next(userSession.decryptContent(encryptedBuffer.toString(), { privateKey }))
+            subscriber.next(
+              userSession.decryptContent(encryptedBuffer.toString(), {
+                privateKey,
+              }),
+            )
             subscriber.complete()
-          } catch(error) {
+          } catch (error) {
             subscriber.error(error)
           }
         },
@@ -137,7 +145,6 @@ class Files extends BaseService {
         })
         .catch(reject)
     })
-
 }
 
 export default new Files()

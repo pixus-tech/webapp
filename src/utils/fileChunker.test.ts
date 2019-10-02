@@ -2,9 +2,12 @@ import { Buffer } from 'buffer'
 import { Observable } from 'rxjs'
 
 import {
-  assemble, chunk, getAssembledChunks, putChunks,
-INDEX_PREFIX,
-INDEX_DELIMITER,
+  assemble,
+  chunk,
+  getAssembledChunks,
+  putChunks,
+  INDEX_PREFIX,
+  INDEX_DELIMITER,
 } from './fileChunker'
 
 const buffers = {
@@ -60,7 +63,11 @@ describe('assemble', () => {
 
 describe('putChunks', () => {
   const targetPath = '/target'
-  const createUploader = (options: { maxSuccessCount: number } = { maxSuccessCount: Number.MAX_SAFE_INTEGER }) => {
+  const createUploader = (
+    options: { maxSuccessCount: number } = {
+      maxSuccessCount: Number.MAX_SAFE_INTEGER,
+    },
+  ) => {
     let requestCount = 0
     return jest.fn((path: string, payload: Buffer) => {
       const index = requestCount
@@ -96,7 +103,9 @@ describe('putChunks', () => {
       next(publicURL) {
         expect(publicURL).toEqual('url/target')
         expect(uploader.mock.calls.length).toBe(3)
-        expect(uploader.mock.calls[2][1]).toBe(`${INDEX_PREFIX}${INDEX_DELIMITER}/target-0,/target-1`)
+        expect(uploader.mock.calls[2][1]).toBe(
+          `${INDEX_PREFIX}${INDEX_DELIMITER}/target-0,/target-1`,
+        )
         done()
       },
       error(error) {
@@ -136,7 +145,12 @@ describe('putChunks', () => {
 
 describe('getAssembledChunks', () => {
   const sourcePath = '/source'
-  const createDownloader = (source: (Buffer | string)[], options: { maxSuccessCount: number } = { maxSuccessCount: Number.MAX_SAFE_INTEGER }) => {
+  const createDownloader = (
+    source: (Buffer | string)[],
+    options: { maxSuccessCount: number } = {
+      maxSuccessCount: Number.MAX_SAFE_INTEGER,
+    },
+  ) => {
     let requestCount = 0
     return jest.fn((path: string) => {
       const index = requestCount
@@ -167,7 +181,11 @@ describe('getAssembledChunks', () => {
   })
 
   it('detects the index file and finds, fetches and assembles chunks', done => {
-    const downloader = createDownloader([`${INDEX_PREFIX}${INDEX_DELIMITER}${sourcePath}-0,${sourcePath}-1`, buffers.ab, buffers.c])
+    const downloader = createDownloader([
+      `${INDEX_PREFIX}${INDEX_DELIMITER}${sourcePath}-0,${sourcePath}-1`,
+      buffers.ab,
+      buffers.c,
+    ])
     getAssembledChunks(sourcePath, downloader).subscribe({
       next(result) {
         expect(result).toEqual(buffers.abc)
@@ -197,7 +215,14 @@ describe('getAssembledChunks', () => {
   })
 
   it('handles error in subsequent request when downloading multiple buffers', done => {
-    const downloader = createDownloader([`${INDEX_PREFIX}${INDEX_DELIMITER}${sourcePath}-0,${sourcePath}-1`, buffers.ab, buffers.c], { maxSuccessCount: 2 })
+    const downloader = createDownloader(
+      [
+        `${INDEX_PREFIX}${INDEX_DELIMITER}${sourcePath}-0,${sourcePath}-1`,
+        buffers.ab,
+        buffers.c,
+      ],
+      { maxSuccessCount: 2 },
+    )
     getAssembledChunks(sourcePath, downloader).subscribe({
       next() {
         done.fail('should not succeed')

@@ -8,13 +8,15 @@ export const INDEX_DELIMITER = ':'
 export const PREFIX_BUFFER = Buffer.from(INDEX_PREFIX)
 
 export function assemble(buffers: (string | Buffer)[]): Buffer {
-  return Buffer.concat(_.map(buffers, buffer => {
-    if (typeof buffer === 'string') {
-      return Buffer.from(buffer)
-    }
+  return Buffer.concat(
+    _.map(buffers, buffer => {
+      if (typeof buffer === 'string') {
+        return Buffer.from(buffer)
+      }
 
-    return buffer
-  }))
+      return buffer
+    }),
+  )
 }
 
 export function chunk(
@@ -39,7 +41,7 @@ export function chunk(
 export function putChunks(
   path: string,
   chunks: Buffer[],
-  putChunk: (path: string, payload: string | Buffer) => Observable<string>
+  putChunk: (path: string, payload: string | Buffer) => Observable<string>,
 ) {
   return new Observable<string>(subscriber => {
     // Upload unchunked payload directly
@@ -69,9 +71,7 @@ export function putChunks(
     }
     parts.push([path, `${INDEX_PREFIX}${INDEX_DELIMITER}${paths.join(',')}`])
 
-    forkJoin(
-      _.map(parts, part => putChunk(part[0], part[1])),
-    ).subscribe({
+    forkJoin(_.map(parts, part => putChunk(part[0], part[1]))).subscribe({
       next(publicURLs) {
         subscriber.next(publicURLs[publicURLs.length - 1])
         subscriber.complete()
@@ -85,19 +85,23 @@ export function putChunks(
 
 export function getAssembledChunks(
   path: string,
-  getChunk: (path: string) => Observable<Buffer | string>
+  getChunk: (path: string) => Observable<Buffer | string>,
 ) {
   return new Observable<Buffer>(subscriber => {
     getChunk(path).subscribe({
       next(index) {
         // when the index file is detected by its index prefix,
         // decompose the paths and fetch them individually
-        if ((typeof index === 'string' && index.substr(0, INDEX_PREFIX.length) === INDEX_PREFIX) ||
-            (index as Buffer).slice(0, PREFIX_BUFFER.length).equals(PREFIX_BUFFER)) {
-          const chunkPaths = index.toString().split(INDEX_DELIMITER, 2)[1].split(',')
-          forkJoin(
-            _.map(chunkPaths, path => getChunk(path)),
-          ).subscribe({
+        if (
+          (typeof index === 'string' &&
+            index.substr(0, INDEX_PREFIX.length) === INDEX_PREFIX) ||
+          (index as Buffer).slice(0, PREFIX_BUFFER.length).equals(PREFIX_BUFFER)
+        ) {
+          const chunkPaths = index
+            .toString()
+            .split(INDEX_DELIMITER, 2)[1]
+            .split(',')
+          forkJoin(_.map(chunkPaths, path => getChunk(path))).subscribe({
             next(chunks) {
               subscriber.next(assemble(chunks))
               subscriber.complete()
@@ -113,7 +117,6 @@ export function getAssembledChunks(
         // otherwise, it is the sole chunk this file is made of and we can return it
         subscriber.next(index as Buffer)
         subscriber.complete()
-
       },
       error(error) {
         subscriber.error(error)
