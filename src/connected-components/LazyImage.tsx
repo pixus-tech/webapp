@@ -28,8 +28,6 @@ const styles = (_theme: Theme) =>
       bottom: '-100%',
       left: '-100%',
       margin: 'auto',
-      minHeight: '100%',
-      minWidth: '100%',
       position: 'absolute',
       right: '-100%',
       top: '-100%',
@@ -112,9 +110,12 @@ class LazyImage extends React.PureComponent<ComposedProps> {
     const { classes, className, image, imageObjectURL } = this.props
 
     const isImageLoaded = imageObjectURL !== undefined
+    const isHorizontal = image.width > image.height
 
     const imageStyles = {
+      height: isHorizontal ? '100%' : 'auto',
       opacity: isImageLoaded ? 1 : 0,
+      width: isHorizontal ? 'auto' : '100%',
     }
 
     return (

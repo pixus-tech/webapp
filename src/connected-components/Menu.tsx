@@ -133,11 +133,6 @@ class Menu extends React.Component<ComposedProps> {
             </ListItemText>
           </ListItem>
         </List>
-        <AlbumTreeView
-          activeId={activeId}
-          albums={_.values(albums)}
-          setParentAlbum={this.setParentAlbum}
-        />
         <Button
           variant="outlined"
           color="secondary"
@@ -147,6 +142,11 @@ class Menu extends React.Component<ComposedProps> {
           <AddDirectoryIcon className={classes.leftIcon} />
           Add Album
         </Button>
+        <AlbumTreeView
+          activeId={activeId}
+          albums={_.values(albums)}
+          setParentAlbum={this.setParentAlbum}
+        />
       </Drawer>
     )
   }
@@ -155,8 +155,8 @@ class Menu extends React.Component<ComposedProps> {
 function mapStateToProps(state: RootState) {
   // TODO use `IStateProps` as a return type...
   return {
-    albums: state.albums.map,
-    albumCount: state.albums.map.size,
+    albums: state.albums.data,
+    albumCount: state.albums.data.size,
   }
 }
 

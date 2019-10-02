@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer'
 import { API } from 'typings/types'
 import { createAsyncAction, createStandardAction } from 'typesafe-actions'
 import Album from 'models/album'
@@ -64,7 +65,7 @@ export const downloadPreviewImage = createAsyncAction(
   DownloadPreviewImageRequest,
   {
     image: Image
-    fileContent: ArrayBuffer | string
+    fileContent: Buffer | string
   },
   API.ErrorResponse<Image>,
   DownloadPreviewImageRequest

@@ -7,10 +7,10 @@ import Album from 'models/album'
 import * as actions from './actions'
 
 export const initialState = {
-  map: Map<string, Album>(),
+  data: Map<string, Album>(),
 }
 
-const map = createReducer(initialState.map)
+const data = createReducer(initialState.data)
   .handleAction(actions.addAlbum.success, (state, action) => {
     // TODO: should really use the request here
     const album = action.payload.resource
@@ -40,5 +40,5 @@ const map = createReducer(initialState.map)
   )
 
 export default combineReducers({
-  map,
+  data,
 })

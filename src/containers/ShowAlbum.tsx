@@ -11,6 +11,7 @@ import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
 
 import AppBar from '@material-ui/core/AppBar'
+import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Grid from '@material-ui/core/Grid'
 import Slider from '@material-ui/core/Slider'
@@ -209,6 +210,23 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
               </Grid>
               <Grid item xs />
               <Grid item>
+                <Dropzone onDrop={this.onDropFiles}>
+                  {({ getInputProps, getRootProps }) => (
+                    <div {...getRootProps()}>
+                      <input {...getInputProps()} />
+                      <Button
+                        color="secondary"
+                        size="small"
+                        type="submit"
+                        variant="outlined"
+                      >
+                        Add image
+                      </Button>
+                    </div>
+                  )}
+                </Dropzone>
+              </Grid>
+              <Grid item>
                 <Grid container spacing={2}>
                   <Grid item>
                     <Slider
@@ -260,7 +278,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
 }
 
 function mapStateToProps(store: RootState, props: ComposedProps): IStateProps {
-  const album = store.albums.map.get(props.match.params.albumId)
+  const album = store.albums.data.get(props.match.params.albumId)
   const images =
     album === undefined ? [] : albumImagesSelector(store, album).toArray()
 

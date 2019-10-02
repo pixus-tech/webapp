@@ -1,6 +1,5 @@
-import _ from 'lodash'
 import { Buffer } from 'buffer'
-import { Observable, forkJoin } from 'rxjs'
+import { Observable } from 'rxjs'
 
 import { FileHandle, FileHandleWithData } from 'models/fileHandle'
 import userSession from 'utils/userSession'
@@ -10,7 +9,7 @@ import { Queue } from './dispatcher'
 
 import { UserSession, uploadToGaiaHub } from 'blockstack'
 import { appConfig } from 'constants/blockstack'
-import { assemble, chunk } from 'utils/fileChunker'
+import { chunk, getAssembledChunks, putChunks } from 'utils/fileChunker'
 
 function encryptAndChunkPayload(
   payload: ArrayBuffer | string,
@@ -33,42 +32,12 @@ function encryptAndChunkPayload(
 }
 
 class Files extends BaseService {
-  download = (path: string, username: string, key?: string) =>
-    this.dispatcher.performAsync<ArrayBuffer | string>(Queue.Download, function(
-      resolve,
-      reject,
-    ) {
-      userSession
-        .getFile(path, { decrypt: key || true, username })
-        .then(resolve)
-        .catch(reject)
-    })
-
-  read = (fileHandle: FileHandle) =>
-    this.dispatcher.performAsync<FileHandleWithData>(Queue.ReadFile, function(
-      resolve,
-      reject,
-    ) {
-      fileReader
-        .readFile(fileHandle.file)
-        .then(({ arrayBuffer, objectURL }) => {
-          const fileHandleWithData: FileHandleWithData = {
-            ...fileHandle,
-            payload: arrayBuffer,
-            objectURL,
-          }
-
-          resolve(fileHandleWithData)
-        })
-        .catch(reject)
-    })
-
   private putFile = (path: string, payload: Buffer | string) => {
     return this.dispatcher.performAsync<string>(Queue.Upload, function(
       resolve,
       reject,
     ) {
-      const contentType = 'application/json'
+      const contentType = typeof payload === 'string' ? 'application/json' : 'application/octet-stream'
       userSession
         .getOrSetLocalGaiaHubConnection()
         .then(hubConfig => {
@@ -89,46 +58,35 @@ class Files extends BaseService {
     })
   }
 
+  private getFile = (username: string) => (path: string) => {
+    return this.dispatcher.performAsync<Buffer | string>(Queue.Download, function(
+      resolve,
+      reject,
+    ) {
+      return userSession
+        .getFile(path, { decrypt: false, username })
+        .then(result => {
+          if (typeof result === 'string')  {
+            resolve(result)
+          } else {
+            resolve(Buffer.from(result))
+          }
+        })
+        .catch(reject)
+    })
+  }
+
   upload = (path: string, payload: ArrayBuffer | string, publicKey: string) => {
     const self = this
     return new Observable<string>(subscriber => {
-      const encryption = this.dispatcher.performAsync<Buffer[]>(
+      this.dispatcher.performAsync<Buffer[]>(
         Queue.Encryption,
         resolve => resolve(encryptAndChunkPayload(payload, publicKey)),
-      )
-
-      encryption.subscribe({
+      ).subscribe({
         next(chunks) {
-          // Upload unchunked payload directly
-          if (chunks.length === 1) {
-            self.putFile(path, chunks[0]).subscribe({
-              next(publicURL) {
-                subscriber.next(publicURL)
-                subscriber.complete()
-              },
-              error(error) {
-                subscriber.error(error)
-              },
-            })
-          }
-
-          // Upload chunks separately and one index file that contains the paths
-          // comma separated
-          const paths = []
-          const parts: [string, string | Buffer][] = []
-
-          for (let i = 0; i < chunks.length; i++) {
-            const chunkPath = `${path}-${i}`
-            paths.push(chunkPath)
-            parts.push([chunkPath, chunks[i]])
-          }
-          parts.push([path, paths.join(',')])
-
-          forkJoin(
-            _.map(parts, part => self.putFile(part[0], part[1])),
-          ).subscribe({
-            next(publicURLs) {
-              subscriber.next(publicURLs[publicURLs.length - 1])
+          putChunks(path, chunks, self.putFile).subscribe({
+            next(publicURL) {
+              subscriber.next(publicURL)
               subscriber.complete()
             },
             error(error) {
@@ -136,9 +94,50 @@ class Files extends BaseService {
             },
           })
         },
+        error(error) {
+          subscriber.error(error)
+        },
       })
     })
   }
+
+  download = (path: string, username: string, privateKey?: string) => {
+    return new Observable<Buffer | string>(subscriber => {
+      getAssembledChunks(path, this.getFile(username)).subscribe({
+        next(encryptedBuffer) {
+          try {
+            subscriber.next(userSession.decryptContent(encryptedBuffer.toString(), { privateKey }))
+            subscriber.complete()
+          } catch(error) {
+            subscriber.error(error)
+          }
+        },
+        error(error) {
+          subscriber.error(error)
+        },
+      })
+    })
+  }
+
+  read = (fileHandle: FileHandle) =>
+    this.dispatcher.performAsync<FileHandleWithData>(Queue.ReadFile, function(
+      resolve,
+      reject,
+    ) {
+      fileReader
+        .readFile(fileHandle.file)
+        .then(({ arrayBuffer, objectURL }) => {
+          const fileHandleWithData: FileHandleWithData = {
+            ...fileHandle,
+            payload: arrayBuffer,
+            objectURL,
+          }
+
+          resolve(fileHandleWithData)
+        })
+        .catch(reject)
+    })
+
 }
 
 export default new Files()
