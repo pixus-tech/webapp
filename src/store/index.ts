@@ -2,6 +2,7 @@ import localForage from 'localforage'
 import { createStore, applyMiddleware } from 'redux'
 import { createEpicMiddleware } from 'redux-observable'
 import { persistStore, persistReducer } from 'redux-persist'
+import immutableTransform from 'redux-persist-transform-immutable'
 import services from 'services'
 import { RootAction, RootService, RootState } from 'typesafe-actions'
 
@@ -28,7 +29,8 @@ localForage.config({
 const persistConfig = {
   key: 'root',
   storage: localForage,
-  whitelist: ['auth', 'i18n'],
+  transforms: [immutableTransform()],
+  whitelist: ['auth', 'i18n', 'albums'],
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
