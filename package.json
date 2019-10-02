@@ -7,7 +7,7 @@
     "@material-ui/core": "^4.5.0",
     "@material-ui/icons": "^4.4.3",
     "@material-ui/lab": "^4.0.0-alpha.26",
-    "blockstack": "blockstack/blockstack.js#feature/custom-key-decrypt",
+    "blockstack": "^19.3.0",
     "buffer": "^5.4.3",
     "classnames": "^2.2.6",
     "formik": "^1.5.7",
