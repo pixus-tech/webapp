@@ -6,6 +6,7 @@ import * as authEpics from './auth/epics'
 import * as imageEpics from './images/epics'
 import * as notificationsEpics from './notifications/epics'
 import * as sharingEpics from './sharing/epics'
+import * as toastsEpics from './toasts/epics'
 import * as webSocketEpics from './webSocket/epics'
 
 const rootEpic = combineEpics(
@@ -14,6 +15,7 @@ const rootEpic = combineEpics(
   ..._.values(imageEpics),
   ..._.values(notificationsEpics),
   ..._.values(sharingEpics),
+  ..._.values(toastsEpics),
   ..._.values(webSocketEpics),
 )
 

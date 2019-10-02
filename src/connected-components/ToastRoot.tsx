@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { Dispatch } from 'redux'
-import { RootAction, RootState } from 'typesafe-actions'
+import { PayloadAC, RootAction, RootState } from 'typesafe-actions'
 
 import Snackbar from '@material-ui/core/Snackbar'
 
@@ -11,6 +11,32 @@ import ToastComponent from 'components/Toast'
 import { TOAST_SHOW_DURATION } from 'constants/index'
 import { hideToast } from 'store/toasts/actions'
 import { Toast } from 'store/toasts/types'
+
+import { downloadPreviewImage } from 'store/images/actions'
+import ImagePreviewDownloadFailed from 'connected-components/toasts/ImagePreviewDownloadFailed'
+
+function createMessageComponent<
+  RequiredType extends string,
+  RequiredPayload,
+  Type extends RequiredType,
+  Payload extends RequiredPayload,
+  ComponentType extends (props: Payload) => JSX.Element
+>(
+  _: PayloadAC<RequiredType, RequiredPayload>,
+  type: Type,
+  Component: ComponentType,
+) {
+  return {
+    [type]: Component,
+  }
+}
+const MESSAGE_COMPONENTS = {
+  ...createMessageComponent(
+    downloadPreviewImage.failure,
+    'IMAGES__DOWNLOAD_PREVIEW_IMAGE__FAILURE',
+    ImagePreviewDownloadFailed,
+  ),
+}
 
 interface IDispatchProps {
   dispatchHideToast: (toast?: Toast) => void
@@ -25,6 +51,16 @@ type ComposedProps = IDispatchProps & IStateProps
 function ToastRoot({ currentToast, dispatchHideToast }: ComposedProps) {
   const isOpen = currentToast !== undefined
   const onClose = dispatchHideToast.bind(undefined, currentToast)
+  const MessageComponent =
+    currentToast !== undefined
+      ? MESSAGE_COMPONENTS[currentToast.action.type]
+      : null
+  const fallbackMessage =
+    currentToast !== undefined &&
+    MessageComponent === null &&
+    typeof currentToast.payload === 'string'
+      ? currentToast.payload
+      : undefined
 
   return ReactDOM.createPortal(
     <Snackbar
@@ -39,9 +75,11 @@ function ToastRoot({ currentToast, dispatchHideToast }: ComposedProps) {
       {currentToast && (
         <ToastComponent
           variant={currentToast.variant}
-          message={currentToast.message}
+          message={fallbackMessage}
           onClose={onClose}
-        />
+        >
+          {MessageComponent && <MessageComponent {...currentToast.payload} />}
+        </ToastComponent>
       )}
     </Snackbar>,
     document.body,

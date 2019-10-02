@@ -50,5 +50,6 @@ export namespace API {
   interface ErrorResponse<T> {
     error: Error
     resource: T
+    showToast?: boolean
   }
 }

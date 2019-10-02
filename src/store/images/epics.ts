@@ -120,7 +120,11 @@ export const downloadPreviewImageEpic: Epic<
           ),
           catchError(error =>
             of(
-              actions.downloadPreviewImage.failure({ error, resource: image }),
+              actions.downloadPreviewImage.failure({
+                error,
+                resource: image,
+                showToast: true,
+              }),
             ),
           ),
         )

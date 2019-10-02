@@ -46,13 +46,21 @@ const useStyles = makeStyles((theme: Theme) => ({
 }))
 
 export interface Props {
+  children?: React.ReactNode
   className?: string
   message?: string
   onClose?: () => void
   variant: ToastVariant
 }
 
-function Toast({ className, message, onClose, variant, ...other }: Props) {
+function Toast({
+  children,
+  className,
+  message,
+  onClose,
+  variant,
+  ...other
+}: Props) {
   const classes = useStyles()
   const Icon = ToastIcon[variant]
 
@@ -63,7 +71,7 @@ function Toast({ className, message, onClose, variant, ...other }: Props) {
       message={
         <span id="toast-notification" className={classes.message}>
           <Icon className={cx(classes.icon, classes.iconVariant)} />
-          {message}
+          {children || message}
         </span>
       }
       action={[
