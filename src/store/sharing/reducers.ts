@@ -34,9 +34,10 @@ const isFetching = createReducer(initialState.isFetching)
     state.set(action.payload, false),
   )
 
-const suggestions = createReducer(initialState.suggestions)
-  .handleAction(actions.searchUsers.success, (_state, action) =>
-    List(action.payload))
+const suggestions = createReducer(initialState.suggestions).handleAction(
+  actions.searchUsers.success,
+  (_state, action) => List(action.payload),
+)
 
 const users = createReducer(initialState.users)
   .handleAction(

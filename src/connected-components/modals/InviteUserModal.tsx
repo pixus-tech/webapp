@@ -61,7 +61,9 @@ function InviteUserModal({
         isFetchingUser={isFetching}
         user={currentUser}
       />
-      {suggestions.map(s => <div key={s.username}>{s.username}</div>)}
+      {suggestions.map(s => (
+        <div key={s.username}>{s.username}</div>
+      ))}
     </>
   )
 }

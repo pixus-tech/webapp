@@ -96,7 +96,9 @@ export function getAssembledChunks(
           (typeof index === 'string' &&
             index.substr(0, INDEX_PREFIX.length) === INDEX_PREFIX) ||
           (typeof index !== 'string' &&
-            (index as Buffer).slice(0, PREFIX_BUFFER.length).equals(PREFIX_BUFFER))
+            (index as Buffer)
+              .slice(0, PREFIX_BUFFER.length)
+              .equals(PREFIX_BUFFER))
         ) {
           const chunkPaths = index
             .toString()

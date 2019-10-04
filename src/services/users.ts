@@ -66,23 +66,30 @@ class Users extends BaseService {
     )
 
   search = (partialUsername: string) =>
-    this.dispatcher.performAsync<User[]>(Queue.RecordOperation, (
-      resolve,
-      reject,
-    ) => {
-      ajax.getJSON<BlockstackCore.SearchResponse>(`${this.config.apiUrl}search?query=${partialUsername}`).subscribe({
-        next(response) {
-          const resultsWithUsername = _.filter(response.results, result => typeof result.username === 'string')
-          const users = _.map(resultsWithUsername, result => (
-            parseProfile(result.username!, result.profile)
-          ))
-          resolve(users)
-        },
-        error(error) {
-          reject(error)
-        },
-      })
-    })
+    this.dispatcher.performAsync<User[]>(
+      Queue.RecordOperation,
+      (resolve, reject) => {
+        ajax
+          .getJSON<BlockstackCore.SearchResponse>(
+            `${this.config.apiUrl}search?query=${partialUsername}`,
+          )
+          .subscribe({
+            next(response) {
+              const resultsWithUsername = _.filter(
+                response.results,
+                result => typeof result.username === 'string',
+              )
+              const users = _.map(resultsWithUsername, result =>
+                parseProfile(result.username!, result.profile),
+              )
+              resolve(users)
+            },
+            error(error) {
+              reject(error)
+            },
+          })
+      },
+    )
 }
 
 export default new Users()
