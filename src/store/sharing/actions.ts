@@ -10,6 +10,13 @@ export const findUser = createAsyncAction(
   'SHARING__FIND_USER__CANCEL',
 )<string, API.ShowResponse<User>, API.ErrorResponse<string>, string>()
 
+export const searchUsers = createAsyncAction(
+  'SHARING__SEARCH_USERS__REQUEST',
+  'SHARING__SEARCH_USERS__SUCCESS',
+  'SHARING__SEARCH_USERS__FAILURE',
+  'SHARING__SEARCH_USERS__CANCEL',
+)<string, User[], API.ErrorResponse<string>, string>()
+
 interface UserInvitationPayload {
   album: Album
   user: User

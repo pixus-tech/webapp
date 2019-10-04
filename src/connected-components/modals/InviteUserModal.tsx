@@ -7,37 +7,39 @@ import { RootAction, RootState } from 'typesafe-actions'
 import InviteUserForm from 'components/InviteUserForm'
 import User from 'models/user'
 import { InviteUserModalProps } from 'store/modal/types'
-import { findUser, inviteUser } from 'store/sharing/actions'
+import { searchUsers, inviteUser } from 'store/sharing/actions'
 
 interface IDispatchProps {
-  cancelFindUser: typeof findUser.cancel
+  cancelSearchUsers: typeof searchUsers.cancel
   dispatchInviteUser: typeof inviteUser.request
-  dispatchFindUser: typeof findUser.request
+  dispatchSearchUsers: typeof searchUsers.request
 }
 
 interface IStateProps {
   currentUser?: User | null
   currentUsername: string | null
   isFetching: boolean
+  suggestions: User[]
 }
 
 type ComposedProps = InviteUserModalProps & IDispatchProps & IStateProps
 
 function InviteUserModal({
   album,
-  cancelFindUser,
+  cancelSearchUsers,
   currentUser,
   currentUsername,
-  dispatchFindUser,
+  dispatchSearchUsers,
   dispatchInviteUser,
   isFetching,
+  suggestions,
 }: ComposedProps) {
   const onChangeUsername = (username: string) => {
     if (currentUsername !== null) {
-      cancelFindUser(currentUsername)
+      cancelSearchUsers(currentUsername)
     }
 
-    dispatchFindUser(username)
+    dispatchSearchUsers(username)
   }
 
   const onSubmit = (message: string) => {
@@ -59,6 +61,7 @@ function InviteUserModal({
         isFetchingUser={isFetching}
         user={currentUser}
       />
+      {suggestions.map(s => <div key={s.username}>{s.username}</div>)}
     </>
   )
 }
@@ -71,19 +74,21 @@ function mapStateToProps(state: RootState): IStateProps {
   const currentUser = currentUsername
     ? state.sharing.users.get(currentUsername)
     : undefined
+  const suggestions = state.sharing.suggestions.toArray()
 
   return {
     currentUser,
     currentUsername,
+    suggestions,
     isFetching,
   }
 }
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
-    cancelFindUser: username => dispatch(findUser.cancel(username)),
+    cancelSearchUsers: username => dispatch(searchUsers.cancel(username)),
     dispatchInviteUser: payload => dispatch(inviteUser.request(payload)),
-    dispatchFindUser: username => dispatch(findUser.request(username)),
+    dispatchSearchUsers: username => dispatch(searchUsers.request(username)),
   }
 }
 

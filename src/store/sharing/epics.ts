@@ -21,9 +21,34 @@ export const findUserEpic: Epic<
     mergeMap(action =>
       users.find(action.payload).pipe(
         map(user => actions.findUser.success(user)),
-        takeUntil(action$.pipe(filter(isActionOf(actions.findUser.cancel)))),
+        takeUntil(action$.pipe(filter(cancelAction => (
+          isActionOf(actions.findUser.cancel)(cancelAction) &&
+          action.payload === cancelAction.payload
+        )))),
         catchError(error =>
           of(actions.findUser.failure({ error, resource: action.payload })),
+        ),
+      ),
+    ),
+  )
+
+export const searchUsersEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'users'>
+> = (action$, state$, { users }) =>
+  action$.pipe(
+    filter(isActionOf(actions.searchUsers.request)),
+    mergeMap(action =>
+      users.search(action.payload).pipe(
+        map(users => actions.searchUsers.success(users)),
+        takeUntil(action$.pipe(filter(cancelAction => (
+          isActionOf(actions.searchUsers.cancel)(cancelAction) &&
+          action.payload === cancelAction.payload
+        )))),
+        catchError(error =>
+          of(actions.searchUsers.failure({ error, resource: action.payload })),
         ),
       ),
     ),

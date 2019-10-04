@@ -1,4 +1,4 @@
-import { Map } from 'immutable'
+import { List, Map } from 'immutable'
 import { combineReducers } from 'redux'
 import { createReducer } from 'typesafe-actions'
 
@@ -9,6 +9,7 @@ import * as actions from './actions'
 export const initialState = {
   currentUsername: null as null | string,
   isFetching: Map<string, boolean>(),
+  suggestions: List<User>(),
   users: Map<string, User | null>(),
 }
 
@@ -33,6 +34,10 @@ const isFetching = createReducer(initialState.isFetching)
     state.set(action.payload, false),
   )
 
+const suggestions = createReducer(initialState.suggestions)
+  .handleAction(actions.searchUsers.success, (_state, action) =>
+    List(action.payload))
+
 const users = createReducer(initialState.users)
   .handleAction(
     [actions.findUser.request, actions.findUser.cancel],
@@ -48,5 +53,6 @@ const users = createReducer(initialState.users)
 export default combineReducers({
   currentUsername,
   isFetching,
+  suggestions,
   users,
 })

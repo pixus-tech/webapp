@@ -8,6 +8,7 @@ import {
 import SigningKey from 'radiks/lib/models/signing-key'
 import { addUserGroupKey } from 'radiks/lib/helpers'
 
+import AlbumRecord from 'db/album'
 import BaseModel, { UnsavedModel } from 'models/index'
 
 export function currentUser() {
@@ -100,4 +101,25 @@ export async function inviteUserToGroup(
   })
   await userGroup.save()
   return invitation
+}
+
+export async function acceptInvitation(invitationId: string) {
+  const username = currentUsername()
+  const invitation = (await GroupInvitation.findById(
+    invitationId,
+  )) as GroupInvitation
+  const albumId = invitation.attrs.userGroupId as string
+  const groupMembership = new GroupMembership({
+    userGroupId: albumId,
+    username: username,
+    signingKeyPrivateKey: invitation.attrs.signingKeyPrivateKey,
+    signingKeyId: invitation.attrs.signingKeyId,
+    updatable: false,
+  })
+  await groupMembership.save()
+  await GroupMembership.cacheKeys()
+  const albumRecord = (await AlbumRecord.findById(albumId)) as AlbumRecord
+  albumRecord.privateKey = albumRecord.encryptionPrivateKey()
+  albumRecord.update({ users: [...albumRecord.attrs.users, username] })
+  await albumRecord.save()
 }

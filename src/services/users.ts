@@ -1,11 +1,13 @@
+import _ from 'lodash'
 import { lookupProfile } from 'blockstack'
-import { GroupInvitation, GroupMembership } from 'radiks'
+import { ajax } from 'rxjs/ajax'
 
 import Album from 'models/album'
-import AlbumRecord, { AlbumRecordFactory } from 'db/album'
+import { AlbumRecordFactory } from 'db/album'
 import User, { parseProfile } from 'models/user'
 import { NotificationType } from 'models/notification'
-import { currentUsername, inviteUserToGroup } from 'utils/blockstack'
+import { acceptInvitation, inviteUserToGroup } from 'utils/blockstack'
+import { BlockstackCore } from 'typings/blockstack'
 
 import notifications from './notifications'
 import BaseService from './baseService'
@@ -54,35 +56,33 @@ class Users extends BaseService {
         .catch(reject)
     })
 
-  async _acceptInvitation(invitationId: string) {
-    const username = currentUsername()
-    const invitation = (await GroupInvitation.findById(
-      invitationId,
-    )) as GroupInvitation
-    const albumId = invitation.attrs.userGroupId as string
-    const groupMembership = new GroupMembership({
-      userGroupId: albumId,
-      username: username,
-      signingKeyPrivateKey: invitation.attrs.signingKeyPrivateKey,
-      signingKeyId: invitation.attrs.signingKeyId,
-      updatable: false,
-    })
-    await groupMembership.save()
-    await GroupMembership.cacheKeys()
-    const albumRecord = (await AlbumRecord.findById(albumId)) as AlbumRecord
-    albumRecord.privateKey = albumRecord.encryptionPrivateKey()
-    albumRecord.update({ users: [...albumRecord.attrs.users, username] })
-    await albumRecord.save()
-  }
-
   acceptInvitation = (invitationId: string) =>
     this.dispatcher.performAsync<undefined>(
       Queue.RecordOperation,
       (resolve, reject) =>
-        this._acceptInvitation(invitationId)
+        acceptInvitation(invitationId)
           .then(() => resolve(undefined))
           .catch(reject),
     )
+
+  search = (partialUsername: string) =>
+    this.dispatcher.performAsync<User[]>(Queue.RecordOperation, (
+      resolve,
+      reject,
+    ) => {
+      ajax.getJSON<BlockstackCore.SearchResponse>(`${this.config.apiUrl}search?query=${partialUsername}`).subscribe({
+        next(response) {
+          const resultsWithUsername = _.filter(response.results, result => typeof result.username === 'string')
+          const users = _.map(resultsWithUsername, result => (
+            parseProfile(result.username!, result.profile)
+          ))
+          resolve(users)
+        },
+        error(error) {
+          reject(error)
+        },
+      })
+    })
 }
 
 export default new Users()
