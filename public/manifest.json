@@ -1,7 +1,7 @@
 {
-  "short_name": "phtgrph",
-  "name": "graphoto",
-  "description": "Private AI driven photo library.",
+  "short_name": "snapnet",
+  "name": "snapnet",
+  "description": "Organize and share end-to-end encrypted photos.",
   "start_url": "192.168.1.158:3000",
   "icons": [
     {

@@ -19,18 +19,25 @@ export const searchUsers = createAsyncAction(
 
 interface UserInvitationPayload {
   album: Album
-  user: User
+  users: User[]
   message?: string
 }
 
-export const inviteUser = createAsyncAction(
-  'SHARING__INVITE_USER__REQUEST',
-  'SHARING__INVITE_USER__SUCCESS',
-  'SHARING__INVITE_USER__FAILURE',
-  'SHARING__INVITE_USER__CANCEL',
+export const inviteUsers = createAsyncAction(
+  'SHARING__INVITE_USERS__REQUEST',
+  'SHARING__INVITE_USERS__SUCCESS',
+  'SHARING__INVITE_USERS__FAILURE',
+  'SHARING__INVITE_USERS__CANCEL',
 )<
   UserInvitationPayload,
-  undefined,
+  API.PutResponse<UserInvitationPayload>,
   API.ErrorResponse<UserInvitationPayload>,
   undefined
 >()
+
+export const selectUsers = createAsyncAction(
+  'SHARING__SELECT_USERS__REQUEST',
+  'SHARING__SELECT_USERS__SUCCESS',
+  'SHARING__SELECT_USERS__FAILURE',
+  'SHARING__SELECT_USERS__CANCEL',
+)<string[], User[], undefined, undefined>()

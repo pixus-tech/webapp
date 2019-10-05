@@ -23,11 +23,17 @@ const useStyles = makeStyles((_theme: Theme) =>
     inline: {
       display: 'inline',
     },
+    verticallyCenteredText: {
+      alignItems: 'center',
+      display: 'flex',
+      height: '100%',
+    },
   }),
 )
 
 function UserListItem({ className, component, message, user }: IProps) {
   const classes = useStyles()
+  const hasSecondLine = user.name !== undefined || message !== undefined
 
   return (
     <ListItem
@@ -39,6 +45,11 @@ function UserListItem({ className, component, message, user }: IProps) {
         <UserAvatar user={user} />
       </ListItemAvatar>
       <ListItemText
+        classes={{
+          root: cx({
+            [classes.verticallyCenteredText]: !hasSecondLine,
+          }),
+        }}
         primary={user.username}
         secondary={
           <>

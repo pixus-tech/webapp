@@ -17,7 +17,7 @@ function Logo() {
 
   return (
     <span className={classes.headline}>
-      gra<span className={classes.highlight}>ph</span>oto
+      snap<span className={classes.highlight}>net</span>
     </span>
   )
 }

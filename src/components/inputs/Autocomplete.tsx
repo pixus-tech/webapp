@@ -9,7 +9,7 @@ import {
   Theme,
 } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-import TextField, { BaseTextFieldProps } from '@material-ui/core/TextField'
+import TextField, { TextFieldProps } from '@material-ui/core/TextField'
 import Paper from '@material-ui/core/Paper'
 import Chip from '@material-ui/core/Chip'
 import MenuItem from '@material-ui/core/MenuItem'
@@ -28,14 +28,10 @@ export interface OptionType {
   label: string
   value: string
 }
+export type OptionValue = ValueType<OptionType>
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
-      flexGrow: 1,
-      height: 250,
-      minWidth: 290,
-    },
     input: {
       display: 'flex',
       padding: 0,
@@ -73,7 +69,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     paper: {
       position: 'absolute',
-      zIndex: 1,
+      zIndex: 2,
       marginTop: theme.spacing(1),
       left: 0,
       right: 0,
@@ -96,7 +92,7 @@ function NoOptionsMessage(props: NoticeProps<OptionType>) {
   )
 }
 
-type InputComponentProps = Pick<BaseTextFieldProps, 'inputRef'> &
+type InputComponentProps = Pick<TextFieldProps, 'inputRef'> &
   HTMLAttributes<HTMLDivElement>
 
 function inputComponent({ inputRef, ...props }: InputComponentProps) {
@@ -114,7 +110,9 @@ function Control(props: ControlProps<OptionType>) {
   return (
     <TextField
       fullWidth
+      {...TextFieldProps}
       InputProps={{
+        ...TextFieldProps.InputProps,
         inputComponent,
         inputProps: {
           className: classes.input,
@@ -123,7 +121,6 @@ function Control(props: ControlProps<OptionType>) {
           ...innerProps,
         },
       }}
-      {...TextFieldProps}
     />
   )
 }
@@ -219,9 +216,10 @@ interface IProps {
   isMulti?: boolean
   label: string
   placeholder?: string
-  select: (value: ValueType<OptionType>) => void
+  select: (value: OptionValue) => void
   suggestions: OptionType[]
-  value?: ValueType<OptionType>
+  TextFieldProps?: TextFieldProps
+  value?: OptionValue
 }
 
 export default function IntegrationReactSelect({
@@ -230,6 +228,7 @@ export default function IntegrationReactSelect({
   placeholder,
   select,
   suggestions,
+  TextFieldProps,
   value,
 }: IProps) {
   const classes = useStyles()
@@ -246,25 +245,24 @@ export default function IntegrationReactSelect({
   }
 
   return (
-    <div className={classes.root}>
-      <Select
-        classes={classes}
-        styles={selectStyles}
-        inputId="react-select-multiple"
-        TextFieldProps={{
-          label,
-          InputLabelProps: {
-            htmlFor: 'react-select-multiple',
-            shrink: true,
-          },
-        }}
-        placeholder={placeholder}
-        options={suggestions}
-        components={components}
-        value={value}
-        onChange={select}
-        isMulti={isMulti}
-      />
-    </div>
+    <Select
+      classes={classes}
+      styles={selectStyles}
+      inputId="react-select-multiple"
+      TextFieldProps={{
+        ...TextFieldProps,
+        label,
+        InputLabelProps: {
+          htmlFor: 'react-select-multiple',
+          shrink: true,
+        },
+      }}
+      placeholder={placeholder}
+      options={suggestions}
+      components={components}
+      value={value}
+      onChange={select}
+      isMulti={isMulti}
+    />
   )
 }

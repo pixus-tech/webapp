@@ -27,6 +27,10 @@ const useStyles = makeStyles((theme: Theme) =>
       justifyContent: 'center',
     },
     paper: {
+      [theme.breakpoints.up('sm')]: {
+        width: 512,
+      },
+      width: `calc(100vw - ${theme.spacing(2)}px)`,
       backgroundColor: theme.palette.background.paper,
       borderRadius: theme.spacing(1),
       boxShadow: theme.shadows[5],

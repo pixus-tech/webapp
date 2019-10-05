@@ -45,6 +45,7 @@ export namespace API {
 
   interface PutResponse<T> {
     resource: T
+    showToast?: boolean
   }
 
   interface ErrorResponse<T> {

@@ -1,4 +1,4 @@
-# graphoto
+# snapnet
 
 ## Development
 

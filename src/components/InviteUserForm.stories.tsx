@@ -6,10 +6,12 @@ export default { title: 'Invite User Form' }
 export const isFetchingUser = () => (
   <div style={{ height: 256, width: 256 }}>
     <InviteUserForm
-      onSubmit={console.log}
+      isFetchingSuggestions={true}
+      onChangeSelectedUsers={console.log}
       onChangeUsername={console.log}
-      isFetchingUser={true}
-      user={undefined}
+      onSubmit={console.log}
+      selectedUsers={[]}
+      suggestedUsers={[]}
     />
   </div>
 )
@@ -17,24 +19,35 @@ export const isFetchingUser = () => (
 export const didFindUser = () => (
   <div style={{ height: 256, width: 256 }}>
     <InviteUserForm
-      onSubmit={console.log}
+      isFetchingSuggestions={false}
+      onChangeSelectedUsers={console.log}
       onChangeUsername={console.log}
-      isFetchingUser={false}
-      user={{
-        username: 'test1.id.blockstack',
-        name: 'Jon Doe',
-      }}
+      onSubmit={console.log}
+      selectedUsers={[]}
+      suggestedUsers={[
+        {
+          username: 'test1.id.blockstack',
+          name: 'Jon Doe',
+        },
+      ]}
     />
   </div>
 )
 
-export const couldNotFindUser = () => (
+export const didSelectUser = () => (
   <div style={{ height: 256, width: 256 }}>
     <InviteUserForm
-      onSubmit={console.log}
+      isFetchingSuggestions={false}
+      onChangeSelectedUsers={console.log}
       onChangeUsername={console.log}
-      isFetchingUser={false}
-      user={null}
+      onSubmit={console.log}
+      selectedUsers={[
+        {
+          username: 'test1.id.blockstack',
+          name: 'Jon Doe',
+        },
+      ]}
+      suggestedUsers={[]}
     />
   </div>
 )

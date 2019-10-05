@@ -1,6 +1,13 @@
 import { Epic } from 'redux-observable'
 import { of } from 'rxjs'
-import { catchError, filter, map, mergeMap, takeUntil } from 'rxjs/operators'
+import {
+  catchError,
+  filter,
+  map,
+  mergeMap,
+  takeUntil,
+  withLatestFrom,
+} from 'rxjs/operators'
 import {
   isActionOf,
   RootAction,
@@ -9,6 +16,8 @@ import {
 } from 'typesafe-actions'
 
 import * as actions from './actions'
+import { hideModal } from 'store/modal/actions'
+import User from 'models/user'
 
 export const findUserEpic: Epic<
   RootAction,
@@ -64,28 +73,67 @@ export const searchUsersEpic: Epic<
     ),
   )
 
-export const inviteUserEpic: Epic<
+export const selectUsersEpic: Epic<
   RootAction,
   RootAction,
   RootState,
   Pick<RootService, 'users'>
 > = (action$, state$, { users }) =>
   action$.pipe(
-    filter(isActionOf(actions.inviteUser.request)),
+    filter(isActionOf(actions.selectUsers.request)),
+    withLatestFrom(state$),
+    map(([action, state]) => {
+      const users: User[] = []
+
+      action.payload.forEach(username => {
+        const user =
+          state.sharing.users.get(username) ||
+          state.sharing.suggestedUsers.get(username)
+        if (user !== undefined) {
+          users.push(user)
+        }
+      })
+
+      return actions.selectUsers.success(users)
+    }),
+  )
+
+export const inviteUsersEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'users'>
+> = (action$, state$, { users }) =>
+  action$.pipe(
+    filter(isActionOf(actions.inviteUsers.request)),
     mergeMap(action =>
       users
-        .inviteUserToAlbum(
-          action.payload.user,
+        .inviteUsersToAlbum(
+          action.payload.users,
           action.payload.album,
           action.payload.message,
         )
         .pipe(
-          map(() => actions.inviteUser.success()),
+          mergeMap(() =>
+            of(
+              actions.inviteUsers.success({
+                showToast: true,
+                resource: action.payload,
+              }),
+              hideModal(),
+            ),
+          ),
           takeUntil(
-            action$.pipe(filter(isActionOf(actions.inviteUser.cancel))),
+            action$.pipe(filter(isActionOf(actions.inviteUsers.cancel))),
           ),
           catchError(error =>
-            of(actions.inviteUser.failure({ error, resource: action.payload })),
+            of(
+              actions.inviteUsers.failure({
+                showToast: true,
+                error,
+                resource: action.payload,
+              }),
+            ),
           ),
         ),
     ),

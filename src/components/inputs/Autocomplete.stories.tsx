@@ -34,7 +34,7 @@ export const singleSelectWithPreselection = () => (
   />
 )
 
-export const multiWithSuggestions = () => {
+export function MultiWithSuggestions() {
   const [value, setValue] = React.useState<ValueType<OptionType>>(null)
 
   return (
@@ -62,7 +62,7 @@ export const multiWithSuggestions = () => {
   )
 }
 
-export const singleWithSuggestions = () => {
+export function SingleWithSuggestions() {
   const [value, setValue] = React.useState<ValueType<OptionType>>(null)
 
   return (

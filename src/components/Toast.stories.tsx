@@ -18,3 +18,10 @@ export const error = () => (
 export const info = () => (
   <Toast message="This is a info message" variant="info" />
 )
+
+export const longMessage = () => (
+  <Toast
+    message="This is a info message with very long textual content. This example shows that the text breaks properly"
+    variant="info"
+  />
+)

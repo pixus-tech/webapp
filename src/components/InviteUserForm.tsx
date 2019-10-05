@@ -1,3 +1,4 @@
+import cx from 'classnames'
 import _ from 'lodash'
 import React from 'react'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
@@ -6,27 +7,30 @@ import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
 
+import Autocomplete, {
+  OptionType,
+  OptionValue,
+} from 'components/inputs/Autocomplete'
 import UserListItem from 'components/UserListItem'
-import User from 'models/user'
+import User, { userLabel } from 'models/user'
 
 import SendIcon from '@material-ui/icons/Send'
 
 export interface IProps {
   className?: string
-  onSubmit: (message: string) => void
+  isFetchingSuggestions: boolean
+  onChangeSelectedUsers: (usernames: string[]) => void
   onChangeUsername: (username: string) => void
-  isFetchingUser: boolean
-  user?: User | null
+  onSubmit: (message: string) => void
+  selectedUsers: User[]
+  suggestedUsers: User[]
 }
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
-      height: '100%',
-      position: 'relative',
-      width: '100%',
+      minWidth: '300',
     },
     idTextField: {},
     messageTextField: {
@@ -53,66 +57,73 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function InviteUserForm({
   className,
-  isFetchingUser,
+  isFetchingSuggestions,
+  onChangeSelectedUsers,
   onChangeUsername,
   onSubmit,
-  user,
+  selectedUsers,
+  suggestedUsers,
 }: IProps) {
   const [message, setMessage] = React.useState('')
   const classes = useStyles()
 
-  const userIdEndAdornment = !isFetchingUser ? null : (
+  const userIdEndAdornment = !isFetchingSuggestions ? null : (
     <InputAdornment position="end">
       <CircularProgress size={18} />
     </InputAdornment>
   )
 
-  const debouncedOnChangeUsername = _.debounce(onChangeUsername, 1000)
+  function onSelect(options: OptionValue) {
+    if (options !== undefined && options !== null) {
+      const usernames = _.map(options as OptionType[], option => option.value)
+      onChangeSelectedUsers(usernames)
+    } else {
+      onChangeSelectedUsers([])
+    }
+  }
+
+  const suggestions = _.map(suggestedUsers, user => ({
+    label: userLabel(user),
+    value: user.username,
+  }))
+
+  const value = _.map(selectedUsers, user => ({
+    label: userLabel(user),
+    value: user.username,
+  }))
 
   return (
-    <div className={className}>
-      {!user && (
-        <TextField
-          InputProps={{
+    <div className={cx(classes.container, className)}>
+      <Autocomplete
+        TextFieldProps={{
+          InputProps: {
             endAdornment: userIdEndAdornment,
-          }}
-          autoFocus
-          className={classes.idTextField}
-          fullWidth
-          label={null}
-          name="addressee"
-          onChange={event =>
-            debouncedOnChangeUsername(event.currentTarget.value)
-          }
-          placeholder="Find a user by their Blockstack ID"
-          required
-        />
-      )}
-      {user === null && (
+          },
+          autoFocus: true,
+          fullWidth: true,
+          onChange: event => onChangeUsername(event.target.value),
+        }}
+        isMulti
+        label="Users"
+        placeholder="Find users by their Blockstack ID"
+        select={onSelect}
+        suggestions={suggestions}
+        value={value}
+      />
+      {selectedUsers.length > 0 && (
         <>
-          <Typography
-            className={classes.notFoundMessage}
-            color="inherit"
-            variant="body1"
-            component="p"
-          >
-            User could not be found.
-          </Typography>
-        </>
-      )}
-      {user && (
-        <>
-          <UserListItem
-            className={classes.userItem}
-            user={user}
-            component="div"
-          />
+          {_.map(selectedUsers, user => (
+            <UserListItem
+              className={classes.userItem}
+              key={user.username}
+              user={user}
+              component="div"
+            />
+          ))}
           <TextField
             autoFocus
             className={classes.messageTextField}
-            placeholder={`Hi${user.name &&
-              ' ' +
-                user.name}, I'd like to invite you to collaborate on this album.`}
+            placeholder={`Hi, I'd like to invite you to collaborate on this album.`}
             fullWidth
             label="Add an optional message"
             multiline

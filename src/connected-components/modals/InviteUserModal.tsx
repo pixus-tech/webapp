@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
@@ -7,19 +8,20 @@ import { RootAction, RootState } from 'typesafe-actions'
 import InviteUserForm from 'components/InviteUserForm'
 import User from 'models/user'
 import { InviteUserModalProps } from 'store/modal/types'
-import { searchUsers, inviteUser } from 'store/sharing/actions'
+import { selectUsers, searchUsers, inviteUsers } from 'store/sharing/actions'
 
 interface IDispatchProps {
   cancelSearchUsers: typeof searchUsers.cancel
-  dispatchInviteUser: typeof inviteUser.request
+  dispatchInviteUsers: typeof inviteUsers.request
   dispatchSearchUsers: typeof searchUsers.request
+  dispatchSelectUsers: typeof selectUsers.request
 }
 
 interface IStateProps {
-  currentUser?: User | null
   currentUsername: string | null
   isFetching: boolean
-  suggestions: User[]
+  selectedUsers: User[]
+  suggestedUsers: User[]
 }
 
 type ComposedProps = InviteUserModalProps & IDispatchProps & IStateProps
@@ -27,12 +29,13 @@ type ComposedProps = InviteUserModalProps & IDispatchProps & IStateProps
 function InviteUserModal({
   album,
   cancelSearchUsers,
-  currentUser,
   currentUsername,
+  dispatchSelectUsers,
   dispatchSearchUsers,
-  dispatchInviteUser,
+  dispatchInviteUsers,
   isFetching,
-  suggestions,
+  selectedUsers,
+  suggestedUsers,
 }: ComposedProps) {
   const onChangeUsername = (username: string) => {
     if (currentUsername !== null) {
@@ -42,11 +45,13 @@ function InviteUserModal({
     dispatchSearchUsers(username)
   }
 
+  const debouncedOnChangeUsername = _.debounce(onChangeUsername, 200)
+
   const onSubmit = (message: string) => {
-    if (currentUser) {
-      dispatchInviteUser({
+    if (selectedUsers.length > 0) {
+      dispatchInviteUsers({
         album,
-        user: currentUser,
+        users: selectedUsers,
         message,
       })
     }
@@ -56,40 +61,36 @@ function InviteUserModal({
     <>
       <h2 id="modal-title">Invite a user to "{album.name}"</h2>
       <InviteUserForm
+        isFetchingSuggestions={isFetching}
+        onChangeSelectedUsers={dispatchSelectUsers}
+        onChangeUsername={debouncedOnChangeUsername}
         onSubmit={onSubmit}
-        onChangeUsername={onChangeUsername}
-        isFetchingUser={isFetching}
-        user={currentUser}
+        selectedUsers={selectedUsers}
+        suggestedUsers={suggestedUsers}
       />
-      {suggestions.map(s => (
-        <div key={s.username}>{s.username}</div>
-      ))}
     </>
   )
 }
 
 function mapStateToProps(state: RootState): IStateProps {
   const currentUsername = state.sharing.currentUsername
-  const isFetching = currentUsername
-    ? state.sharing.isFetching.get(currentUsername) || false
-    : false
-  const currentUser = currentUsername
-    ? state.sharing.users.get(currentUsername)
-    : undefined
-  const suggestions = state.sharing.suggestions.toArray()
+  const isFetching = state.sharing.isSearching
+  const selectedUsers = state.sharing.users.toList().toArray()
+  const suggestedUsers = state.sharing.suggestedUsers.toList().toArray()
 
   return {
-    currentUser,
     currentUsername,
-    suggestions,
     isFetching,
+    selectedUsers,
+    suggestedUsers,
   }
 }
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
     cancelSearchUsers: username => dispatch(searchUsers.cancel(username)),
-    dispatchInviteUser: payload => dispatch(inviteUser.request(payload)),
+    dispatchSelectUsers: users => dispatch(selectUsers.request(users)),
+    dispatchInviteUsers: payload => dispatch(inviteUsers.request(payload)),
     dispatchSearchUsers: username => dispatch(searchUsers.request(username)),
   }
 }

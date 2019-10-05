@@ -4,7 +4,7 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle'
 import ErrorIcon from '@material-ui/icons/Error'
 import InfoIcon from '@material-ui/icons/Info'
 import CloseIcon from '@material-ui/icons/Close'
-import { amber, green } from '@material-ui/core/colors'
+import { amber } from '@material-ui/core/colors'
 import IconButton from '@material-ui/core/IconButton'
 import SnackbarContent from '@material-ui/core/SnackbarContent'
 import WarningIcon from '@material-ui/icons/Warning'
@@ -20,14 +20,18 @@ const ToastIcon = {
 export type ToastVariant = keyof typeof ToastIcon
 
 const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    flexFlow: 'row',
+    maxWidth: 288,
+  },
   success: {
-    backgroundColor: green[600],
+    backgroundColor: theme.palette.secondary.main,
   },
   error: {
     backgroundColor: theme.palette.error.dark,
   },
   info: {
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.secondary.light,
   },
   warning: {
     backgroundColor: amber[700],
@@ -66,7 +70,7 @@ function Toast({
 
   return (
     <SnackbarContent
-      className={cx(classes[variant], className)}
+      className={cx(classes.root, classes[variant], className)}
       aria-describedby="toast-notification"
       message={
         <span id="toast-notification" className={classes.message}>

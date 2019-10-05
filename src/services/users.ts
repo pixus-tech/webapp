@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { lookupProfile } from 'blockstack'
+import { forkJoin, Observable } from 'rxjs'
 import { ajax } from 'rxjs/ajax'
 
 import Album from 'models/album'
@@ -55,6 +56,22 @@ class Users extends BaseService {
         })
         .catch(reject)
     })
+
+  inviteUsersToAlbum = (users: User[], album: Album, message?: string) => {
+    return new Observable<undefined>(subscriber => {
+      forkJoin(
+        users.map(user => this.inviteUserToAlbum(user, album, message)),
+      ).subscribe({
+        complete() {
+          subscriber.next()
+          subscriber.complete()
+        },
+        error(error) {
+          subscriber.error(error)
+        },
+      })
+    })
+  }
 
   acceptInvitation = (invitationId: string) =>
     this.dispatcher.performAsync<undefined>(

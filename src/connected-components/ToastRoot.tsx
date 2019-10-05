@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { Dispatch } from 'redux'
-import { PayloadAC, RootAction, RootState } from 'typesafe-actions'
+import { RootAction, RootState } from 'typesafe-actions'
 
 import Snackbar from '@material-ui/core/Snackbar'
 
@@ -12,31 +12,7 @@ import { TOAST_SHOW_DURATION } from 'constants/index'
 import { hideToast } from 'store/toasts/actions'
 import { Toast } from 'store/toasts/types'
 
-import { downloadPreviewImage } from 'store/images/actions'
-import ImagePreviewDownloadFailed from 'connected-components/toasts/ImagePreviewDownloadFailed'
-
-function createMessageComponent<
-  RequiredType extends string,
-  RequiredPayload,
-  Type extends RequiredType,
-  Payload extends RequiredPayload,
-  ComponentType extends (props: Payload) => JSX.Element
->(
-  _: PayloadAC<RequiredType, RequiredPayload>,
-  type: Type,
-  Component: ComponentType,
-) {
-  return {
-    [type]: Component,
-  }
-}
-const MESSAGE_COMPONENTS = {
-  ...createMessageComponent(
-    downloadPreviewImage.failure,
-    'IMAGES__DOWNLOAD_PREVIEW_IMAGE__FAILURE',
-    ImagePreviewDownloadFailed,
-  ),
-}
+import TOAST_COMPONENTS from 'connected-components/toasts/index'
 
 interface IDispatchProps {
   dispatchHideToast: (toast?: Toast) => void
@@ -53,7 +29,7 @@ function ToastRoot({ currentToast, dispatchHideToast }: ComposedProps) {
   const onClose = dispatchHideToast.bind(undefined, currentToast)
   const MessageComponent =
     currentToast !== undefined
-      ? MESSAGE_COMPONENTS[currentToast.action.type]
+      ? TOAST_COMPONENTS[currentToast.action.type]
       : null
   const fallbackMessage =
     currentToast !== undefined &&
