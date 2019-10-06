@@ -15,14 +15,16 @@ class Connectivity extends BaseService {
     this.dispatcher.performAsync<boolean>(
       Queue.RecordOperation,
       (resolve, reject) => {
-        ajax.getJSON<StatusResponse>(`${this.config.radiksUrl}ping`).subscribe({
-          next(response) {
-            resolve(response && response.status === 'alive')
-          },
-          error(error) {
-            reject(error)
-          },
-        })
+        ajax
+          .getJSON<StatusResponse>(`${this.config.radiksUrl}/ping`)
+          .subscribe({
+            next(response) {
+              resolve(response && response.status === 'alive')
+            },
+            error(error) {
+              reject(error)
+            },
+          })
       },
     )
 
@@ -31,7 +33,7 @@ class Connectivity extends BaseService {
       Queue.RecordOperation,
       (resolve, reject) => {
         ajax
-          .getJSON<StatusResponse>(`${this.config.blockstackCoreUrl}node/ping`)
+          .getJSON<StatusResponse>(`${this.config.blockstackCoreUrl}/node/ping`)
           .subscribe({
             next(response) {
               resolve(response && response.status === 'alive')

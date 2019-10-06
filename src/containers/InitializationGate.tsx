@@ -48,7 +48,7 @@ class InitializationGate extends React.PureComponent<ComposedProps> {
       isHubReachable === false ||
       isRadiksReachable === false
 
-    if (!isBlockstackReachable || !isHubReachable || !isRadiksReachable) {
+    if (connectivityCheckPending || connectivityCheckFailed) {
       return (
         <FullScreenLoader isLoading={connectivityCheckPending}>
           {connectivityCheckFailed && (
