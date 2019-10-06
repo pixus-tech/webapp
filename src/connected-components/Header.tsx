@@ -8,9 +8,8 @@ import AppBar from '@material-ui/core/AppBar'
 import Grid from '@material-ui/core/Grid'
 import Hidden from '@material-ui/core/Hidden'
 import IconButton from '@material-ui/core/IconButton'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
+import MenuList from '@material-ui/core/MenuList'
+import MenuItem from '@material-ui/core/MenuItem'
 import MenuIcon from '@material-ui/icons/Menu'
 import Toolbar from '@material-ui/core/Toolbar'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
@@ -102,11 +101,10 @@ function Header({ dispatchLogout, onDrawerToggle, user }: ComposedProps) {
                 tooltip={user.username}
                 Icon={<UserAvatar user={user} />}
               >
-                <List component="nav" aria-label="logout">
-                  <ListItem button onClick={dispatchLogout}>
-                    <ListItemText primary="Logout" />
-                  </ListItem>
-                </List>
+                <MenuList>
+                  <MenuItem onClick={console.log}>Profile</MenuItem>
+                  <MenuItem onClick={dispatchLogout}>Logout</MenuItem>
+                </MenuList>
               </IconWithPopover>
             )}
           </Grid>

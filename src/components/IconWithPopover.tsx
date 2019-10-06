@@ -14,9 +14,6 @@ import {
 
 const styles = (theme: Theme) =>
   createStyles({
-    paper: {
-      padding: theme.spacing(1),
-    },
     popover: {
       zIndex: theme.zIndex.tooltip,
     },
@@ -91,7 +88,7 @@ class IconWithPopover extends React.PureComponent<ComposedProps, IState> {
             horizontal: 'center',
           }}
         >
-          <Paper className={classes.paper}>{isOpen && children}</Paper>
+          <Paper>{children}</Paper>
         </Popover>
       </>
     )
