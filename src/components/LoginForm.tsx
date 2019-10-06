@@ -8,7 +8,7 @@ import {
   WithStyles,
 } from '@material-ui/core/styles'
 
-import userSession from 'utils/userSession'
+import userSession from 'services/userSession'
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -23,6 +23,10 @@ interface IProps {}
 
 type ComposedProps = StyleProps & IProps
 
+function redirectToSignIn() {
+  userSession.redirectToSignIn()
+}
+
 const LoginForm: React.FC<ComposedProps> = ({ classes }) => (
   <Button
     className={classes.submit}
@@ -30,7 +34,7 @@ const LoginForm: React.FC<ComposedProps> = ({ classes }) => (
     fullWidth
     type="submit"
     variant="contained"
-    onClick={() => userSession.redirectToSignIn()}
+    onClick={redirectToSignIn}
   >
     Sign in with Blockstack
   </Button>

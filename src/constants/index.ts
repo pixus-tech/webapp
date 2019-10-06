@@ -1,3 +1,4 @@
+export const CONNECTIVITY_FILE_PATH = 'connectivity.json'
 export const DEFAULT_UPLOAD_FILE_CHUNK_SIZE = 4 * 1024 * 1024
 export const TOAST_SHOW_DURATION = 3000
 export const DISPATCHER_THROTTLE_INTERVAL = 100

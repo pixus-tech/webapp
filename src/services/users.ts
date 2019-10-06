@@ -88,7 +88,7 @@ class Users extends BaseService {
       (resolve, reject) => {
         ajax
           .getJSON<BlockstackCore.SearchResponse>(
-            `${this.config.apiUrl}search?query=${partialUsername}`,
+            `${this.config.blockstackCoreUrl}search?query=${partialUsername}`,
           )
           .subscribe({
             next(response) {

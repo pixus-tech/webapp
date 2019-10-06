@@ -9,7 +9,7 @@ import authReducer from 'store/auth/reducers'
 import { UserData } from 'models/blockstack'
 import { GroupMembership, User as RadiksUser } from 'radiks'
 import routes, { redirect } from 'utils/routes'
-import userSession from 'utils/userSession'
+import userSession from 'services/userSession'
 
 interface IStateProps {
   auth: ReturnType<typeof authReducer>

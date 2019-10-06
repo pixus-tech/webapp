@@ -1,3 +1,4 @@
 declare interface AppConfig {
-  apiUrl: string
+  blockstackCoreUrl: string
+  radiksUrl: string
 }

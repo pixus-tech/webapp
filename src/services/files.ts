@@ -2,12 +2,16 @@ import { Buffer } from 'buffer'
 import { Observable } from 'rxjs'
 
 import { FileHandle, FileHandleWithData } from 'models/fileHandle'
-import userSession from 'utils/userSession'
+import userSession from './userSession'
 import { fileReader } from 'workers/index'
 import BaseService from './baseService'
 import { Queue } from './dispatcher'
 
-import { UserSession, uploadToGaiaHub } from 'blockstack'
+import {
+  getPublicKeyFromPrivate,
+  UserSession,
+  uploadToGaiaHub,
+} from 'blockstack'
 import { appConfig } from 'constants/blockstack'
 import { chunk, getAssembledChunks, putChunks } from 'utils/fileChunker'
 
@@ -79,12 +83,35 @@ class Files extends BaseService {
     )
   }
 
-  upload = (path: string, payload: ArrayBuffer | string, publicKey: string) => {
-    const self = this
+  private ensurePublicKey = (publicKey?: string) => {
+    if (!publicKey) {
+      const privateKey = userSession.loadUserData().appPrivateKey
+      return getPublicKeyFromPrivate(privateKey)
+    }
+
+    return publicKey
+  }
+
+  private ensurePrivateKey = (privateKey?: string) => {
+    if (!privateKey) {
+      return userSession.loadUserData().appPrivateKey
+    }
+
+    return privateKey
+  }
+
+  upload = (
+    path: string,
+    payload: ArrayBuffer | string,
+    publicKey?: string,
+  ) => {
     return new Observable<string>(subscriber => {
+      const self = this
       this.dispatcher
         .performAsync<Buffer[]>(Queue.Encryption, resolve =>
-          resolve(encryptAndChunkPayload(payload, publicKey)),
+          resolve(
+            encryptAndChunkPayload(payload, this.ensurePublicKey(publicKey)),
+          ),
         )
         .subscribe({
           next(chunks) {
@@ -107,12 +134,13 @@ class Files extends BaseService {
 
   download = (path: string, username: string, privateKey?: string) => {
     return new Observable<Buffer | string>(subscriber => {
+      const self = this
       getAssembledChunks(path, this.getFile(username)).subscribe({
         next(encryptedBuffer) {
           try {
             subscriber.next(
               userSession.decryptContent(encryptedBuffer.toString(), {
-                privateKey,
+                privateKey: self.ensurePrivateKey(privateKey),
               }),
             )
             subscriber.complete()

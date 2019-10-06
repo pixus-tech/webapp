@@ -3,7 +3,7 @@ import uuid from 'uuid/v4'
 
 import BaseRecord from './index'
 import Notification, { UnsavedNotification } from 'models/notification'
-import userSession from 'utils/userSession'
+import userSession from 'services/userSession'
 
 export default class NotificationRecord extends BaseRecord {
   static className = 'Notification'
