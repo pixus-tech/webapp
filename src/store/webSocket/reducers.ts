@@ -8,10 +8,10 @@ export const initialState = {
 }
 
 const isEnabled = createReducer(initialState.isEnabled)
-  .handleAction(subscribeWebSocket, (state, action) => {
+  .handleAction(subscribeWebSocket, (_state, _action) => {
     return true
   })
-  .handleAction(unsubscribeWebSocket, (state, action) => {
+  .handleAction(unsubscribeWebSocket, (_state, _action) => {
     return false
   })
 

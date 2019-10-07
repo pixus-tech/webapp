@@ -98,14 +98,14 @@ class Menu extends React.Component<ComposedProps> {
     const {
       classes,
       location,
-      albumCount,
+      albumCount: _albumCount,
       albums,
-      dispatchAddAlbum,
-      dispatchGetAlbumTree,
-      dispatchSetParentAlbum,
-      history,
+      dispatchAddAlbum: _dispatchAddAlbum,
+      dispatchGetAlbumTree: _dispatchGetAlbumTree,
+      dispatchSetParentAlbum: _dispatchSetParentAlbum,
+      history: _history,
       match,
-      staticContext,
+      staticContext: _staticContext,
       ...other
     } = this.props
 

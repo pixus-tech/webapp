@@ -18,7 +18,7 @@ export const getNotificationsEpic: Epic<
 > = (action$, state$, { notifications }) =>
   action$.pipe(
     filter(isActionOf(actions.getNotifications.request)),
-    mergeMap(action =>
+    mergeMap(() =>
       notifications.getNotifications().pipe(
         map(notifications =>
           actions.getNotifications.success({ notifications }),

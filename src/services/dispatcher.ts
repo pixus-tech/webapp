@@ -153,5 +153,7 @@ export default class Dispatcher {
     })
   }
 
-  cancelJob = (id: string) => {}
+  cancelJob = (_id: string) => {
+    // TODO: implement job cancelling
+  }
 }

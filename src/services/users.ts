@@ -97,6 +97,8 @@ class Users extends BaseService {
                 result => typeof result.username === 'string',
               )
               const users = _.map(resultsWithUsername, result =>
+                // The list has been filtered for entries with username so it is safe to:
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 parseProfile(result.username!, result.profile),
               )
               resolve(users)

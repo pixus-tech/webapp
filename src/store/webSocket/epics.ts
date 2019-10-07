@@ -18,7 +18,7 @@ export const subscribeWebSocketEpic: Epic<
 > = (action$, state$, { albums }) =>
   action$.pipe(
     filter(isActionOf(actions.subscribeWebSocket)),
-    mergeMap(action => albums.subscribe().pipe(map(upsertAlbum))),
+    mergeMap(() => albums.subscribe().pipe(map(upsertAlbum))),
   )
 
 export const unsubscribeWebSocketEpic: Epic<

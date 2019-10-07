@@ -60,6 +60,7 @@ class Albums extends BaseService {
       Queue.RecordOperation,
       function(resolve, reject) {
         const albumRecord = buildAlbumRecord(album)
+        albumRecord.update(updates)
         records.save(albumRecord).subscribe({
           next() {
             resolve({ resource: parseAlbumRecord(albumRecord) })

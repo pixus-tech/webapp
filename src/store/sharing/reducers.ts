@@ -18,14 +18,14 @@ const currentUsername = createReducer(
 ).handleAction(actions.searchUsers.request, (_state, action) => action.payload)
 
 const isSearching = createReducer(initialState.isSearching)
-  .handleAction(actions.searchUsers.request, (state, action) => true)
+  .handleAction(actions.searchUsers.request, (_state, _action) => true)
   .handleAction(
     [
       actions.searchUsers.cancel,
       actions.searchUsers.failure,
       actions.searchUsers.success,
     ],
-    (state, action) => false,
+    (_state, _action) => false,
   )
 
 const suggestedUsers = createReducer(initialState.suggestedUsers).handleAction(

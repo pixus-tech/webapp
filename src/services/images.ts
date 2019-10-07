@@ -38,9 +38,10 @@ class Images extends BaseService {
 
   uploadImageToAlbum = (album: Album, fileHandle: FileHandle) => {
     return new Observable<Image>(subscriber => {
+      const self = this
       files.read(fileHandle).subscribe({
         next(fileHandleWithData) {
-          images.processImage(fileHandleWithData.objectURL).subscribe({
+          self.processImage(fileHandleWithData.objectURL).subscribe({
             next(imageMetaData) {
               const imageId = fileHandle._id
               if (album.publicKey === undefined) {
@@ -61,7 +62,7 @@ class Images extends BaseService {
                   album.publicKey,
                 ),
               }).subscribe({
-                next({ original, preview }) {
+                next() {
                   const image: Image = {
                     _id: imageId,
                     albumIds: [album._id],
@@ -73,8 +74,8 @@ class Images extends BaseService {
                     username: currentUsername(),
                     width: imageMetaData.width,
                   }
-                  images.save(image).subscribe({
-                    next(imageRecord) {
+                  self.save(image).subscribe({
+                    next() {
                       subscriber.next(image)
                       subscriber.complete()
                     },
@@ -173,7 +174,7 @@ class Images extends BaseService {
                     }
                     resolve(imageMetaData)
                   })
-                  .catch(error =>
+                  .catch(() =>
                     reject(Error('Could not get image blob from canvas.')),
                   )
               }

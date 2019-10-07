@@ -289,10 +289,7 @@ function mapStateToProps(store: RootState, props: ComposedProps): IStateProps {
   }
 }
 
-function mapDispatchToProps(
-  dispatch: Dispatch<RootAction>,
-  props: ComposedProps,
-): IDispatchProps {
+function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
     dispatchGetAlbumImages: (album: Album) =>
       dispatch(getAlbumImages.request(album)),

@@ -69,7 +69,7 @@ describe('putChunks', () => {
     },
   ) => {
     let requestCount = 0
-    return jest.fn((path: string, payload: Buffer) => {
+    return jest.fn((path: string, _payload: Buffer) => {
       const index = requestCount
       requestCount += 1
       return new Observable<string>(subscriber => {
@@ -152,7 +152,7 @@ describe('getAssembledChunks', () => {
     },
   ) => {
     let requestCount = 0
-    return jest.fn((path: string) => {
+    return jest.fn((_path: string) => {
       const index = requestCount
       requestCount += 1
       return new Observable<Buffer | string>(subscriber => {

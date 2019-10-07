@@ -73,12 +73,10 @@ export const searchUsersEpic: Epic<
     ),
   )
 
-export const selectUsersEpic: Epic<
-  RootAction,
-  RootAction,
-  RootState,
-  Pick<RootService, 'users'>
-> = (action$, state$, { users }) =>
+export const selectUsersEpic: Epic<RootAction, RootAction, RootState> = (
+  action$,
+  state$,
+) =>
   action$.pipe(
     filter(isActionOf(actions.selectUsers.request)),
     withLatestFrom(state$),

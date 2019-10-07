@@ -10,7 +10,7 @@ export default function InviteUsersSucceeded({
 }: PayloadType) {
   return (
     <>
-      You've successfully invited {users.map(userLabel).join(', ')} to{' '}
+      You&apos;ve successfully invited {users.map(userLabel).join(', ')} to{' '}
       {album.name}.
     </>
   )

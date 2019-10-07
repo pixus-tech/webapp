@@ -167,11 +167,11 @@ class QueueInfo extends React.PureComponent<ComposedProps, IState> {
   }
 }
 
-function mapStateToProps(state: RootState): IStateProps {
+function mapStateToProps(_state: RootState): IStateProps {
   return {}
 }
 
-function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
+function mapDispatchToProps(_dispatch: Dispatch<RootAction>): IDispatchProps {
   return {}
 }
 

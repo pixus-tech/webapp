@@ -12,11 +12,11 @@ import * as actions from './actions'
 
 export const probeConnectivityEpic: Epic<RootAction, RootAction, RootState> = (
   action$,
-  state$,
+  _state$,
 ) =>
   action$.pipe(
     filter(isActionOf(actions.probeConnectivity)),
-    mergeMap(action =>
+    mergeMap(() =>
       of(
         actions.probeBlockstackConnectivity.request(),
         actions.probeHubConnectivity.request(),
@@ -33,7 +33,7 @@ export const probeBlockstackConnectivityEpic: Epic<
 > = (action$, state$, { connectivity }) =>
   action$.pipe(
     filter(isActionOf(actions.probeBlockstackConnectivity.request)),
-    mergeMap(action =>
+    mergeMap(() =>
       connectivity.isBlockstackReachable().pipe(
         map(actions.probeBlockstackConnectivity.success),
         takeUntil(
@@ -41,7 +41,7 @@ export const probeBlockstackConnectivityEpic: Epic<
             filter(isActionOf(actions.probeBlockstackConnectivity.cancel)),
           ),
         ),
-        catchError(error => of(actions.probeBlockstackConnectivity.failure())),
+        catchError(() => of(actions.probeBlockstackConnectivity.failure())),
       ),
     ),
   )
@@ -54,13 +54,13 @@ export const probeHubConnectivityEpic: Epic<
 > = (action$, state$, { connectivity }) =>
   action$.pipe(
     filter(isActionOf(actions.probeHubConnectivity.request)),
-    mergeMap(action =>
+    mergeMap(() =>
       connectivity.isHubReachable().pipe(
         map(actions.probeHubConnectivity.success),
         takeUntil(
           action$.pipe(filter(isActionOf(actions.probeHubConnectivity.cancel))),
         ),
-        catchError(error => of(actions.probeHubConnectivity.failure())),
+        catchError(() => of(actions.probeHubConnectivity.failure())),
       ),
     ),
   )
@@ -73,7 +73,7 @@ export const probeRadiksConnectivityEpic: Epic<
 > = (action$, state$, { connectivity }) =>
   action$.pipe(
     filter(isActionOf(actions.probeRadiksConnectivity.request)),
-    mergeMap(action =>
+    mergeMap(() =>
       connectivity.isRadiksReachable().pipe(
         map(actions.probeRadiksConnectivity.success),
         takeUntil(
@@ -81,7 +81,7 @@ export const probeRadiksConnectivityEpic: Epic<
             filter(isActionOf(actions.probeRadiksConnectivity.cancel)),
           ),
         ),
-        catchError(error => of(actions.probeRadiksConnectivity.failure())),
+        catchError(() => of(actions.probeRadiksConnectivity.failure())),
       ),
     ),
   )

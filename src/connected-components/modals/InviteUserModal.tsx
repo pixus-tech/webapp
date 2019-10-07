@@ -59,7 +59,7 @@ function InviteUserModal({
 
   return (
     <>
-      <h2 id="modal-title">Invite a user to "{album.name}"</h2>
+      <h2 id="modal-title">Invite a user to &ldquo;{album.name}&rdquo;</h2>
       <InviteUserForm
         isFetchingSuggestions={isFetching}
         onChangeSelectedUsers={dispatchSelectUsers}

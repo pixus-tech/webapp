@@ -18,7 +18,7 @@ export const fetchAlbumTreeEpic: Epic<
 > = (action$, state$, { albums }) =>
   action$.pipe(
     filter(isActionOf(actions.getAlbums.request)),
-    mergeMap(action =>
+    mergeMap(() =>
       albums.getAlbums().pipe(
         map(actions.getAlbums.success),
         takeUntil(action$.pipe(filter(isActionOf(actions.getAlbums.cancel)))),
@@ -58,7 +58,7 @@ export const saveAlbumEpic: Epic<
     filter(isActionOf(actions.saveAlbum.request)),
     mergeMap(action =>
       albums.save(action.payload).pipe(
-        mergeMap(response => of(actions.saveAlbum.success(action.payload))),
+        mergeMap(() => of(actions.saveAlbum.success(action.payload))),
         takeUntil(action$.pipe(filter(isActionOf(actions.saveAlbum.cancel)))), // TODO: respect cancel id
         catchError(error =>
           of(actions.saveAlbum.failure({ error, resource: action.payload })),

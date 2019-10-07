@@ -43,7 +43,7 @@ export const uploadImagesToAlbumEpic: Epic<
   RootAction,
   RootAction,
   RootState
-> = (action$, state$) =>
+> = (action$, _state$) =>
   action$.pipe(
     filter(isActionOf(actions.uploadImagesToAlbum)),
     mergeMap(action => {
