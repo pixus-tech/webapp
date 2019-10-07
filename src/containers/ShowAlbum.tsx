@@ -14,6 +14,7 @@ import AppBar from '@material-ui/core/AppBar'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Grid from '@material-ui/core/Grid'
+import Hidden from '@material-ui/core/Hidden'
 import Slider from '@material-ui/core/Slider'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
@@ -22,6 +23,8 @@ import {
   Theme,
   withStyles,
   WithStyles,
+  withTheme,
+  WithTheme,
 } from '@material-ui/core/styles'
 
 import AlbumTitle from 'components/AlbumTitle'
@@ -61,7 +64,7 @@ const styles = (theme: Theme) =>
     content: {
       background: theme.palette.primary.main,
       flex: 1,
-      padding: theme.spacing(1, 2, 0),
+      padding: theme.spacing(1, 0.5, 0),
     },
     root: {
       border: '1px solid black',
@@ -99,7 +102,8 @@ interface IStateProps {
 type ComposedProps = RouteComponentProps<ShowAlbumURLParameters> &
   IDispatchProps &
   IStateProps &
-  WithStyles<typeof styles>
+  WithStyles<typeof styles> &
+  WithTheme
 
 interface IState {
   numberOfImageColumns: number
@@ -166,6 +170,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
       dispatchSaveAlbum,
       images,
       numberOfImages,
+      theme,
     } = this.props
     const { numberOfImageColumns } = this.state
 
@@ -227,20 +232,22 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
                 </Dropzone>
               </Grid>
               <Grid item>
-                <Grid container spacing={2}>
-                  <Grid item>
-                    <Slider
-                      className={classes.slider}
-                      color="secondary"
-                      value={numberOfImageColumns}
-                      step={1}
-                      min={2}
-                      max={10}
-                      onChange={this.onChangeImageColumnCount}
-                      valueLabelDisplay="auto"
-                    />
+                <Hidden xsDown>
+                  <Grid container spacing={2}>
+                    <Grid item>
+                      <Slider
+                        className={classes.slider}
+                        color="secondary"
+                        value={numberOfImageColumns}
+                        step={1}
+                        min={2}
+                        max={10}
+                        onChange={this.onChangeImageColumnCount}
+                        valueLabelDisplay="auto"
+                      />
+                    </Grid>
                   </Grid>
-                </Grid>
+                </Hidden>
               </Grid>
             </Grid>
           </Toolbar>
@@ -255,10 +262,15 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
                       return null
                     }
 
+                    const columnCount =
+                      width <= theme.breakpoints.width('sm')
+                        ? 4
+                        : numberOfImageColumns
+
                     return (
                       <ImageGrid
                         album={album}
-                        columnCount={numberOfImageColumns}
+                        columnCount={columnCount}
                         height={height}
                         images={images}
                         key={album._id}
@@ -308,4 +320,5 @@ export default compose<ComposedProps, {}>(
     mapDispatchToProps,
   ),
   withStyles(styles),
+  withTheme,
 )(ShowAlbum)

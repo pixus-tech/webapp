@@ -4,8 +4,8 @@ import Album from 'models/album'
 import { FileHandle } from 'models/fileHandle'
 import Image, {
   ImageMetaData,
-  imageUploadPath,
-  imagePreviewUploadPath,
+  imagePath,
+  imagePreviewPath,
   parseImageRecords,
 } from 'models/image'
 import { Uint8BitColor } from 'utils/colors'
@@ -52,12 +52,12 @@ class Images extends BaseService {
 
               forkJoin({
                 original: files.upload(
-                  imageUploadPath(imageId),
+                  imagePath(imageId),
                   fileHandleWithData.payload,
                   album.publicKey,
                 ),
                 preview: files.upload(
-                  imagePreviewUploadPath(imageId),
+                  imagePreviewPath(imageId),
                   imageMetaData.previewImageData,
                   album.publicKey,
                 ),

@@ -12,7 +12,7 @@ import uuid from 'uuid/v4'
 
 import * as actions from './actions'
 import { FileHandle } from 'models/fileHandle'
-import { imagePreviewUploadPath } from 'models/image'
+import { imagePreviewPath, imagePath } from 'models/image'
 
 export const getAlbumImagesEpic: Epic<
   RootAction,
@@ -104,11 +104,7 @@ export const downloadPreviewImageEpic: Epic<
     mergeMap(action => {
       const { album, image } = action.payload
       return files
-        .download(
-          imagePreviewUploadPath(image._id),
-          image.username,
-          album.privateKey,
-        )
+        .download(imagePreviewPath(image._id), image.username, album.privateKey)
         .pipe(
           map(fileContent =>
             actions.downloadPreviewImage.success({ image, fileContent }),
@@ -121,6 +117,38 @@ export const downloadPreviewImageEpic: Epic<
           catchError(error =>
             of(
               actions.downloadPreviewImage.failure({
+                error,
+                resource: image,
+                showToast: true,
+              }),
+            ),
+          ),
+        )
+    }),
+  )
+
+export const downloadImageEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'files'>
+> = (action$, state$, { files }) =>
+  action$.pipe(
+    filter(isActionOf(actions.downloadImage.request)),
+    mergeMap(action => {
+      const { album, image } = action.payload
+      return files
+        .download(imagePath(image._id), image.username, album.privateKey)
+        .pipe(
+          map(fileContent =>
+            actions.downloadImage.success({ image, fileContent }),
+          ),
+          takeUntil(
+            action$.pipe(filter(isActionOf(actions.downloadImage.cancel))),
+          ),
+          catchError(error =>
+            of(
+              actions.downloadImage.failure({
                 error,
                 resource: image,
                 showToast: true,

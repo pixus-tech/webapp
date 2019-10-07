@@ -14,18 +14,23 @@ import {
 import ImagePreviewGradient from 'components/ImagePreviewGradient'
 import Album from 'models/album'
 import Image from 'models/image'
-import { downloadImage } from 'store/images/actions'
+import { downloadPreviewImage } from 'store/images/actions'
 
 const styles = (_theme: Theme) =>
   createStyles({
     container: {
-      alignItems: 'center',
-      display: 'flex',
       height: '100%',
-      justifyContent: 'center',
       overflow: 'hidden',
       position: 'relative',
       width: '100%',
+    },
+    image: {
+      bottom: '-100%',
+      left: '-100%',
+      margin: 'auto',
+      position: 'absolute',
+      right: '-100%',
+      top: '-100%',
     },
     gradient: {
       bottom: 0,
@@ -49,13 +54,13 @@ export interface IProps {
 }
 
 interface IDispatchProps {
-  requestDownloadImage: () => void
-  cancelDownloadImage: () => void
+  requestDownloadPreviewImage: () => void
+  cancelDownloadPreviewImage: () => void
 }
 
 interface IStateProps {
   imageObjectURL?: string
-  isImageLoading?: boolean
+  isPreviewLoading?: boolean
 }
 
 type ComposedProps = IProps &
@@ -63,44 +68,44 @@ type ComposedProps = IProps &
   IStateProps &
   WithStyles<typeof styles>
 
-class LazyImage extends React.PureComponent<ComposedProps> {
+class LazyPreviewImage extends React.PureComponent<ComposedProps> {
   componentDidMount() {
     const {
       imageObjectURL,
-      isImageLoading,
+      isPreviewLoading,
       isVisible,
-      requestDownloadImage,
+      requestDownloadPreviewImage,
     } = this.props
-    if (isVisible && !isImageLoading && imageObjectURL === undefined) {
-      requestDownloadImage()
+    if (isVisible && !isPreviewLoading && imageObjectURL === undefined) {
+      requestDownloadPreviewImage()
     }
   }
 
   componentDidUpdate(prevProps: ComposedProps) {
     const {
-      cancelDownloadImage,
+      cancelDownloadPreviewImage,
       image,
       imageObjectURL,
-      isImageLoading,
+      isPreviewLoading,
       isVisible,
-      requestDownloadImage,
+      requestDownloadPreviewImage,
     } = this.props
     if (
       isVisible &&
       (prevProps.isVisible !== isVisible ||
         prevProps.image._id !== image._id) &&
-      !isImageLoading &&
+      !isPreviewLoading &&
       imageObjectURL === undefined
     ) {
-      requestDownloadImage()
+      requestDownloadPreviewImage()
     } else if (!isVisible) {
-      cancelDownloadImage()
+      cancelDownloadPreviewImage()
     }
   }
 
   componentWillUnmount() {
-    if (this.props.isImageLoading === true) {
-      this.props.cancelDownloadImage()
+    if (this.props.isPreviewLoading === true) {
+      this.props.cancelDownloadPreviewImage()
     }
   }
 
@@ -111,18 +116,20 @@ class LazyImage extends React.PureComponent<ComposedProps> {
     const isHorizontal = image.width > image.height
 
     const imageStyles = {
-      height: isHorizontal ? 'auto' : '100%',
+      height: isHorizontal ? '100%' : 'auto',
       opacity: isImageLoaded ? 1 : 0,
-      width: isHorizontal ? '100%' : 'auto',
+      width: isHorizontal ? 'auto' : '100%',
     }
 
-    if (isImageLoaded) {
-      return <img alt={image.name} src={imageObjectURL} style={imageStyles} />
-    }
     return (
       <div className={cx(classes.container, className)}>
         {isImageLoaded && (
-          <img alt={image.name} src={imageObjectURL} style={imageStyles} />
+          <img
+            alt={image.name}
+            className={classes.image}
+            src={imageObjectURL}
+            style={imageStyles}
+          />
         )}
 
         <ImagePreviewGradient
@@ -138,8 +145,10 @@ class LazyImage extends React.PureComponent<ComposedProps> {
 
 function mapStateToProps(state: RootState, props: ComposedProps): IStateProps {
   return {
-    imageObjectURL: state.images.imageObjectURLMap.get(props.image._id),
-    isImageLoading: !!state.images.imageIsLoadingMap.get(props.image._id),
+    imageObjectURL: state.images.previewImageObjectURLMap.get(props.image._id),
+    isPreviewLoading: !!state.images.previewImageIsLoadingMap.get(
+      props.image._id,
+    ),
   }
 }
 
@@ -149,8 +158,10 @@ function mapDispatchToProps(
 ): IDispatchProps {
   const payload = { album: props.album, image: props.image }
   return {
-    cancelDownloadImage: () => dispatch(downloadImage.cancel(payload)),
-    requestDownloadImage: () => dispatch(downloadImage.request(payload)),
+    cancelDownloadPreviewImage: () =>
+      dispatch(downloadPreviewImage.cancel(payload)),
+    requestDownloadPreviewImage: () =>
+      dispatch(downloadPreviewImage.request(payload)),
   }
 }
 
@@ -160,4 +171,4 @@ export default compose<ComposedProps, IProps>(
     mapDispatchToProps,
   ),
   withStyles(styles),
-)(LazyImage)
+)(LazyPreviewImage)

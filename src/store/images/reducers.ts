@@ -9,8 +9,10 @@ import * as actions from './actions'
 export const initialState = {
   albumImageIds: Map<string, List<string>>(),
   data: Map<string, Image>(),
-  previewImageObjectURLMap: Map<string, string>(),
+  imageIsLoadingMap: Map<string, boolean>(),
+  imageObjectURLMap: Map<string, string>(),
   previewImageIsLoadingMap: Map<string, boolean>(),
+  previewImageObjectURLMap: Map<string, string>(),
 }
 
 const data = createReducer(initialState.data)
@@ -32,6 +34,34 @@ const albumImageIds = createReducer(initialState.albumImageIds)
     const imageId = action.payload.image._id
     const imageIds = state.get(albumId) || List<string>()
     return state.set(action.payload.album._id, imageIds.push(imageId))
+  })
+
+const imageObjectURLMap = createReducer(
+  initialState.imageObjectURLMap,
+).handleAction(actions.downloadImage.success, (state, action) => {
+  const { image, fileContent } = action.payload
+  let blob: string | Blob
+  if (typeof fileContent === 'string') {
+    blob = fileContent
+  } else {
+    blob = new Blob([fileContent], { type: image.type })
+  }
+  const objectURL = URL.createObjectURL(blob)
+  return state.set(image._id, objectURL)
+})
+
+const imageIsLoadingMap = createReducer(initialState.imageIsLoadingMap)
+  .handleAction(actions.downloadImage.request, (state, action) => {
+    return state.set(action.payload.image._id, true)
+  })
+  .handleAction(actions.downloadImage.success, (state, action) => {
+    return state.delete(action.payload.image._id)
+  })
+  .handleAction(actions.downloadImage.failure, (state, action) => {
+    return state.delete(action.payload.resource._id)
+  })
+  .handleAction(actions.downloadImage.cancel, (state, action) => {
+    return state.delete(action.payload.image._id)
   })
 
 const previewImageObjectURLMap = createReducer(
@@ -67,6 +97,8 @@ const previewImageIsLoadingMap = createReducer(
 export default combineReducers({
   albumImageIds,
   data,
+  imageObjectURLMap,
+  imageIsLoadingMap,
   previewImageObjectURLMap,
   previewImageIsLoadingMap,
 })

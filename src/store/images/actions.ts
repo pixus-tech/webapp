@@ -2,8 +2,8 @@ import { Buffer } from 'buffer'
 import { API } from 'typings/types'
 import { createAsyncAction, createStandardAction } from 'typesafe-actions'
 import Album from 'models/album'
-import { FileHandle, FileHandleWithData } from 'models/fileHandle'
-import Image, { ImageMetaData } from 'models/image'
+import { FileHandle } from 'models/fileHandle'
+import Image from 'models/image'
 
 export const getAlbumImages = createAsyncAction(
   'IMAGES__LIST_REQUEST',
@@ -51,9 +51,14 @@ export const uploadImageToAlbum = createAsyncAction(
   }
 >()
 
-interface DownloadPreviewImageRequest {
+interface DownloadImageRequest {
   album: Album
   image: Image
+}
+
+interface DownloadImageResult {
+  image: Image
+  fileContent: Buffer | string
 }
 
 export const downloadPreviewImage = createAsyncAction(
@@ -62,51 +67,20 @@ export const downloadPreviewImage = createAsyncAction(
   'IMAGES__DOWNLOAD_PREVIEW_IMAGE__FAILURE',
   'IMAGES__DOWNLOAD_PREVIEW_IMAGE__CANCEL',
 )<
-  DownloadPreviewImageRequest,
-  {
-    image: Image
-    fileContent: Buffer | string
-  },
+  DownloadImageRequest,
+  DownloadImageResult,
   API.ErrorResponse<Image>,
-  DownloadPreviewImageRequest
+  DownloadImageRequest
 >()
 
-// private actions
-
-const _processImage = createStandardAction('IMAGES__PROCESS_IMAGE')<{
-  album: Album
-  fileHandle: FileHandleWithData
-}>()
-
-interface UploadImageDataRequest {
-  album: Album
-  fileHandle: FileHandleWithData
-  imageMetaData: ImageMetaData
-}
-
-const _uploadImageData = createAsyncAction(
-  'IMAGES__UPLOAD_DATA__REQUEST',
-  'IMAGES__UPLOAD_DATA__SUCCESS',
-  'IMAGES__UPLOAD_DATA__FAILURE',
-  'IMAGES__UPLOAD_DATA__CANCEL',
-)<UploadImageDataRequest, undefined, undefined, UploadImageDataRequest>()
-
-interface CreateImageRecordRequest {
-  album: Album
-  fileHandle: FileHandleWithData
-  imageMetaData: ImageMetaData
-  username: string
-}
-
-const _createImageRecord = createAsyncAction(
-  'IMAGES__CREATE_IMAGE_RECORD__REQUEST',
-  'IMAGES__CREATE_IMAGE_RECORD__SUCCESS',
-  'IMAGES__CREATE_IMAGE_RECORD__FAILURE',
-  'IMAGES__CREATE_IMAGE_RECORD__CANCEL',
-)<CreateImageRecordRequest, undefined, undefined, CreateImageRecordRequest>()
-
-export const privateActions = {
-  _processImage,
-  _uploadImageData,
-  _createImageRecord,
-}
+export const downloadImage = createAsyncAction(
+  'IMAGES__DOWNLOAD_IMAGE__REQUEST',
+  'IMAGES__DOWNLOAD_IMAGE__SUCCESS',
+  'IMAGES__DOWNLOAD_IMAGE__FAILURE',
+  'IMAGES__DOWNLOAD_IMAGE__CANCEL',
+)<
+  DownloadImageRequest,
+  DownloadImageResult,
+  API.ErrorResponse<Image>,
+  DownloadImageRequest
+>()

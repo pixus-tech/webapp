@@ -9,7 +9,7 @@ import {
   WithStyles,
 } from '@material-ui/core/styles'
 
-import LazyImage from 'connected-components/LazyImage'
+import LazyPreviewImage from 'connected-components/LazyPreviewImage'
 import Slideshow from 'components/Slideshow'
 import Album from 'models/album'
 import Image from 'models/image'
@@ -18,7 +18,7 @@ const styles = (theme: Theme) =>
   createStyles({
     cell: {
       overflow: 'hidden',
-      padding: theme.spacing(0, 1, 1, 0),
+      padding: theme.spacing(0, 0.5, 1, 0.5),
     },
     hideScrollbar: {
       '&::-webkit-scrollbar': {
@@ -97,7 +97,7 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
         onClick={this.setCellSelection}
         style={style}
       >
-        <LazyImage album={album} image={image} isVisible={isVisible} />
+        <LazyPreviewImage album={album} image={image} isVisible={isVisible} />
       </div>
     )
   }
@@ -111,11 +111,15 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
     }
   }
 
+  clearSelection = () => {
+    this.setState({ selection: undefined })
+  }
+
   render() {
     const { album, classes, columnCount, images, height, width } = this.props
     const { selection } = this.state
 
-    const cellWidth = Math.floor(width / columnCount)
+    const cellWidth = width / columnCount
     const cellHeight = cellWidth
 
     return (
@@ -132,7 +136,14 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
           style={{ overflowX: 'hidden' }}
           width={width}
         />
-        {selection !== undefined && <Slideshow album={album} images={images} />}
+        {selection !== undefined && (
+          <Slideshow
+            album={album}
+            images={images}
+            initialSlide={selection}
+            onClose={this.clearSelection}
+          />
+        )}
       </>
     )
   }

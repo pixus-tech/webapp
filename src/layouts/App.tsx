@@ -28,7 +28,7 @@ const styles = (theme: Theme) =>
       flexFlow: 'row',
     },
     drawer: {
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up('md')]: {
         width: DRAWER_WIDTH,
         flexShrink: 0,
       },
@@ -52,7 +52,7 @@ const AppLayout: React.SFC<StyleProps> = ({ children, classes }) => {
       <Header onDrawerToggle={handleDrawerToggle} />
       <div className={classes.content}>
         <nav className={classes.drawer}>
-          <Hidden smUp implementation="js">
+          <Hidden mdUp implementation="js">
             <Menu
               PaperProps={{ style: { width: DRAWER_WIDTH } }}
               variant="temporary"
@@ -60,7 +60,7 @@ const AppLayout: React.SFC<StyleProps> = ({ children, classes }) => {
               onClose={handleDrawerToggle}
             />
           </Hidden>
-          <Hidden xsDown implementation="css">
+          <Hidden smDown implementation="css">
             <Menu
               PaperProps={{
                 style: { width: DRAWER_WIDTH, top: APP_BAR_HEIGHT },

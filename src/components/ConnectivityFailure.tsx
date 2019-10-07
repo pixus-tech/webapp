@@ -45,17 +45,17 @@ function ConnectivityFailure({
       {(!isBlockstackReachable || !isHubReachable || !isRadiksReachable) && (
         <CloudOffIcon className={classes.icon} />
       )}
-      {!isBlockstackReachable && (
+      {isBlockstackReachable === false && (
         <Typography color="inherit" variant="h6" component="p">
           Blockstack Core API could not be reached.
         </Typography>
       )}
-      {!isHubReachable && (
+      {isHubReachable === false && (
         <Typography color="inherit" variant="h6" component="p">
           Your Gaia Hub (data storage) could not be reached.
         </Typography>
       )}
-      {!isRadiksReachable && (
+      {isRadiksReachable === false && (
         <Typography color="inherit" variant="h6" component="p">
           The central data index could not be reached.
         </Typography>

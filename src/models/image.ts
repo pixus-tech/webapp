@@ -32,11 +32,11 @@ export default interface Image extends BaseModel {
 
 export type UnsavedImage = UnsavedModel<Image>
 
-export function imageUploadPath(id: string) {
+export function imagePath(id: string) {
   return `images/${id}`
 }
 
-export function imagePreviewUploadPath(id: string) {
+export function imagePreviewPath(id: string) {
   return `previews/${id}`
 }
 

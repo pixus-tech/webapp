@@ -72,7 +72,7 @@ function Header({ dispatchLogout, onDrawerToggle, user }: ComposedProps) {
     >
       <Toolbar>
         <Grid container spacing={1} alignItems="center">
-          <Hidden smUp>
+          <Hidden mdUp>
             <Grid item>
               <IconButton
                 color="inherit"
