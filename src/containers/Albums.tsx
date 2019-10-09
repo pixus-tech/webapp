@@ -18,7 +18,7 @@ const styles = (_theme: Theme) =>
 
 type ComposedProps = WithStyles<typeof styles>
 
-const Dashboard: React.FC<ComposedProps> = ({ classes }) => {
+const Albums: React.FC<ComposedProps> = ({ classes }) => {
   return (
     <>
       <Typography className={classes.center} component="h2" variant="h4">
@@ -28,4 +28,4 @@ const Dashboard: React.FC<ComposedProps> = ({ classes }) => {
   )
 }
 
-export default withStyles(styles)(Dashboard)
+export default withStyles(styles)(Albums)

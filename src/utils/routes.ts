@@ -7,6 +7,7 @@ const routes = {
   login: '/login',
   albumsOverview: '/app/albums',
   albums: '/app/albums/:albumId',
+  settings: '/app/settings',
 } as const
 
 export function buildAlbumRoute(album: Album) {

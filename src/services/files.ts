@@ -6,6 +6,7 @@ import userSession from './userSession'
 import { fileReader } from 'workers/index'
 import BaseService from './baseService'
 import { Queue } from './dispatcher'
+import { currentUsername } from 'utils/blockstack'
 
 import {
   getPublicKeyFromPrivate,
@@ -18,6 +19,7 @@ import { chunk, getAssembledChunks, putChunks } from 'utils/fileChunker'
 function encryptAndChunkPayload(
   payload: ArrayBuffer | string,
   publicKey: string,
+  maxChunkSize: number,
 ) {
   const userSession = new UserSession({ appConfig })
 
@@ -32,7 +34,7 @@ function encryptAndChunkPayload(
     userSession.encryptContent(buffer, { publicKey }),
     'utf-8',
   )
-  return chunk(encryptedContent)
+  return chunk(encryptedContent, maxChunkSize)
 }
 
 class Files extends BaseService {
@@ -65,12 +67,15 @@ class Files extends BaseService {
     })
   }
 
-  private getFile = (username: string) => (path: string) => {
+  private getFile = (username?: string) => (path: string) => {
     return this.dispatcher.performAsync<Buffer | string>(
       Queue.Download,
       function(resolve, reject) {
         return userSession
-          .getFile(path, { decrypt: false, username })
+          .getFile(path, {
+            decrypt: false,
+            username: username || currentUsername(),
+          })
           .then(result => {
             if (typeof result === 'string') {
               resolve(result)
@@ -108,11 +113,19 @@ class Files extends BaseService {
     return new Observable<string>(subscriber => {
       const self = this
       this.dispatcher
-        .performAsync<Buffer[]>(Queue.Encryption, resolve =>
-          resolve(
-            encryptAndChunkPayload(payload, this.ensurePublicKey(publicKey)),
-          ),
-        )
+        .performAsync<Buffer[]>(Queue.Encryption, (resolve, reject) => {
+          try {
+            resolve(
+              encryptAndChunkPayload(
+                payload,
+                this.ensurePublicKey(publicKey),
+                this.settings.bytesPerFileChunk,
+              ),
+            )
+          } catch (error) {
+            reject(error)
+          }
+        })
         .subscribe({
           next(chunks) {
             putChunks(path, chunks, self.putFile).subscribe({
@@ -132,7 +145,7 @@ class Files extends BaseService {
     })
   }
 
-  download = (path: string, username: string, privateKey?: string) => {
+  download = (path: string, username?: string, privateKey?: string) => {
     return new Observable<Buffer | string>(subscriber => {
       const self = this
       getAssembledChunks(path, this.getFile(username)).subscribe({

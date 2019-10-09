@@ -2,19 +2,22 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { Dispatch } from 'redux'
-import { PersistGate } from 'redux-persist/integration/react'
 import { RootAction, RootState } from 'typesafe-actions'
 
 import FullScreenLoader from 'components/FullScreenLoader'
-import ConnectivityFailure from 'components/ConnectivityFailure'
-import { probeConnectivity } from 'store/connectivity/actions'
-import storeConfiguration from 'store'
+import ConnectivityFailure from 'components/failures/ConnectivityFailure'
+import {
+  probeConnectivity,
+  probeHubConnectivity,
+} from 'store/connectivity/actions'
 
 interface IDispatchProps {
   dispatchProbeConnectivity: typeof probeConnectivity
+  dispatchProbeHubConnectivity: typeof probeHubConnectivity.request
 }
 
 interface IStateProps {
+  isAuthenticated: boolean
   isBlockstackReachable: boolean | null
   isHubReachable: boolean | null
   isRadiksReachable: boolean | null
@@ -22,9 +25,17 @@ interface IStateProps {
 
 type ComposedProps = IDispatchProps & IStateProps
 
-class InitializationGate extends React.PureComponent<ComposedProps> {
+class ConnectivityGate extends React.PureComponent<ComposedProps> {
   componentDidMount() {
     this.probeConnectivity()
+  }
+
+  componentDidUpdate(prevProps: ComposedProps) {
+    const { isAuthenticated, dispatchProbeHubConnectivity } = this.props
+
+    if (!prevProps.isAuthenticated && isAuthenticated) {
+      dispatchProbeHubConnectivity()
+    }
   }
 
   probeConnectivity = () => {
@@ -34,6 +45,7 @@ class InitializationGate extends React.PureComponent<ComposedProps> {
   render() {
     const {
       children,
+      isAuthenticated,
       isBlockstackReachable,
       isHubReachable,
       isRadiksReachable,
@@ -45,7 +57,7 @@ class InitializationGate extends React.PureComponent<ComposedProps> {
       isRadiksReachable === null
     const connectivityCheckFailed =
       isBlockstackReachable === false ||
-      isHubReachable === false ||
+      (isAuthenticated && isHubReachable === false) ||
       isRadiksReachable === false
 
     if (connectivityCheckPending || connectivityCheckFailed) {
@@ -63,19 +75,13 @@ class InitializationGate extends React.PureComponent<ComposedProps> {
       )
     }
 
-    return (
-      <PersistGate
-        loading={<FullScreenLoader isLoading />}
-        persistor={storeConfiguration.persistor}
-      >
-        {children}
-      </PersistGate>
-    )
+    return children
   }
 }
 
 function mapStateToProps(store: RootState): IStateProps {
   return {
+    isAuthenticated: store.auth.isAuthenticated,
     isBlockstackReachable: store.connectivity.blockstack,
     isHubReachable: store.connectivity.hub,
     isRadiksReachable: store.connectivity.radiks,
@@ -85,6 +91,8 @@ function mapStateToProps(store: RootState): IStateProps {
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
     dispatchProbeConnectivity: () => dispatch(probeConnectivity()),
+    dispatchProbeHubConnectivity: () =>
+      dispatch(probeHubConnectivity.request()),
   }
 }
 
@@ -93,4 +101,4 @@ export default compose<ComposedProps, {}>(
     mapStateToProps,
     mapDispatchToProps,
   ),
-)(InitializationGate)
+)(ConnectivityGate)

@@ -19,6 +19,7 @@ const sourceSansPro = {
 
 let theme = createMuiTheme({
   palette: {
+    type: 'dark',
     primary: {
       light: '#7e8080',
       main: '#525454',

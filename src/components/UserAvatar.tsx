@@ -9,9 +9,10 @@ import User, { initials } from 'models/user'
 
 export const AVATAR_SIZE = 40
 
-const useStyles = makeStyles((_theme: Theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     avatar: {
+      color: theme.palette.primary.contrastText,
       height: AVATAR_SIZE,
       width: AVATAR_SIZE,
     },

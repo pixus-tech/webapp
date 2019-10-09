@@ -35,6 +35,8 @@ const styles = (theme: Theme) =>
     },
     app: {
       flex: 1,
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.primary.contrastText,
     },
   })
 

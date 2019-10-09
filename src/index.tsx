@@ -11,7 +11,7 @@ import '@formatjs/intl-relativetimeformat/dist/locale-data/zh'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import { MuiThemeProvider } from '@material-ui/core/styles'
 
-import InitializationGate from 'containers/InitializationGate'
+import InitializationGate from 'containers/gates/InitializationGate'
 import theme from 'constants/theme'
 import React from 'react'
 import ReactDOM from 'react-dom'

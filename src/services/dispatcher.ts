@@ -12,6 +12,7 @@ import {
   DEFAULT_CONCURRENT_UPLOADS_LIMIT,
   DISPATCHER_THROTTLE_INTERVAL,
 } from 'constants/index'
+import SettingsSchema from 'models/settings'
 
 export enum Queue {
   Download = 'Download',
@@ -111,6 +112,8 @@ export default class Dispatcher {
   }
 
   private performJobNow = (job: Job) => {
+    const activeCount = this.activeCounts.get(job.queue) || 0
+    this.activeCounts = this.activeCounts.set(job.queue, activeCount + 1)
     job.action(
       result => this.jobDidSucceed(job, result),
       error => this.jobDidFail(job, error),
@@ -155,5 +158,12 @@ export default class Dispatcher {
 
   cancelJob = (_id: string) => {
     // TODO: implement job cancelling
+  }
+
+  configure = (settings: SettingsSchema) => {
+    this.limits = this.limits.set(Queue.Download, settings.downloadConcurrency)
+    this.limits = this.limits.set(Queue.Encryption, settings.cryptoConcurrency)
+    this.limits = this.limits.set(Queue.ReadFile, settings.fileConcurrency)
+    this.limits = this.limits.set(Queue.Upload, settings.uploadConcurrency)
   }
 }

@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import { Link } from 'react-router-dom'
 import { compose } from 'recompose'
 import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
@@ -21,6 +22,7 @@ import Notifications from 'connected-components/Notifications'
 import QueueInfo from 'connected-components/QueueInfo'
 import User from 'models/user'
 import { logout } from 'store/auth/actions'
+import routes from 'utils/routes'
 
 // TODO: extract color
 const lightColor = 'rgba(255, 255, 255, 0.7)'
@@ -42,6 +44,11 @@ const useStyles = makeStyles((theme: Theme) =>
       '&:hover': {
         color: theme.palette.common.white,
       },
+    },
+    link: {
+      color: theme.palette.common.white,
+      outline: 0,
+      textDecoration: 'none',
     },
   }),
 )
@@ -102,7 +109,11 @@ function Header({ dispatchLogout, onDrawerToggle, user }: ComposedProps) {
                 Icon={<UserAvatar user={user} />}
               >
                 <MenuList>
-                  <MenuItem onClick={console.log}>Profile</MenuItem>
+                  <MenuItem>
+                    <Link to={routes.settings} className={classes.link}>
+                      Settings
+                    </Link>
+                  </MenuItem>
                   <MenuItem onClick={dispatchLogout}>Logout</MenuItem>
                 </MenuList>
               </IconWithPopover>

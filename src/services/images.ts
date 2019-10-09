@@ -160,6 +160,7 @@ class Images extends BaseService {
                 response
                   .arrayBuffer()
                   .then(previewImageData => {
+                    console.log('images are ready')
                     const imageMetaData: ImageMetaData = {
                       height: img.height,
                       previewColors: {

@@ -71,6 +71,9 @@ const useStyles = makeStyles((theme: Theme) =>
       outline: 0,
       textDecoration: 'none',
     },
+    linkActive: {
+      color: theme.palette.secondary.main,
+    },
   }),
 )
 
@@ -141,7 +144,11 @@ const AlbumTreeItem: React.SFC<IProps> = ({
           onClick={preventClickThrough}
           ref={dropRef}
         >
-          <NavLink className={classes.link} to={buildAlbumRoute(album)}>
+          <NavLink
+            activeClassName={classes.linkActive}
+            className={classes.link}
+            to={buildAlbumRoute(album)}
+          >
             <Typography
               variant="body1"
               className={cx(classes.labelText, {

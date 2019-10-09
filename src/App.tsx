@@ -14,6 +14,7 @@ import {
 import PrivateRoute from 'components/auth/PrivateRoute'
 import AuthVerifier from 'containers/AuthVerifier'
 import Albums from 'containers/Albums'
+import Settings from 'containers/Settings'
 import ModalRoot from 'connected-components/ModalRoot'
 import ToastRoot from 'connected-components/ToastRoot'
 import ShowAlbum from 'containers/ShowAlbum'
@@ -84,6 +85,11 @@ class App extends React.PureComponent<ComposedProps> {
                         component={Albums}
                         exact
                         path={routes.albumsOverview}
+                      />
+                      <Route
+                        component={Settings}
+                        exact
+                        path={routes.settings}
                       />
                     </Switch>
                   </AppLayout>

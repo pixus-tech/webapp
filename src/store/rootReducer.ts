@@ -11,6 +11,9 @@ import modal, { initialState as initialModalState } from './modal/reducers'
 import notifications, {
   initialState as initialNotificationsState,
 } from './notifications/reducers'
+import settings, {
+  initialState as initialSettingsState,
+} from './settings/reducers'
 import sharing, {
   initialState as initialSharingState,
 } from './sharing/reducers'
@@ -27,6 +30,7 @@ const rootReducer = combineReducers({
   images,
   modal,
   notifications,
+  settings,
   sharing,
   toasts,
   webSocket,
@@ -40,6 +44,7 @@ export const initialState = {
   images: initialImagesState,
   modal: initialModalState,
   notifications: initialNotificationsState,
+  settings: initialSettingsState,
   sharing: initialSharingState,
   toasts: initialToastsState,
   webSocket: initialWebSocketState,
