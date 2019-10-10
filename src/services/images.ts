@@ -64,12 +64,14 @@ class Images extends BaseService {
                 width: imageMetaData.width,
               }
 
-              self.dispatch(didProcessImage({
-                album,
-                image,
-                imageData: fileHandleWithData.payload,
-                previewData: imageMetaData.previewImageData,
-              }))
+              self.dispatch(
+                didProcessImage({
+                  album,
+                  image,
+                  imageData: fileHandleWithData.payload,
+                  previewData: imageMetaData.previewImageData,
+                }),
+              )
 
               forkJoin({
                 original: files.upload(

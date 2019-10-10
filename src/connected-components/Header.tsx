@@ -20,7 +20,7 @@ import IconWithPopover from 'components/IconWithPopover'
 import Logo from 'components/Logo'
 import UserAvatar from 'components/UserAvatar'
 import Notifications from 'connected-components/Notifications'
-import QueueInfo from 'connected-components/QueueInfo'
+import UploadInfo from 'connected-components/UploadInfo'
 import User from 'models/user'
 import { logout } from 'store/auth/actions'
 import routes from 'utils/routes'
@@ -107,7 +107,7 @@ function Header({ dispatchLogout, onDrawerToggle, user }: ComposedProps) {
             </Grid>
             <Grid item xs />
             <Grid item>
-              <QueueInfo />
+              <UploadInfo />
             </Grid>
             <Grid item>
               <Notifications />

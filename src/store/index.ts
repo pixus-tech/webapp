@@ -36,7 +36,11 @@ const persistConfig = {
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 const middlewares = [epicMiddleware]
 const enhancer = composeEnhancer(applyMiddleware(...middlewares))
-const store: Store<RootState, RootAction> = createStore(persistedReducer, {}, enhancer)
+const store: Store<RootState, RootAction> = createStore(
+  persistedReducer,
+  {},
+  enhancer,
+)
 const persistor = persistStore(store)
 epicMiddleware.run(rootEpic)
 
