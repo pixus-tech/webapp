@@ -76,6 +76,13 @@ interface IState {
 }
 
 class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
+  static getDerivedStateFromProps(props: ComposedProps, state: IState) {
+    const isImageLoaded = props.imageObjectURL === undefined
+    return {
+      shouldRenderGradient: isImageLoaded ? state.shouldRenderGradient : true,
+    }
+  }
+
   private hideGradientTimeout?: ReturnType<typeof setTimeout>
 
   constructor(props: ComposedProps) {

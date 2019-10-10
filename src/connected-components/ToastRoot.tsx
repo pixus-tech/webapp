@@ -41,8 +41,8 @@ function ToastRoot({ currentToast, dispatchHideToast }: ComposedProps) {
   return ReactDOM.createPortal(
     <Snackbar
       anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
+        vertical: 'bottom',
+        horizontal: 'left',
       }}
       open={isOpen}
       autoHideDuration={TOAST_SHOW_DURATION}

@@ -15,6 +15,7 @@ import { Queue } from './dispatcher'
 import files from './files'
 import records from './records'
 import { currentUsername } from 'utils/blockstack'
+import { didProcessImage } from 'store/images/actions'
 
 class Images extends BaseService {
   getAlbumImages = (album: Album) =>
@@ -44,11 +45,31 @@ class Images extends BaseService {
           self.processImage(fileHandleWithData.objectURL).subscribe({
             next(imageMetaData) {
               const imageId = fileHandle._id
+
               if (album.publicKey === undefined) {
                 return subscriber.error(
                   `Public key of album '${album.name}' is missing`,
                 )
               }
+
+              const image: Image = {
+                _id: imageId,
+                albumIds: [album._id],
+                height: imageMetaData.height,
+                name: fileHandle.file.name,
+                previewColors: imageMetaData.previewColors,
+                type: fileHandle.file.type,
+                userGroupId: album._id,
+                username: currentUsername(),
+                width: imageMetaData.width,
+              }
+
+              self.dispatch(didProcessImage({
+                album,
+                image,
+                imageData: fileHandleWithData.payload,
+                previewData: imageMetaData.previewImageData,
+              }))
 
               forkJoin({
                 original: files.upload(
@@ -63,17 +84,6 @@ class Images extends BaseService {
                 ),
               }).subscribe({
                 next() {
-                  const image: Image = {
-                    _id: imageId,
-                    albumIds: [album._id],
-                    height: imageMetaData.height,
-                    name: fileHandle.file.name,
-                    previewColors: imageMetaData.previewColors,
-                    type: fileHandle.file.type,
-                    userGroupId: album._id,
-                    username: currentUsername(),
-                    width: imageMetaData.width,
-                  }
                   self.save(image).subscribe({
                     next() {
                       subscriber.next(image)
@@ -160,7 +170,6 @@ class Images extends BaseService {
                 response
                   .arrayBuffer()
                   .then(previewImageData => {
-                    console.log('images are ready')
                     const imageMetaData: ImageMetaData = {
                       height: img.height,
                       previewColors: {

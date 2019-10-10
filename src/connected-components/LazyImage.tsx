@@ -70,6 +70,13 @@ interface IState {
 }
 
 class LazyImage extends React.PureComponent<ComposedProps, IState> {
+  static getDerivedStateFromProps(props: ComposedProps, state: IState) {
+    const isImageLoaded = props.imageObjectURL === undefined
+    return {
+      shouldRenderPreview: isImageLoaded ? state.shouldRenderPreview : true,
+    }
+  }
+
   private hidePreviewTimeout?: ReturnType<typeof setTimeout>
 
   constructor(props: ComposedProps) {

@@ -51,6 +51,15 @@ export const uploadImageToAlbum = createAsyncAction(
   }
 >()
 
+export const didProcessImage = createStandardAction(
+  'IMAGES__PROCESSED_IMAGE',
+)<{
+  album: Album
+  image: Image
+  imageData: ArrayBuffer
+  previewData: ArrayBuffer
+}>()
+
 interface DownloadImageRequest {
   album: Album
   image: Image

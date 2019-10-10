@@ -1,5 +1,5 @@
 import localForage from 'localforage'
-import { createStore, applyMiddleware } from 'redux'
+import { applyMiddleware, createStore, Store } from 'redux'
 import { createEpicMiddleware } from 'redux-observable'
 import { persistStore, persistReducer } from 'redux-persist'
 import immutableTransform from 'redux-persist-transform-immutable'
@@ -36,8 +36,10 @@ const persistConfig = {
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 const middlewares = [epicMiddleware]
 const enhancer = composeEnhancer(applyMiddleware(...middlewares))
-const store = createStore(persistedReducer, {}, enhancer)
+const store: Store<RootState, RootAction> = createStore(persistedReducer, {}, enhancer)
 const persistor = persistStore(store)
 epicMiddleware.run(rootEpic)
+
+services.images.connect(store)
 
 export default { persistor, store }

@@ -19,7 +19,7 @@ const data = createReducer(initialState.data)
   .handleAction(actions.getAlbumImages.success, (state, action) => {
     return Map(action.payload.images.map(image => [image._id, image]))
   })
-  .handleAction(actions.uploadImageToAlbum.success, (state, action) => {
+  .handleAction([actions.uploadImageToAlbum.success, actions.didProcessImage], (state, action) => {
     const image = action.payload.image
     return state.set(image._id, image)
   })
@@ -29,7 +29,7 @@ const albumImageIds = createReducer(initialState.albumImageIds)
     const imageIds = List<string>(action.payload.images.map(image => image._id))
     return state.set(action.payload.album._id, imageIds)
   })
-  .handleAction(actions.uploadImageToAlbum.success, (state, action) => {
+  .handleAction([actions.didProcessImage], (state, action) => {
     const albumId = action.payload.album._id
     const imageId = action.payload.image._id
     const imageIds = state.get(albumId) || List<string>()
@@ -38,7 +38,8 @@ const albumImageIds = createReducer(initialState.albumImageIds)
 
 const imageObjectURLMap = createReducer(
   initialState.imageObjectURLMap,
-).handleAction(actions.downloadImage.success, (state, action) => {
+)
+  .handleAction(actions.downloadImage.success, (state, action) => {
   const { image, fileContent } = action.payload
   let blob: string | Blob
   if (typeof fileContent === 'string') {
@@ -46,6 +47,12 @@ const imageObjectURLMap = createReducer(
   } else {
     blob = new Blob([fileContent], { type: image.type })
   }
+  const objectURL = URL.createObjectURL(blob)
+  return state.set(image._id, objectURL)
+})
+  .handleAction(actions.didProcessImage, (state, action) => {
+  const { image, imageData } = action.payload
+  const blob = new Blob([imageData], { type: image.type })
   const objectURL = URL.createObjectURL(blob)
   return state.set(image._id, objectURL)
 })
@@ -66,7 +73,8 @@ const imageIsLoadingMap = createReducer(initialState.imageIsLoadingMap)
 
 const previewImageObjectURLMap = createReducer(
   initialState.previewImageObjectURLMap,
-).handleAction(actions.downloadPreviewImage.success, (state, action) => {
+)
+  .handleAction(actions.downloadPreviewImage.success, (state, action) => {
   const { image, fileContent } = action.payload
   let blob: string | Blob
   if (typeof fileContent === 'string') {
@@ -74,6 +82,12 @@ const previewImageObjectURLMap = createReducer(
   } else {
     blob = new Blob([fileContent], { type: image.type })
   }
+  const objectURL = URL.createObjectURL(blob)
+  return state.set(image._id, objectURL)
+})
+  .handleAction(actions.didProcessImage, (state, action) => {
+  const { image, previewData } = action.payload
+  const blob = new Blob([previewData], { type: image.type })
   const objectURL = URL.createObjectURL(blob)
   return state.set(image._id, objectURL)
 })

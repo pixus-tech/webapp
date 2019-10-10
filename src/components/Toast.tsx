@@ -21,8 +21,11 @@ export type ToastVariant = keyof typeof ToastIcon
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: 288,
+    },
     flexFlow: 'row',
-    maxWidth: 288,
+    maxWidth: 320,
   },
   success: {
     backgroundColor: theme.palette.secondary.main,
