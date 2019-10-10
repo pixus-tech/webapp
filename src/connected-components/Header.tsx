@@ -25,9 +25,6 @@ import User from 'models/user'
 import { logout } from 'store/auth/actions'
 import routes from 'utils/routes'
 
-// TODO: extract color
-const lightColor = 'rgba(255, 255, 255, 0.7)'
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     appBar: {
@@ -42,17 +39,8 @@ const useStyles = makeStyles((theme: Theme) =>
     menuButton: {
       marginLeft: -theme.spacing(1),
     },
-    iconButtonAvatar: {
-      padding: 4,
-    },
-    toggle: {
-      color: lightColor,
-      '&:hover': {
-        color: theme.palette.common.white,
-      },
-    },
     link: {
-      color: theme.palette.common.white,
+      color: theme.palette.primary.main,
       outline: 0,
       textDecoration: 'none',
     },

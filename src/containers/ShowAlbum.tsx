@@ -17,7 +17,6 @@ import Grid from '@material-ui/core/Grid'
 import Hidden from '@material-ui/core/Hidden'
 import Slider from '@material-ui/core/Slider'
 import Toolbar from '@material-ui/core/Toolbar'
-import Typography from '@material-ui/core/Typography'
 import {
   createStyles,
   Theme,
@@ -186,11 +185,6 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
               <Grid item>
                 <AlbumTitle album={album} onSave={dispatchSaveAlbum} />
               </Grid>
-              <Grid item xs>
-                <Typography color="inherit" variant="body1" component="p">
-                  ({images.length} Images)
-                </Typography>
-              </Grid>
             </Grid>
           </Toolbar>
           <Toolbar>
@@ -198,19 +192,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
               <Grid item>
                 <SharePanel
                   onAddUser={this.presentInviteUserModal}
-                  users={[
-                    {
-                      username: 'test1.id.blockstack',
-                      name: 'Jon Doe',
-                    },
-                    {
-                      username: 'test2.id.blockstack',
-                      imageURL: 'https://picsum.photos/id/1005/5760/3840',
-                    },
-                    {
-                      username: 'test3.id.blockstack',
-                    },
-                  ]}
+                  users={album.users.map(username => ({ username }))}
                 />
               </Grid>
               <Grid item xs />
