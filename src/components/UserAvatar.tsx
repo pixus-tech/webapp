@@ -3,7 +3,12 @@ import randomColor from 'randomcolor'
 import React from 'react'
 
 import Avatar from '@material-ui/core/Avatar'
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import {
+  createStyles,
+  makeStyles,
+  Theme,
+  useTheme,
+} from '@material-ui/core/styles'
 
 import User, { initials } from 'models/user'
 
@@ -26,11 +31,12 @@ export interface IProps {
 
 function UserAvatar({ className, user }: IProps) {
   const classes = useStyles()
+  const theme = useTheme()
   const style: React.CSSProperties = {}
 
   if (!user.imageURL) {
     style.backgroundColor = randomColor({
-      hue: '#0098b9',
+      hue: theme.palette.secondary.main,
       luminosity: 'dark',
       seed: user.username,
     })

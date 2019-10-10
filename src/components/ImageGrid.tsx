@@ -17,6 +17,7 @@ import Image from 'models/image'
 const styles = (theme: Theme) =>
   createStyles({
     cell: {
+      cursor: 'pointer',
       overflow: 'hidden',
       padding: theme.spacing(0, 0.5, 1, 0.5),
     },

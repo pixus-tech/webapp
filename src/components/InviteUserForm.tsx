@@ -131,11 +131,10 @@ function InviteUserForm({
             onChange={event => setMessage(event.currentTarget.value)}
             type="text"
             value={message}
-            variant="outlined"
           />
           <div className={classes.submitContainer}>
             <Button
-              color="primary"
+              color="secondary"
               onClick={() => onSubmit(message)}
               type="submit"
               variant="contained"

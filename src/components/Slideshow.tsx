@@ -24,7 +24,7 @@ import Swiper from 'swiper'
 const styles = (theme: Theme) =>
   createStyles({
     container: {
-      backgroundColor: theme.palette.primary.dark,
+      backgroundColor: theme.palette.primary.main,
       bottom: 64,
       left: 0,
       position: 'fixed',
@@ -51,7 +51,7 @@ const styles = (theme: Theme) =>
       position: 'fixed',
       right: 0,
       zIndex: theme.zIndex.modal,
-      backgroundColor: theme.palette.primary.dark,
+      backgroundColor: theme.palette.primary.main,
       display: 'flex',
       justifyContent: 'center',
     },

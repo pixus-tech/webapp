@@ -46,9 +46,12 @@ const styles = (theme: Theme) =>
       color: theme.palette.common.white,
       textTransform: 'uppercase',
     },
+    drawerPaper: {
+      borderRight: 'none',
+    },
     itemCategory: {
       // TODO: Get rid of static colors
-      backgroundColor: theme.palette.primary.dark,
+      backgroundColor: theme.palette.primary.main,
       boxShadow: '0 -1px 0 #404854 inset',
       paddingTop: theme.spacing(2),
       paddingBottom: theme.spacing(2),
@@ -113,7 +116,13 @@ class Menu extends React.Component<ComposedProps> {
     const activeId = match.params.albumId
 
     return (
-      <Drawer variant="permanent" {...other}>
+      <Drawer
+        variant="permanent"
+        classes={{
+          paperAnchorDockedLeft: classes.drawerPaper,
+        }}
+        {...other}
+      >
         <List disablePadding>
           <ListItem
             button

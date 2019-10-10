@@ -114,7 +114,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
     super(props)
 
     this.state = {
-      numberOfImageColumns: 5,
+      numberOfImageColumns: 6,
     }
   }
 
@@ -180,7 +180,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
 
     return (
       <div className={classes.container}>
-        <AppBar component="div" color="primary" position="static" elevation={2}>
+        <AppBar component="div" color="primary" position="static" elevation={1}>
           <Toolbar>
             <Grid container alignItems="flex-start" spacing={1}>
               <Grid item>

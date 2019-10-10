@@ -6,6 +6,7 @@ import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
 
 import AppBar from '@material-ui/core/AppBar'
+import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
 import Hidden from '@material-ui/core/Hidden'
 import IconButton from '@material-ui/core/IconButton'
@@ -30,8 +31,13 @@ const lightColor = 'rgba(255, 255, 255, 0.7)'
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     appBar: {
-      backgroundColor: theme.palette.primary.dark,
+      backgroundColor: theme.palette.primary.main,
       zIndex: theme.zIndex.drawer + 1,
+    },
+    toolbar: {
+      [theme.breakpoints.up('md')]: {
+        minHeight: 86,
+      },
     },
     menuButton: {
       marginLeft: -theme.spacing(1),
@@ -77,50 +83,56 @@ function Header({ dispatchLogout, onDrawerToggle, user }: ComposedProps) {
       elevation={3}
       position="static"
     >
-      <Toolbar>
-        <Grid container spacing={1} alignItems="center">
-          <Hidden mdUp>
+      <Container maxWidth="xl">
+        <Toolbar
+          classes={{
+            root: classes.toolbar,
+          }}
+        >
+          <Grid container spacing={1} alignItems="center">
+            <Hidden mdUp>
+              <Grid item>
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  onClick={onDrawerToggle}
+                  className={classes.menuButton}
+                >
+                  <MenuIcon />
+                </IconButton>
+              </Grid>
+            </Hidden>
             <Grid item>
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                onClick={onDrawerToggle}
-                className={classes.menuButton}
-              >
-                <MenuIcon />
-              </IconButton>
+              <Logo />
             </Grid>
-          </Hidden>
-          <Grid item>
-            <Logo />
+            <Grid item xs />
+            <Grid item>
+              <QueueInfo />
+            </Grid>
+            <Grid item>
+              <Notifications />
+            </Grid>
+            <Grid item>
+              {user && (
+                <IconWithPopover
+                  id="user-menu-popover"
+                  tooltip={user.username}
+                  Icon={<UserAvatar user={user} />}
+                >
+                  <MenuList>
+                    <MenuItem>
+                      <Link to={routes.settings} className={classes.link}>
+                        Settings
+                      </Link>
+                    </MenuItem>
+                    <MenuItem onClick={dispatchLogout}>Logout</MenuItem>
+                  </MenuList>
+                </IconWithPopover>
+              )}
+            </Grid>
           </Grid>
-          <Grid item xs />
-          <Grid item>
-            <QueueInfo />
-          </Grid>
-          <Grid item>
-            <Notifications />
-          </Grid>
-          <Grid item>
-            {user && (
-              <IconWithPopover
-                id="user-menu-popover"
-                tooltip={user.username}
-                Icon={<UserAvatar user={user} />}
-              >
-                <MenuList>
-                  <MenuItem>
-                    <Link to={routes.settings} className={classes.link}>
-                      Settings
-                    </Link>
-                  </MenuItem>
-                  <MenuItem onClick={dispatchLogout}>Logout</MenuItem>
-                </MenuList>
-              </IconWithPopover>
-            )}
-          </Grid>
-        </Grid>
-      </Toolbar>
+        </Toolbar>
+      </Container>
     </AppBar>
   )
 }

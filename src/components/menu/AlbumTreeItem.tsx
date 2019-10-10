@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
     root: {
       color: 'rgba(255, 255, 255, 0.7)',
       '&:focus > $content': {
-        backgroundColor: `var(--tree-view-bg-color, ${theme.palette.primary.dark})`,
+        backgroundColor: `var(--tree-view-bg-color, ${theme.palette.primary.main})`,
         color: 'var(--tree-view-color)',
       },
     },

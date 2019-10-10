@@ -9,7 +9,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       alignItems: 'center',
-      backgroundColor: theme.palette.primary.dark,
+      backgroundColor: theme.palette.primary.main,
       color: theme.palette.primary.contrastText,
       display: 'flex',
       flexFlow: 'column',

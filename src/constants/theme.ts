@@ -19,16 +19,23 @@ const sourceSansPro = {
 
 let theme = createMuiTheme({
   palette: {
-    type: 'dark',
+    type: 'light',
+    common: {
+      white: '#f3f3f3',
+    },
     primary: {
-      light: '#7e8080',
-      main: '#525454',
-      dark: '#282828',
+      light: '#525454',
+      main: '#282828',
+      dark: '#000000',
     },
     secondary: {
-      light: '#59c9eb',
-      main: '#0098b9',
-      dark: '#006a89',
+      light: '#64e8ff',
+      main: '#06b6dc',
+      dark: '#0086aa',
+      contrastText: '#f3f3f3',
+    },
+    background: {
+      paper: '#f3f3f3',
     },
   },
   typography: {
@@ -64,7 +71,12 @@ theme = {
     },
     MuiDrawer: {
       paper: {
-        backgroundColor: '#282828',
+        backgroundColor: theme.palette.primary.main,
+      },
+    },
+    MuiBackdrop: {
+      root: {
+        backgroundColor: 'rgba(0,0,0,0.75)',
       },
     },
     MuiButton: {
@@ -110,7 +122,7 @@ theme = {
     },
     MuiDivider: {
       root: {
-        backgroundColor: '#404854',
+        backgroundColor: theme.palette.primary.dark,
       },
     },
     MuiListItemText: {

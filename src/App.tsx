@@ -32,7 +32,7 @@ const styles = (theme: Theme) =>
   createStyles({
     '@global': {
       body: {
-        backgroundColor: theme.palette.primary.dark,
+        backgroundColor: theme.palette.primary.main,
       },
     },
     root: {

@@ -16,6 +16,8 @@ import Album from 'models/album'
 import Image from 'models/image'
 import { downloadPreviewImage } from 'store/images/actions'
 
+const HIDE_GRADIENT_DELAY = 1000
+
 const styles = (_theme: Theme) =>
   createStyles({
     container: {
@@ -36,10 +38,11 @@ const styles = (_theme: Theme) =>
       bottom: 0,
       left: 0,
       opacity: 1,
+      pointerEvents: 'none',
       position: 'absolute',
       right: 0,
       top: 0,
-      transition: 'opacity 1000ms ease-out',
+      transition: `opacity ${HIDE_GRADIENT_DELAY}ms ease-out`,
     },
     gradientHidden: {
       opacity: 0,
@@ -68,7 +71,21 @@ type ComposedProps = IProps &
   IStateProps &
   WithStyles<typeof styles>
 
-class LazyPreviewImage extends React.PureComponent<ComposedProps> {
+interface IState {
+  shouldRenderGradient: boolean
+}
+
+class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
+  private hideGradientTimeout?: ReturnType<typeof setTimeout>
+
+  constructor(props: ComposedProps) {
+    super(props)
+
+    this.state = {
+      shouldRenderGradient: true,
+    }
+  }
+
   componentDidMount() {
     const {
       imageObjectURL,
@@ -101,16 +118,35 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps> {
     } else if (!isVisible) {
       cancelDownloadPreviewImage()
     }
+
+    if (
+      prevProps.imageObjectURL === undefined &&
+      imageObjectURL !== undefined
+    ) {
+      this.hideGradientTimeout = setTimeout(
+        this.hideGradient,
+        HIDE_GRADIENT_DELAY,
+      )
+    }
   }
 
   componentWillUnmount() {
     if (this.props.isPreviewLoading === true) {
       this.props.cancelDownloadPreviewImage()
     }
+
+    if (this.hideGradientTimeout !== undefined) {
+      clearTimeout(this.hideGradientTimeout)
+    }
+  }
+
+  hideGradient = () => {
+    this.setState({ shouldRenderGradient: false })
   }
 
   render() {
     const { classes, className, image, imageObjectURL } = this.props
+    const { shouldRenderGradient } = this.state
 
     const isImageLoaded = imageObjectURL !== undefined
     const isHorizontal = image.width > image.height
@@ -132,12 +168,14 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps> {
           />
         )}
 
-        <ImagePreviewGradient
-          colors={image.previewColors}
-          className={cx(classes.gradient, {
-            [classes.gradientHidden]: isImageLoaded,
-          })}
-        />
+        {shouldRenderGradient && (
+          <ImagePreviewGradient
+            colors={image.previewColors}
+            className={cx(classes.gradient, {
+              [classes.gradientHidden]: isImageLoaded,
+            })}
+          />
+        )}
       </div>
     )
   }
