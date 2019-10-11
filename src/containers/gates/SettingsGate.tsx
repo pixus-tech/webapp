@@ -23,7 +23,9 @@ type ComposedProps = IDispatchProps & IStateProps
 
 class ConnectivityGate extends React.PureComponent<ComposedProps> {
   componentDidMount() {
-    this.loadSettings()
+    if (this.props.isAuthenticated) {
+      this.loadSettings()
+    }
   }
 
   componentDidUpdate(prevProps: ComposedProps) {
@@ -37,7 +39,11 @@ class ConnectivityGate extends React.PureComponent<ComposedProps> {
   }
 
   render() {
-    const { children, isFailed, isLoaded, isLoading } = this.props
+    const { children, isFailed, isLoaded, isLoading, isAuthenticated } = this.props
+
+    if (!isAuthenticated) {
+      return children
+    }
 
     if (!isLoaded || isFailed) {
       return (

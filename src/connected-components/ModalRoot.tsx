@@ -14,9 +14,11 @@ import { hideModal } from 'store/modal/actions'
 import { ModalType, ModalProps } from 'store/modal/types'
 
 import InviteUserModal from 'connected-components/modals/InviteUserModal'
+import ConfirmImageDeletionModal from 'connected-components/modals/ConfirmImageDeletionModal'
 
 const MODAL_COMPONENTS = {
   [ModalType.InviteUser]: InviteUserModal,
+  [ModalType.ConfirmImageDeletion]: ConfirmImageDeletionModal,
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -74,7 +76,7 @@ function ModalRoot({
       <Fade in={isOpen}>
         {isOpen && SpecificModal !== null && modalProps !== null ? (
           <div className={classes.paper}>
-            <SpecificModal {...modalProps} />
+            <SpecificModal {...(modalProps as any)} />
           </div>
         ) : (
           <div />

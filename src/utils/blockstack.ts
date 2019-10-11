@@ -16,7 +16,7 @@ export function currentUser() {
 }
 
 export function currentUsername() {
-  return RadiksUser.currentUser().attrs.username
+  return currentUser().attrs.username
 }
 
 async function createInvitation(user: RadiksUser, userGroup: UserGroup) {

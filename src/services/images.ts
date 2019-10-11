@@ -24,7 +24,7 @@ class Images extends BaseService {
       reject,
     ) {
       ImageRecord.fetchList<ImageRecord>({
-        albumIds: album._id,
+        userGroupId: album._id,
       })
         .then((imageRecords: ImageRecord[]) => {
           resolve(parseImageRecords(imageRecords))
@@ -54,7 +54,6 @@ class Images extends BaseService {
 
               const image: Image = {
                 _id: imageId,
-                albumIds: [album._id],
                 height: imageMetaData.height,
                 name: fileHandle.file.name,
                 previewColors: imageMetaData.previewColors,

@@ -11,6 +11,7 @@ import {
   WithStyles,
 } from '@material-ui/core/styles'
 
+import ImageActions from 'connected-components/ImageActions'
 import ImagePreviewGradient from 'components/ImagePreviewGradient'
 import Album from 'models/album'
 import Image from 'models/image'
@@ -47,12 +48,26 @@ const styles = (_theme: Theme) =>
     gradientHidden: {
       opacity: 0,
     },
+    actionPanel: {
+      opacity: 0,
+      transition: `opacity 320ms ease-out`,
+      bottom: 0,
+      left: 0,
+      position: 'absolute',
+      right: 0,
+      top: 0,
+      backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.6) 20%, transparent 50%)`,
+      '&:hover': {
+        opacity: 1,
+      },
+    },
   })
 
 export interface IProps {
   album: Album
   className?: string
   image: Image
+  showActions?: boolean
   isVisible: boolean
 }
 
@@ -152,7 +167,13 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
   }
 
   render() {
-    const { classes, className, image, imageObjectURL } = this.props
+    const {
+      classes,
+      className,
+      image,
+      imageObjectURL,
+      showActions,
+    } = this.props
     const { shouldRenderGradient } = this.state
 
     const isImageLoaded = imageObjectURL !== undefined
@@ -182,6 +203,10 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
               [classes.gradientHidden]: isImageLoaded,
             })}
           />
+        )}
+
+        {showActions && (
+          <ImageActions className={classes.actionPanel} image={image} />
         )}
       </div>
     )

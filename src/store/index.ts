@@ -21,9 +21,9 @@ const epicMiddleware = createEpicMiddleware<
 })
 
 localForage.config({
-  name: 'snapnet',
+  name: 'pixus',
   version: 0.1,
-  storeName: 'snapnet',
+  storeName: 'pixus',
 })
 
 const persistConfig = {

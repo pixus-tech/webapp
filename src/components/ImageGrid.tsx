@@ -98,7 +98,12 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
         onClick={this.setCellSelection}
         style={style}
       >
-        <LazyPreviewImage album={album} image={image} isVisible={isVisible} />
+        <LazyPreviewImage
+          showActions={true}
+          album={album}
+          image={image}
+          isVisible={isVisible}
+        />
       </div>
     )
   }

@@ -1,6 +1,6 @@
 {
-  "short_name": "snapnet",
-  "name": "snapnet",
+  "short_name": "pixus",
+  "name": "pixus",
   "description": "Organize and share end-to-end encrypted photos.",
   "start_url": "192.168.1.158:3000",
   "icons": [
@@ -10,9 +10,14 @@
       "type": "image/x-icon"
     },
     {
-     "src": "https://helloblockstack.com/icon-192x192.png",
-     "sizes": "192x192",
-     "type": "image/png"
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
     }
   ],
   "display": "standalone",

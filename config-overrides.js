@@ -28,7 +28,7 @@ module.exports = {
   },
 
   webpack: function override(config, env) {
-    config.output.globalObject = `self`
+    config.entry.push('./worker-bundles/crypto.js')
     return config
   },
 
@@ -42,5 +42,9 @@ module.exports = {
       '^react-dnd-test-utils$': 'react-dnd-test-utils/dist/cjs',
     })
     return config
+  },
+
+  paths: function(paths, env) {
+    return paths;
   },
 }

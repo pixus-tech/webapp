@@ -3,26 +3,19 @@ import { Observable } from 'rxjs'
 
 import { FileHandle, FileHandleWithData } from 'models/fileHandle'
 import userSession from './userSession'
-import { fileReader } from 'workers/index'
+import { fileReader, encrypt, decrypt } from 'workers/index'
 import BaseService from './baseService'
 import { Queue } from './dispatcher'
 import { currentUsername } from 'utils/blockstack'
 
-import {
-  getPublicKeyFromPrivate,
-  UserSession,
-  uploadToGaiaHub,
-} from 'blockstack'
-import { appConfig } from 'constants/blockstack'
+import { getPublicKeyFromPrivate, uploadToGaiaHub } from 'blockstack'
 import { chunk, getAssembledChunks, putChunks } from 'utils/fileChunker'
 
-function encryptAndChunkPayload(
+async function encryptAndChunkPayload(
   payload: ArrayBuffer | string,
   publicKey: string,
   maxChunkSize: number,
 ) {
-  const userSession = new UserSession({ appConfig })
-
   let buffer: Buffer
   if (typeof payload === 'string') {
     buffer = Buffer.from(payload, 'utf-8')
@@ -30,10 +23,9 @@ function encryptAndChunkPayload(
     buffer = Buffer.from(payload)
   }
 
-  const encryptedContent = Buffer.from(
-    userSession.encryptContent(buffer, { publicKey }),
-    'utf-8',
-  )
+  const encryptionString = await encrypt(buffer, publicKey)
+  const encryptedContent = Buffer.from(encryptionString, 'utf-8')
+
   return chunk(encryptedContent, maxChunkSize)
 }
 
@@ -115,13 +107,13 @@ class Files extends BaseService {
       this.dispatcher
         .performAsync<Buffer[]>(Queue.Encryption, (resolve, reject) => {
           try {
-            resolve(
-              encryptAndChunkPayload(
-                payload,
-                this.ensurePublicKey(publicKey),
-                this.settings.bytesPerFileChunk,
-              ),
+            encryptAndChunkPayload(
+              payload,
+              this.ensurePublicKey(publicKey),
+              this.settings.bytesPerFileChunk,
             )
+              .then(resolve)
+              .catch(reject)
           } catch (error) {
             reject(error)
           }
@@ -151,12 +143,15 @@ class Files extends BaseService {
       getAssembledChunks(path, this.getFile(username)).subscribe({
         next(encryptedBuffer) {
           try {
-            subscriber.next(
-              userSession.decryptContent(encryptedBuffer.toString(), {
-                privateKey: self.ensurePrivateKey(privateKey),
-              }),
+            decrypt(
+              encryptedBuffer.toString(),
+              self.ensurePrivateKey(privateKey),
             )
-            subscriber.complete()
+              .then(result => {
+                subscriber.next(Buffer.from(result))
+                subscriber.complete()
+              })
+              .catch(subscriber.error)
           } catch (error) {
             subscriber.error(error)
           }

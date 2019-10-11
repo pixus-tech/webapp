@@ -7,3 +7,11 @@ declare module 'workerize' {
   declare function workerize<T>(source: string): T
   export = workerize
 }
+
+declare module 'worker-loader!*' {
+  class WebpackWorker extends Worker {
+    constructor()
+  }
+
+  export default WebpackWorker
+}

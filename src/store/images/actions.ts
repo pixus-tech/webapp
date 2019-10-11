@@ -91,3 +91,10 @@ export const downloadImage = createAsyncAction(
   API.ErrorResponse<Image>,
   DownloadImageRequest
 >()
+
+export const deleteImage = createAsyncAction(
+  'IMAGES__DELETE_IMAGE__REQUEST',
+  'IMAGES__DELETE_IMAGE__SUCCESS',
+  'IMAGES__DELETE_IMAGE__FAILURE',
+  'IMAGES__DELETE_IMAGE__CANCEL',
+)<Image, Image, API.ErrorResponse<Image>, Image>()

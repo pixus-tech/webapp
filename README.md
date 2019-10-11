@@ -1,4 +1,4 @@
-# snapnet
+# pixus
 
 ## Development
 
