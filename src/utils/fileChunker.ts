@@ -83,6 +83,22 @@ export function putChunks(
   })
 }
 
+export function isIndexFile(payload: string | Buffer) {
+  return (
+    (typeof payload === 'string' &&
+      payload.substr(0, INDEX_PREFIX.length) === INDEX_PREFIX) ||
+    (typeof payload !== 'string' &&
+      (payload as Buffer).slice(0, PREFIX_BUFFER.length).equals(PREFIX_BUFFER))
+  )
+}
+
+export function chunkPathsFromIndex(index: string | Buffer) {
+  return index
+    .toString()
+    .split(INDEX_DELIMITER, 2)[1]
+    .split(',')
+}
+
 export function getAssembledChunks(
   path: string,
   getChunk: (path: string) => Observable<Buffer | string>,
@@ -92,18 +108,8 @@ export function getAssembledChunks(
       next(index) {
         // when the index file is detected by its index prefix,
         // decompose the paths and fetch them individually
-        if (
-          (typeof index === 'string' &&
-            index.substr(0, INDEX_PREFIX.length) === INDEX_PREFIX) ||
-          (typeof index !== 'string' &&
-            (index as Buffer)
-              .slice(0, PREFIX_BUFFER.length)
-              .equals(PREFIX_BUFFER))
-        ) {
-          const chunkPaths = index
-            .toString()
-            .split(INDEX_DELIMITER, 2)[1]
-            .split(',')
+        if (isIndexFile(index)) {
+          const chunkPaths = chunkPathsFromIndex(index)
           forkJoin(_.map(chunkPaths, path => getChunk(path))).subscribe({
             next(chunks) {
               subscriber.next(assemble(chunks))

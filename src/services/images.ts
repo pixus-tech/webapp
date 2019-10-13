@@ -37,6 +37,36 @@ class Images extends BaseService {
     return records.save(imageRecord)
   }
 
+  delete = (image: Image) => {
+    const imageRecord = ImageRecordFactory.build(image)
+    const imageId = image._id
+
+    return new Observable<Image>(subscriber => {
+      records.delete(imageRecord).subscribe({
+        next() {
+          forkJoin({
+            image: files.delete(imagePath(imageId), image.username),
+            previewImage: files.delete(
+              imagePreviewPath(imageId),
+              image.username,
+            ),
+          }).subscribe({
+            next() {
+              subscriber.next(image)
+              subscriber.complete()
+            },
+            error(error) {
+              subscriber.error(error)
+            },
+          })
+        },
+        error(error) {
+          subscriber.error(error)
+        },
+      })
+    })
+  }
+
   uploadImageToAlbum = (album: Album, fileHandle: FileHandle) => {
     return new Observable<Image>(subscriber => {
       const self = this

@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer'
-import { Observable } from 'rxjs'
+import { Observable, forkJoin } from 'rxjs'
 
 import { FileHandle, FileHandleWithData } from 'models/fileHandle'
 import userSession from './userSession'
@@ -9,7 +9,13 @@ import { Queue } from './dispatcher'
 import { currentUsername } from 'utils/blockstack'
 
 import { getPublicKeyFromPrivate, uploadToGaiaHub } from 'blockstack'
-import { chunk, getAssembledChunks, putChunks } from 'utils/fileChunker'
+import {
+  isIndexFile,
+  chunk,
+  chunkPathsFromIndex,
+  getAssembledChunks,
+  putChunks,
+} from 'utils/fileChunker'
 
 async function encryptAndChunkPayload(
   payload: ArrayBuffer | string,
@@ -79,6 +85,17 @@ class Files extends BaseService {
       },
     )
   }
+
+  private deleteFile = (path: string) =>
+    this.dispatcher.performAsync<boolean>(Queue.Download, function(
+      resolve,
+      reject,
+    ) {
+      return userSession
+        .deleteFile(path)
+        .then(() => resolve(true))
+        .catch(reject)
+    })
 
   private ensurePublicKey = (publicKey?: string) => {
     if (!publicKey) {
@@ -155,6 +172,34 @@ class Files extends BaseService {
           } catch (error) {
             subscriber.error(error)
           }
+        },
+        error(error) {
+          subscriber.error(error)
+        },
+      })
+    })
+  }
+
+  delete = (path: string, username?: string) => {
+    return new Observable<boolean>(subscriber => {
+      const self = this
+      this.getFile(username)(path).subscribe({
+        next(index) {
+          const deletePaths = [path]
+
+          if (isIndexFile(index)) {
+            deletePaths.push(...chunkPathsFromIndex(index))
+          }
+
+          forkJoin(deletePaths.map(self.deleteFile)).subscribe({
+            next() {
+              subscriber.next(true)
+              subscriber.complete()
+            },
+            error(error) {
+              subscriber.error(error)
+            },
+          })
         },
         error(error) {
           subscriber.error(error)

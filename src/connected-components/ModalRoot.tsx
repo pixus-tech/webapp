@@ -24,6 +24,9 @@ const MODAL_COMPONENTS = {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     modal: {
+      '& > *': {
+        outline: 'none',
+      },
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',

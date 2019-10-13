@@ -93,6 +93,30 @@ export const uploadImageToAlbumEpic: Epic<
     }),
   )
 
+export const deleteImageEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'images'>
+> = (action$, state$, { images }) =>
+  action$.pipe(
+    filter(isActionOf(actions.deleteImage.request)),
+    mergeMap(action =>
+      images.delete(action.payload).pipe(
+        map(_image => actions.deleteImage.success(action.payload)),
+        takeUntil(action$.pipe(filter(isActionOf(actions.deleteImage.cancel)))),
+        catchError(error =>
+          of(
+            actions.deleteImage.failure({
+              error,
+              resource: action.payload,
+            }),
+          ),
+        ),
+      ),
+    ),
+  )
+
 export const downloadPreviewImageEpic: Epic<
   RootAction,
   RootAction,

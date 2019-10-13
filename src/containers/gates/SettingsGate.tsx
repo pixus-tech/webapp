@@ -39,7 +39,13 @@ class ConnectivityGate extends React.PureComponent<ComposedProps> {
   }
 
   render() {
-    const { children, isFailed, isLoaded, isLoading, isAuthenticated } = this.props
+    const {
+      children,
+      isFailed,
+      isLoaded,
+      isLoading,
+      isAuthenticated,
+    } = this.props
 
     if (!isAuthenticated) {
       return children
