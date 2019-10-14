@@ -1,7 +1,10 @@
-/* global blockstack */
+/* global blockstack, importScripts */
+/* eslint-disable */
 // @ts-ignore isolatedModules
+/* eslint-enable */
 // eslint-disable-next-line no-restricted-globals
 const ctx: Worker = self as any
+declare const blockstack: any
 
 let _userSession: any
 
@@ -22,9 +25,7 @@ function sharedUserSession() {
   if (!_userSession) {
     importScripts('/blockstack.js')
 
-    // @ts-ignore
     _userSession = new blockstack.UserSession({
-      // @ts-ignore
       appConfig: new blockstack.AppConfig({
         appDomain: location.origin,
       }),
@@ -36,7 +37,6 @@ function sharedUserSession() {
 }
 
 ctx.addEventListener('message', event => {
-  // @ts-ignore
   const userSession = sharedUserSession()
   const { id, job, buffer, key } = event.data
 

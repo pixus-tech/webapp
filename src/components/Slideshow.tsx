@@ -71,7 +71,7 @@ const styles = (theme: Theme) =>
         right: '90%',
         pointerEvents: 'none',
         backgroundImage:
-          'linear-gradient(to left, rgba(40,40,40,0), rgba(40,40,40,1))',
+          'linear-gradient(to left, rgba(28,28,30,0), rgba(28,28,30,1))',
       },
       '&::before': {
         content: '" "',
@@ -84,7 +84,7 @@ const styles = (theme: Theme) =>
         right: 0,
         pointerEvents: 'none',
         backgroundImage:
-          'linear-gradient(to right, rgba(40,40,40,0), rgba(40,40,40,1))',
+          'linear-gradient(to right, rgba(28,28,30,0), rgba(28,28,30,1))',
       },
     },
     thumbSlide: {

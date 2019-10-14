@@ -6,7 +6,7 @@ import uuid from 'uuid/v4'
 import fileReaderSource from 'raw-loader!./fileReader'
 import * as FileReaderType from './fileReader'
 
-// eslint-disable-next-line import/no-webpack-loader-syntax
+// eslint-disable-next-line
 import CryptoWorker from 'worker-loader!workers/crypto.worker'
 
 const cryptoWorker = new CryptoWorker()
@@ -15,6 +15,7 @@ function postJob(worker: Worker, job: string, payload: object) {
   const id = uuid()
 
   return new Promise<string>((resolve, reject) => {
+    // eslint-disable-next-line prefer-const
     let removeEventListeners: () => void
 
     function handleError(errorEvent: ErrorEvent) {

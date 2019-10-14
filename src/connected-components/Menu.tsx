@@ -52,7 +52,7 @@ const styles = (theme: Theme) =>
     itemCategory: {
       // TODO: Get rid of static colors
       backgroundColor: theme.palette.primary.main,
-      boxShadow: '0 -1px 0 #404854 inset',
+      boxShadow: `0 -1px 0 ${theme.palette.primary.light} inset`,
       paddingTop: theme.spacing(2),
       paddingBottom: theme.spacing(2),
     },
