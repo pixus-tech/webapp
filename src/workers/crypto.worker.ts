@@ -1,9 +1,5 @@
 /* global blockstack, importScripts */
-/* eslint-disable */
-// @ts-ignore isolatedModules
-/* eslint-enable */
 // eslint-disable-next-line no-restricted-globals
-const ctx: Worker = self as any
 declare const blockstack: any
 
 let _userSession: any
@@ -36,17 +32,19 @@ function sharedUserSession() {
   return _userSession
 }
 
-ctx.addEventListener('message', event => {
+addEventListener('message', event => {
   const userSession = sharedUserSession()
   const { id, job, buffer, key } = event.data
 
   if (job === 'encrypt') {
     const result = userSession.encryptContent(buffer, { publicKey: key })
-    ctx.postMessage({ id, result })
+    postMessage({ id, result })
   } else if (job === 'decrypt') {
     const result = userSession.decryptContent(buffer, {
       privateKey: key,
     })
-    ctx.postMessage({ id, result })
+    postMessage({ id, result })
   }
 })
+
+export default null
