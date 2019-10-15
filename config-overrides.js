@@ -1,3 +1,5 @@
+var path = require('path')
+
 module.exports = {
   // configFunction is the original react-scripts function that creates the
   // Webpack Dev Server config based on the settings for proxy/allowedHost.
@@ -17,6 +19,8 @@ module.exports = {
       //   ca: fs.readFileSync(process.env.REACT_HTTPS_CA, 'utf8'),
       //   passphrase: process.env.REACT_HTTPS_PASS
       // };
+      config.contentBase = [path.join(__dirname, 'build'), config.contentBase]
+
       config.headers = {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, GET, OPTIONS, DELETE, PUT",
@@ -28,7 +32,6 @@ module.exports = {
   },
 
   webpack: function override(config, env) {
-    config.entry.push('./worker-bundles/crypto.js')
     return config
   },
 

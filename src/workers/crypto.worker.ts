@@ -1,6 +1,6 @@
-/* global blockstack, importScripts */
 // eslint-disable-next-line no-restricted-globals
 declare const blockstack: any
+const ctx = (self as any) as DedicatedWorkerGlobalScope // eslint-disable-line no-restricted-globals
 
 let _userSession: any
 
@@ -19,11 +19,11 @@ const BLOCKSTACK_SESSION_STORE = {
 
 function sharedUserSession() {
   if (!_userSession) {
-    importScripts('/blockstack.js')
+    ctx.importScripts('/static/js/crypto.js')
 
     _userSession = new blockstack.UserSession({
       appConfig: new blockstack.AppConfig({
-        appDomain: location.origin,
+        appDomain: ctx.location.origin,
       }),
       sessionStore: BLOCKSTACK_SESSION_STORE,
     })
@@ -32,18 +32,18 @@ function sharedUserSession() {
   return _userSession
 }
 
-addEventListener('message', event => {
+ctx.addEventListener('message', event => {
   const userSession = sharedUserSession()
   const { id, job, buffer, key } = event.data
 
   if (job === 'encrypt') {
     const result = userSession.encryptContent(buffer, { publicKey: key })
-    postMessage({ id, result })
+    ctx.postMessage({ id, result })
   } else if (job === 'decrypt') {
     const result = userSession.decryptContent(buffer, {
       privateKey: key,
     })
-    postMessage({ id, result })
+    ctx.postMessage({ id, result })
   }
 })
 
