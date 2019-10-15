@@ -8,7 +8,6 @@ import * as notificationsActions from './notifications/actions'
 import * as settingsActions from './settings/actions'
 import * as sharingActions from './sharing/actions'
 import * as toastsActions from './toasts/actions'
-import * as webSocketActions from './webSocket/actions'
 
 const rootAction = {
   ...albumsActions,
@@ -21,7 +20,6 @@ const rootAction = {
   ...settingsActions,
   ...sharingActions,
   ...toastsActions,
-  ...webSocketActions,
 }
 
 export default rootAction

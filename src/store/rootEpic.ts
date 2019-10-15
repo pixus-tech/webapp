@@ -9,7 +9,6 @@ import * as notificationsEpics from './notifications/epics'
 import * as settingsEpics from './settings/epics'
 import * as sharingEpics from './sharing/epics'
 import * as toastsEpics from './toasts/epics'
-import * as webSocketEpics from './webSocket/epics'
 
 const rootEpic = combineEpics(
   ..._.values(albumEpics),
@@ -20,7 +19,6 @@ const rootEpic = combineEpics(
   ..._.values(settingsEpics),
   ..._.values(sharingEpics),
   ..._.values(toastsEpics),
-  ..._.values(webSocketEpics),
 )
 
 export default rootEpic

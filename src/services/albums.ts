@@ -1,5 +1,3 @@
-import { Observable } from 'rxjs'
-
 import AlbumRecord, { AlbumRecordFactory } from 'db/album'
 import Album, {
   buildAlbumRecord,
@@ -71,35 +69,6 @@ class Albums extends BaseService {
         })
       },
     )
-
-  unsubscribe = () => {
-    AlbumRecord.removeStreamListener(this.streamCallback as any) // TODO: Wrong type in radiks
-    this.streamCallback = undefined
-
-    return new Observable<undefined>(subscriber => {
-      subscriber.complete()
-    })
-  }
-
-  subscribe = () => {
-    if (this.streamCallback) {
-      this.unsubscribe()
-    }
-
-    return new Observable<Album>(subscriber => {
-      this.streamCallback = function streamCallback(record: AlbumRecord) {
-        const album = parseAlbumRecord(record)
-
-        if (album === null) {
-          return
-        }
-
-        subscriber.next(album)
-      }
-
-      AlbumRecord.addStreamListener(this.streamCallback as any) // TODO: Wrong type in radiks
-    })
-  }
 }
 
 export default new Albums()

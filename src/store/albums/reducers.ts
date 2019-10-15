@@ -23,10 +23,6 @@ const data = createReducer(initialState.data)
   .handleAction(actions.getAlbums.success, (state, action) => {
     return Map(action.payload.map(album => [album._id, album]))
   })
-  .handleAction(actions.upsertAlbum, (state, action) => {
-    const album = action.payload
-    return state.set(album._id, album)
-  })
   .handleAction(actions.setParentAlbum.request, (state, action) => {
     const album = action.payload.album
     const parentAlbumId = action.payload.parentAlbum._id

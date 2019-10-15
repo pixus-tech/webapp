@@ -18,9 +18,6 @@ import sharing, {
   initialState as initialSharingState,
 } from './sharing/reducers'
 import toasts, { initialState as initialToastsState } from './toasts/reducers'
-import webSocket, {
-  initialState as initialWebSocketState,
-} from './webSocket/reducers'
 
 const rootReducer = combineReducers({
   albums,
@@ -33,7 +30,6 @@ const rootReducer = combineReducers({
   settings,
   sharing,
   toasts,
-  webSocket,
 })
 
 export const initialState = {
@@ -47,7 +43,6 @@ export const initialState = {
   settings: initialSettingsState,
   sharing: initialSharingState,
   toasts: initialToastsState,
-  webSocket: initialWebSocketState,
 }
 
 export default rootReducer

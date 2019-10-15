@@ -1,4 +1,4 @@
-import { createAsyncAction, createStandardAction } from 'typesafe-actions'
+import { createAsyncAction } from 'typesafe-actions'
 
 import Album from 'models/album'
 import { API } from 'typings/types'
@@ -45,13 +45,3 @@ export const setParentAlbum = createAsyncAction(
   API.ErrorResponse<SetParentAlbumRequestSchema>,
   API.ResourceFilter
 >()
-
-export const subscribeAlbumSocket = createStandardAction(
-  'ALBUMS__SUBSCRIBE_SOCKET',
-)<undefined>()
-
-export const unsubscribeAlbumSocket = createStandardAction(
-  'ALBUMS__UNSUBSCRIBE_SOCKET',
-)<undefined>()
-
-export const upsertAlbum = createStandardAction('ALBUMS__UPSERT')<Album>()
