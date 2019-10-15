@@ -68,6 +68,10 @@ interface DownloadImageResult {
   fileContent: Buffer | string
 }
 
+export const requestDownloadPreviewImage = createStandardAction(
+  'IMAGES__REQUEST_DOWNLOAD_PREVIEW_IMAGE',
+)<DownloadImageRequest>()
+
 export const downloadPreviewImage = createAsyncAction(
   'IMAGES__DOWNLOAD_PREVIEW_IMAGE__REQUEST',
   'IMAGES__DOWNLOAD_PREVIEW_IMAGE__SUCCESS',
@@ -80,6 +84,10 @@ export const downloadPreviewImage = createAsyncAction(
   DownloadImageRequest
 >()
 
+export const requestDownloadImage = createStandardAction(
+  'IMAGES__REQUEST_DOWNLOAD_IMAGE',
+)<DownloadImageRequest>()
+
 export const downloadImage = createAsyncAction(
   'IMAGES__DOWNLOAD_IMAGE__REQUEST',
   'IMAGES__DOWNLOAD_IMAGE__SUCCESS',
@@ -88,6 +96,23 @@ export const downloadImage = createAsyncAction(
 )<
   DownloadImageRequest,
   DownloadImageResult,
+  API.ErrorResponse<Image>,
+  DownloadImageRequest
+>()
+
+interface SaveImageResult {
+  image: Image
+  objectURL: string
+}
+
+export const saveImage = createAsyncAction(
+  'IMAGES__SAVE_IMAGE__REQUEST',
+  'IMAGES__SAVE_IMAGE__SUCCESS',
+  'IMAGES__SAVE_IMAGE__FAILURE',
+  'IMAGES__SAVE_IMAGE__CANCEL',
+)<
+  DownloadImageRequest,
+  SaveImageResult,
   API.ErrorResponse<Image>,
   DownloadImageRequest
 >()

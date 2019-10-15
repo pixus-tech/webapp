@@ -1,6 +1,8 @@
 import { Buffer } from 'buffer'
 import { Observable, forkJoin } from 'rxjs'
+import { saveAs } from 'file-saver'
 
+import Image from 'models/image'
 import { FileHandle, FileHandleWithData } from 'models/fileHandle'
 import userSession from './userSession'
 import { fileReader, encrypt, decrypt } from 'workers/index'
@@ -226,6 +228,10 @@ class Files extends BaseService {
         })
         .catch(reject)
     })
+
+  save = (image: Image, objectURL: string) => {
+    saveAs(objectURL, image.name)
+  }
 }
 
 export default new Files()

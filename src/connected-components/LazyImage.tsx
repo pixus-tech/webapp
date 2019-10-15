@@ -14,7 +14,7 @@ import {
 import LazyPreviewImage from './LazyPreviewImage'
 import Album from 'models/album'
 import Image from 'models/image'
-import { downloadImage } from 'store/images/actions'
+import { requestDownloadImage, downloadImage } from 'store/images/actions'
 
 const HIDE_PREVIEW_DELAY = 1000
 
@@ -51,8 +51,8 @@ export interface IProps {
 }
 
 interface IDispatchProps {
-  requestDownloadImage: () => void
-  cancelDownloadImage: () => void
+  dispatchRequestDownloadImage: () => void
+  dispatchCancelDownloadImage: () => void
 }
 
 interface IStateProps {
@@ -70,20 +70,13 @@ interface IState {
 }
 
 class LazyImage extends React.PureComponent<ComposedProps, IState> {
-  static getDerivedStateFromProps(props: ComposedProps, state: IState) {
-    const isImageLoaded = props.imageObjectURL === undefined
-    return {
-      shouldRenderPreview: isImageLoaded ? state.shouldRenderPreview : true,
-    }
-  }
-
   private hidePreviewTimeout?: ReturnType<typeof setTimeout>
 
   constructor(props: ComposedProps) {
     super(props)
 
     this.state = {
-      shouldRenderPreview: true,
+      shouldRenderPreview: props.imageObjectURL === undefined,
     }
   }
 
@@ -92,21 +85,21 @@ class LazyImage extends React.PureComponent<ComposedProps, IState> {
       imageObjectURL,
       isImageLoading,
       isVisible,
-      requestDownloadImage,
+      dispatchRequestDownloadImage,
     } = this.props
     if (isVisible && !isImageLoading && imageObjectURL === undefined) {
-      requestDownloadImage()
+      dispatchRequestDownloadImage()
     }
   }
 
   componentDidUpdate(prevProps: ComposedProps) {
     const {
-      cancelDownloadImage,
+      dispatchCancelDownloadImage,
       image,
       imageObjectURL,
       isImageLoading,
       isVisible,
-      requestDownloadImage,
+      dispatchRequestDownloadImage,
     } = this.props
     if (
       isVisible &&
@@ -115,9 +108,9 @@ class LazyImage extends React.PureComponent<ComposedProps, IState> {
       !isImageLoading &&
       imageObjectURL === undefined
     ) {
-      requestDownloadImage()
+      dispatchRequestDownloadImage()
     } else if (!isVisible) {
-      cancelDownloadImage()
+      dispatchCancelDownloadImage()
     }
 
     if (
@@ -125,12 +118,17 @@ class LazyImage extends React.PureComponent<ComposedProps, IState> {
       imageObjectURL !== undefined
     ) {
       this.hidePreviewTimeout = setTimeout(this.hidePreview, HIDE_PREVIEW_DELAY)
+    } else if (
+      prevProps.imageObjectURL !== undefined &&
+      imageObjectURL === undefined
+    ) {
+      requestAnimationFrame(this.showPreview)
     }
   }
 
   componentWillUnmount() {
     if (this.props.isImageLoading === true) {
-      this.props.cancelDownloadImage()
+      this.props.dispatchCancelDownloadImage()
     }
 
     if (this.hidePreviewTimeout !== undefined) {
@@ -140,6 +138,10 @@ class LazyImage extends React.PureComponent<ComposedProps, IState> {
 
   hidePreview = () => {
     this.setState({ shouldRenderPreview: false })
+  }
+
+  showPreview = () => {
+    this.setState({ shouldRenderPreview: true })
   }
 
   render() {
@@ -200,8 +202,8 @@ function mapDispatchToProps(
 ): IDispatchProps {
   const payload = { album: props.album, image: props.image }
   return {
-    cancelDownloadImage: () => dispatch(downloadImage.cancel(payload)),
-    requestDownloadImage: () => dispatch(downloadImage.request(payload)),
+    dispatchCancelDownloadImage: () => dispatch(downloadImage.cancel(payload)),
+    dispatchRequestDownloadImage: () => dispatch(requestDownloadImage(payload)),
   }
 }
 

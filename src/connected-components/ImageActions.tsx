@@ -11,13 +11,16 @@ import {
   WithStyles,
 } from '@material-ui/core/styles'
 
+import Album from 'models/album'
 import Image from 'models/image'
 
+import CircularProgress from '@material-ui/core/CircularProgress'
 import IconButton from '@material-ui/core/IconButton'
 import Tooltip from '@material-ui/core/Tooltip'
 import DeleteIcon from '@material-ui/icons/DeleteOutline'
 import DownloadIcon from '@material-ui/icons/SaveAlt'
 
+import { saveImage } from 'store/images/actions'
 import { showModal } from 'store/modal/actions'
 import { ModalType } from 'store/modal/types'
 
@@ -32,23 +35,42 @@ const styles = (theme: Theme) =>
     button: {
       color: theme.palette.common.white,
     },
+    progressWrapper: {
+      alignItems: 'center',
+      backgroundColor: 'rgba(28,28,30,0.6)',
+      display: 'flex',
+      flexFlow: 'column',
+      height: '100%',
+      justifyContent: 'center',
+      width: '100%',
+    },
   })
 
 export interface IProps {
+  album: Album
   className?: string
   image: Image
 }
 
 interface IDispatchProps {
+  dispatchSaveImage: () => void
   requestImageDeletion: () => void
 }
 
-type ComposedProps = IProps & IDispatchProps & WithStyles<typeof styles>
+interface IStateProps {
+  isLoading: boolean
+}
+
+type ComposedProps = IProps &
+  IDispatchProps &
+  IStateProps &
+  WithStyles<typeof styles>
 
 class ImageActions extends React.PureComponent<ComposedProps> {
   requestImageDownload = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault()
     event.stopPropagation()
+    this.props.dispatchSaveImage()
   }
 
   requestImageDeletion = (event: React.MouseEvent<HTMLElement>) => {
@@ -58,7 +80,15 @@ class ImageActions extends React.PureComponent<ComposedProps> {
   }
 
   render() {
-    const { classes, className } = this.props
+    const { classes, className, isLoading } = this.props
+
+    if (isLoading) {
+      return (
+        <div className={cx(classes.progressWrapper, className)}>
+          <CircularProgress color="secondary" size={32} />
+        </div>
+      )
+    }
 
     return (
       <div className={cx(classes.container, className)}>
@@ -87,13 +117,22 @@ class ImageActions extends React.PureComponent<ComposedProps> {
   }
 }
 
+function mapStateToProps(state: RootState, props: ComposedProps): IStateProps {
+  return {
+    isLoading: !!state.images.imageIsLoadingMap.get(props.image._id),
+  }
+}
+
 function mapDispatchToProps(
   dispatch: Dispatch<RootAction>,
   props: ComposedProps,
 ): IDispatchProps {
-  const { image } = props
+  const { album, image } = props
 
   return {
+    dispatchSaveImage: () => {
+      dispatch(saveImage.request({ album, image }))
+    },
     requestImageDeletion: () => {
       dispatch(
         showModal({ type: ModalType.ConfirmImageDeletion, props: { image } }),
@@ -103,8 +142,8 @@ function mapDispatchToProps(
 }
 
 export default compose<ComposedProps, IProps>(
-  connect<undefined, IDispatchProps, ComposedProps, RootState>(
-    undefined,
+  connect(
+    mapStateToProps,
     mapDispatchToProps,
   ),
   withStyles(styles),

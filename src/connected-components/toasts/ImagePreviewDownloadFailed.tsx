@@ -6,5 +6,5 @@ type PayloadType = Parameters<typeof downloadPreviewImage.failure>[0]
 export default function ImagePreviewDownloadFailed({
   resource: image,
 }: PayloadType) {
-  return <>{image.name} could not be downloaded.</>
+  return <>Thumbnail for {image.name} could not be downloaded.</>
 }

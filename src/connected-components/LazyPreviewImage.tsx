@@ -15,7 +15,10 @@ import ImageActions from 'connected-components/ImageActions'
 import ImagePreviewGradient from 'components/ImagePreviewGradient'
 import Album from 'models/album'
 import Image from 'models/image'
-import { downloadPreviewImage } from 'store/images/actions'
+import {
+  downloadPreviewImage,
+  requestDownloadPreviewImage,
+} from 'store/images/actions'
 
 const HIDE_GRADIENT_DELAY = 1000
 
@@ -72,8 +75,8 @@ export interface IProps {
 }
 
 interface IDispatchProps {
-  requestDownloadPreviewImage: () => void
-  cancelDownloadPreviewImage: () => void
+  dispatchRequestDownloadPreviewImage: () => void
+  dispatchCancelDownloadPreviewImage: () => void
 }
 
 interface IStateProps {
@@ -91,20 +94,13 @@ interface IState {
 }
 
 class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
-  static getDerivedStateFromProps(props: ComposedProps, state: IState) {
-    const isImageLoaded = props.imageObjectURL === undefined
-    return {
-      shouldRenderGradient: isImageLoaded ? state.shouldRenderGradient : true,
-    }
-  }
-
   private hideGradientTimeout?: ReturnType<typeof setTimeout>
 
   constructor(props: ComposedProps) {
     super(props)
 
     this.state = {
-      shouldRenderGradient: true,
+      shouldRenderGradient: props.imageObjectURL === undefined,
     }
   }
 
@@ -113,21 +109,21 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
       imageObjectURL,
       isPreviewLoading,
       isVisible,
-      requestDownloadPreviewImage,
+      dispatchRequestDownloadPreviewImage,
     } = this.props
     if (isVisible && !isPreviewLoading && imageObjectURL === undefined) {
-      requestDownloadPreviewImage()
+      dispatchRequestDownloadPreviewImage()
     }
   }
 
   componentDidUpdate(prevProps: ComposedProps) {
     const {
-      cancelDownloadPreviewImage,
+      dispatchCancelDownloadPreviewImage,
       image,
       imageObjectURL,
       isPreviewLoading,
       isVisible,
-      requestDownloadPreviewImage,
+      dispatchRequestDownloadPreviewImage,
     } = this.props
     if (
       isVisible &&
@@ -136,9 +132,9 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
       !isPreviewLoading &&
       imageObjectURL === undefined
     ) {
-      requestDownloadPreviewImage()
+      dispatchRequestDownloadPreviewImage()
     } else if (!isVisible) {
-      cancelDownloadPreviewImage()
+      dispatchCancelDownloadPreviewImage()
     }
 
     if (
@@ -149,12 +145,17 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
         this.hideGradient,
         HIDE_GRADIENT_DELAY,
       )
+    } else if (
+      prevProps.imageObjectURL !== undefined &&
+      imageObjectURL === undefined
+    ) {
+      requestAnimationFrame(this.showGradient)
     }
   }
 
   componentWillUnmount() {
     if (this.props.isPreviewLoading === true) {
-      this.props.cancelDownloadPreviewImage()
+      this.props.dispatchCancelDownloadPreviewImage()
     }
 
     if (this.hideGradientTimeout !== undefined) {
@@ -166,8 +167,13 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
     this.setState({ shouldRenderGradient: false })
   }
 
+  showGradient = () => {
+    this.setState({ shouldRenderGradient: true })
+  }
+
   render() {
     const {
+      album,
       classes,
       className,
       image,
@@ -206,7 +212,11 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
         )}
 
         {showActions && (
-          <ImageActions className={classes.actionPanel} image={image} />
+          <ImageActions
+            className={classes.actionPanel}
+            image={image}
+            album={album}
+          />
         )}
       </div>
     )
@@ -228,10 +238,10 @@ function mapDispatchToProps(
 ): IDispatchProps {
   const payload = { album: props.album, image: props.image }
   return {
-    cancelDownloadPreviewImage: () =>
+    dispatchCancelDownloadPreviewImage: () =>
       dispatch(downloadPreviewImage.cancel(payload)),
-    requestDownloadPreviewImage: () =>
-      dispatch(downloadPreviewImage.request(payload)),
+    dispatchRequestDownloadPreviewImage: () =>
+      dispatch(requestDownloadPreviewImage(payload)),
   }
 }
 
