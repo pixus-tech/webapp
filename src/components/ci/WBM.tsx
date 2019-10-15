@@ -1,16 +1,20 @@
 import React from 'react'
 import { useTheme } from '@material-ui/core/styles'
 
+import useStyles from './styles'
+
 interface IProps {
   dark?: boolean
 }
 
 function WBM({ dark }: IProps) {
   const theme = useTheme()
+  const classes = useStyles()
   const color = dark ? theme.palette.primary.main : theme.palette.common.white
 
   return (
     <svg
+      className={classes.root}
       data-name="wbm"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 1595.86 377.4"

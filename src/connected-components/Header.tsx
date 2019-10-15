@@ -17,7 +17,7 @@ import Toolbar from '@material-ui/core/Toolbar'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
 import IconWithPopover from 'components/IconWithPopover'
-import Logo from 'components/Logo'
+import WBM from 'components/ci/WBM'
 import UserAvatar from 'components/UserAvatar'
 import Notifications from 'connected-components/Notifications'
 import UploadInfo from 'connected-components/UploadInfo'
@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     toolbar: {
       [theme.breakpoints.up('md')]: {
-        minHeight: 86,
+        minHeight: 60,
       },
     },
     menuButton: {
@@ -90,9 +90,14 @@ function Header({ dispatchLogout, onDrawerToggle, user }: ComposedProps) {
                 </IconButton>
               </Grid>
             </Hidden>
-            <Grid item>
-              <Logo />
-            </Grid>
+            <Hidden xsDown mdUp>
+              <Grid item xs />
+            </Hidden>
+            <Hidden xsDown>
+              <Grid item>
+                <WBM />
+              </Grid>
+            </Hidden>
             <Grid item xs />
             <Grid item>
               <UploadInfo />
