@@ -8,7 +8,7 @@ import {
 import SigningKey from 'radiks/lib/models/signing-key'
 import { addUserGroupKey } from 'radiks/lib/helpers'
 
-import AlbumRecord from 'db/album'
+import AlbumRecord from 'db/radiks/album'
 import BaseModel, { UnsavedModel } from 'models/index'
 
 export function currentUser() {

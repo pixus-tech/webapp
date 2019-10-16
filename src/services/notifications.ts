@@ -1,6 +1,8 @@
 import { Observable } from 'rxjs'
 
-import NotificationRecord, { NotificationRecordFactory } from 'db/notification'
+import NotificationRecord, {
+  NotificationRecordFactory,
+} from 'db/radiks/notification'
 import Notification, {
   parseNotificationRecord,
   parseNotificationRecords,

@@ -1,4 +1,4 @@
-import BaseRecord from 'db/index'
+import BaseRecord from 'db/radiks/index'
 import BaseService from './baseService'
 import { Queue } from './dispatcher'
 

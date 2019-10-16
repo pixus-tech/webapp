@@ -1,12 +1,11 @@
-import AlbumRecord, { AlbumRecordFactory } from 'db/album'
+import AlbumRecord, { AlbumRecordFactory } from 'db/radiks/album'
 import Album, {
-  AlbumMeta,
   buildAlbumRecord,
-  defaultAlbumMeta,
   parseAlbumRecord,
   parseAlbumRecords,
   UnsavedAlbum,
 } from 'models/album'
+import AlbumMeta, { defaultAlbumMeta } from 'models/albumMeta'
 import { createUserGroup, currentUser, currentUsername } from 'utils/blockstack'
 
 import BaseService from './baseService'
@@ -50,7 +49,12 @@ class Albums extends BaseService {
     ) {
       AlbumRecord.fetchList<AlbumRecord>({ users: currentUsername() })
         .then(albumRecords => {
-          resolve(parseAlbumRecords(albumRecords))
+          // const index = this.db.albums.all()
+          const index: { [id: string]: AlbumMeta } = {}
+          const albums = parseAlbumRecords(albumRecords).map(album =>
+            Object.assign(album, { meta: index[album._id] || album.meta }),
+          )
+          resolve(albums)
         })
         .catch(reject)
     })
@@ -77,12 +81,18 @@ class Albums extends BaseService {
       },
     )
 
-  updateAlbumMeta = (album: Album, meta: Partial<AlbumMeta>) =>
+  updateMeta = (album: Album, meta: Partial<AlbumMeta>) =>
     this.dispatcher.performAsync<{ resource: Album }>(
       Queue.RecordOperation,
       function(resolve, reject) {
+        const updatedAlbum: Album = {
+          ...album,
+          meta: { ...album.meta, ...meta },
+        }
+        // this.db.albums.set(album._id, updatedAlbum.meta)
+        // AlbumMetaRecord.set(album._id, updatedAlbum.meta)
         // TODO: implement set meta -> parent id
-        resolve({ resource: { ...album, meta: { ...album.meta, ...meta } } })
+        resolve({ resource: updatedAlbum })
       },
     )
 }

@@ -4,7 +4,7 @@ import { forkJoin, Observable } from 'rxjs'
 import { ajax } from 'rxjs/ajax'
 
 import Album from 'models/album'
-import { AlbumRecordFactory } from 'db/album'
+import { AlbumRecordFactory } from 'db/radiks/album'
 import User, { parseProfile } from 'models/user'
 import { NotificationType } from 'models/notification'
 import { acceptInvitation, inviteUserToGroup } from 'utils/blockstack'

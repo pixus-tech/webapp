@@ -9,7 +9,7 @@ import Image, {
   parseImageRecords,
 } from 'models/image'
 import { Uint8BitColor } from 'utils/colors'
-import ImageRecord, { ImageRecordFactory } from 'db/image'
+import ImageRecord, { ImageRecordFactory } from 'db/radiks/image'
 import BaseService from './baseService'
 import { Queue } from './dispatcher'
 import files from './files'

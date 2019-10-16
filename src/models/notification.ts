@@ -2,7 +2,7 @@ import * as _ from 'lodash'
 import * as Yup from 'yup'
 
 import BaseModel, { UnsavedModel, parseAttribute } from './'
-import NotificationRecord from 'db/notification'
+import NotificationRecord from 'db/radiks/notification'
 
 export enum NotificationType {
   Unknown = 0,

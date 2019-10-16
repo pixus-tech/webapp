@@ -98,8 +98,8 @@ export const setAlbumParentEpic: Epic<
   action$.pipe(
     filter(isActionOf(actions.setAlbumParent.request)),
     mergeMap(({ payload: { album, parent } }) =>
-      albums.updateAlbumMeta(album, { parentId: parent._id }).pipe(
-        mergeMap(response => of(actions.setAlbumParent.success(response))),
+      albums.updateMeta(album, { parentId: parent._id }).pipe(
+        map(actions.setAlbumParent.success),
         takeUntil(
           action$.pipe(filter(isActionOf(actions.setAlbumParent.cancel))),
         ),
@@ -152,8 +152,8 @@ export const setAlbumPositionEpic: Epic<
   action$.pipe(
     filter(isActionOf(actions.setAlbumPosition.request)),
     mergeMap(({ payload: { album, parentId, index } }) =>
-      albums.updateAlbumMeta(album, { index, parentId }).pipe(
-        mergeMap(response => of(actions.setAlbumPosition.success(response))),
+      albums.updateMeta(album, { index, parentId }).pipe(
+        map(actions.setAlbumPosition.success),
         takeUntil(
           action$.pipe(filter(isActionOf(actions.setAlbumPosition.cancel))),
         ),

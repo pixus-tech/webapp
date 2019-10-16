@@ -22,7 +22,7 @@ const epicMiddleware = createEpicMiddleware<
 
 localForage.config({
   name: 'pixus',
-  version: 0.1,
+  version: 1,
   storeName: 'pixus',
 })
 

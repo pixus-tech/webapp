@@ -2,17 +2,8 @@ import * as _ from 'lodash'
 import * as Yup from 'yup'
 
 import BaseModel, { UnsavedModel } from './'
-import AlbumRecord, { AlbumRecordFactory } from 'db/album'
-
-export interface AlbumMeta {
-  index: number
-  parentId?: string
-}
-
-export const defaultAlbumMeta: AlbumMeta = {
-  index: Number.MAX_SAFE_INTEGER,
-  parentId: undefined,
-}
+import AlbumMeta, { defaultAlbumMeta } from './albumMeta'
+import AlbumRecord, { AlbumRecordFactory } from 'db/radiks/album'
 
 export default interface Album extends BaseModel {
   isDirectory: boolean
