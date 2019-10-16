@@ -156,7 +156,7 @@ export const downloadPreviewImageEpic: Epic<
     mergeMap(action => {
       const { album, image } = action.payload
       return files
-        .download(imagePreviewPath(image._id), image.username, album.privateKey)
+        .download(imagePreviewPath(image), image.username, album.privateKey)
         .pipe(
           map(fileContent =>
             actions.downloadPreviewImage.success({ image, fileContent }),
@@ -213,7 +213,7 @@ export const downloadImageEpic: Epic<
     mergeMap(action => {
       const { album, image } = action.payload
       return files
-        .download(imagePath(image._id), image.username, album.privateKey)
+        .download(imagePath(image), image.username, album.privateKey)
         .pipe(
           map(fileContent =>
             actions.downloadImage.success({ image, fileContent }),

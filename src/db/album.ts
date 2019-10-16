@@ -1,8 +1,9 @@
 import _ from 'lodash'
-import { UserGroup } from 'radiks'
+import { Attrs, UserGroup } from 'radiks'
 import uuid from 'uuid/v4'
 
 import Album, { UnsavedAlbum } from 'models/album'
+import AsyncCrypto from './concerns/crypto'
 
 export default class AlbumRecord extends UserGroup {
   static className = 'UserGroup'
@@ -18,6 +19,14 @@ export default class AlbumRecord extends UserGroup {
       type: Array,
       decrypted: true,
     },
+  }
+
+  async encrypted(): Promise<Attrs> {
+    return await AsyncCrypto.encrypt(this)
+  }
+
+  async decrypt() {
+    return await AsyncCrypto.decrypt(this)
   }
 }
 

@@ -61,12 +61,7 @@ declare module "radiks" {
     static fetchOwnList<T extends Model>(_selector?: FindQuery): Promise<T[]>;
     constructor(attrs?: Attrs);
     save<T extends Model>(): Promise<T>;
-    encrypted(): Promise<{
-      _id: string;
-      createdAt?: number;
-      updatedAt?: number;
-      signingKeyId?: string;
-    }>;
+    encrypted(): Promise<Attrs>;
     saveFile(encrypted: Record<string, any>): Promise<string>;
     deleteFile(): Promise<void>;
     blockstackPath(): string;

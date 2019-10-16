@@ -39,17 +39,13 @@ class Images extends BaseService {
 
   delete = (image: Image) => {
     const imageRecord = ImageRecordFactory.build(image)
-    const imageId = image._id
 
     return new Observable<Image>(subscriber => {
       records.delete(imageRecord).subscribe({
         next() {
           forkJoin({
-            image: files.delete(imagePath(imageId), image.username),
-            previewImage: files.delete(
-              imagePreviewPath(imageId),
-              image.username,
-            ),
+            image: files.delete(imagePath(image), image.username),
+            previewImage: files.delete(imagePreviewPath(image), image.username),
           }).subscribe({
             next() {
               subscriber.next(image)
@@ -104,12 +100,12 @@ class Images extends BaseService {
 
               forkJoin({
                 original: files.upload(
-                  imagePath(imageId),
+                  imagePath(image),
                   fileHandleWithData.payload,
                   album.publicKey,
                 ),
                 preview: files.upload(
-                  imagePreviewPath(imageId),
+                  imagePreviewPath(image),
                   imageMetaData.previewImageData,
                   album.publicKey,
                 ),

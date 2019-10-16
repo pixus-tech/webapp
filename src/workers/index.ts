@@ -42,7 +42,7 @@ function postJob(worker: Worker, job: string, payload: object) {
   })
 }
 
-export function encrypt(buffer: Buffer, publicKey: string) {
+export function encrypt(buffer: Buffer | string, publicKey: string) {
   return postJob(cryptoWorker, 'encrypt', { buffer, key: publicKey })
 }
 
