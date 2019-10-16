@@ -9,12 +9,11 @@ export default class AlbumRecord extends UserGroup {
   static className = 'UserGroup'
   static schema = {
     ...UserGroup.schema,
-    index: Number,
-    name: String,
-    parentAlbumId: {
-      type: String,
+    isDirectory: {
+      type: Boolean,
       decrypted: true,
     },
+    name: String,
     users: {
       type: Array,
       decrypted: true,
@@ -34,9 +33,8 @@ export class AlbumRecordFactory {
   static build(album: UnsavedAlbum | Album): AlbumRecord {
     const record = new AlbumRecord({
       _id: _.get(album, '_id', uuid()),
-      index: album.index,
+      isDirectory: album.isDirectory,
       name: album.name,
-      parentAlbumId: album.parentAlbumId,
       privateKey: album.privateKey,
       signingKeyId: album.signingKeyId,
       users: album.users,

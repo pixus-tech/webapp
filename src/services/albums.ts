@@ -1,6 +1,8 @@
 import AlbumRecord, { AlbumRecordFactory } from 'db/album'
 import Album, {
+  AlbumMeta,
   buildAlbumRecord,
+  defaultAlbumMeta,
   parseAlbumRecord,
   parseAlbumRecords,
   UnsavedAlbum,
@@ -10,22 +12,27 @@ import { createUserGroup, currentUser, currentUsername } from 'utils/blockstack'
 import BaseService from './baseService'
 import { Queue } from './dispatcher'
 import records from './records'
+import {
+  DEFAULT_ALBUM_NAME,
+  DEFAULT_ALBUM_DIRECTORY_NAME,
+} from 'constants/index'
 
 type StreamCallback = (record: AlbumRecord) => void
 
 class Albums extends BaseService {
   private streamCallback: StreamCallback | undefined = undefined
 
-  addAlbum = (name: string) =>
+  addAlbum = (isDirectory: boolean) =>
     this.dispatcher.performAsync<{ resource: Album }>(
       Queue.RecordOperation,
       function(resolve, reject) {
         const user = currentUser()
 
         const album: UnsavedAlbum = {
-          index: 0,
-          name,
+          isDirectory,
+          name: isDirectory ? DEFAULT_ALBUM_DIRECTORY_NAME : DEFAULT_ALBUM_NAME,
           users: [user.attrs.username],
+          meta: defaultAlbumMeta,
         }
 
         createUserGroup(AlbumRecordFactory.build, album)
@@ -67,6 +74,15 @@ class Albums extends BaseService {
             reject(error)
           },
         })
+      },
+    )
+
+  updateAlbumMeta = (album: Album, meta: Partial<AlbumMeta>) =>
+    this.dispatcher.performAsync<{ resource: Album }>(
+      Queue.RecordOperation,
+      function(resolve, reject) {
+        // TODO: implement set meta -> parent id
+        resolve({ resource: { ...album, meta: { ...album.meta, ...meta } } })
       },
     )
 }

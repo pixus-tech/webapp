@@ -1,6 +1,15 @@
 import { Epic } from 'redux-observable'
 import { of } from 'rxjs'
-import { catchError, filter, mergeMap, map, takeUntil } from 'rxjs/operators'
+import {
+  catchError,
+  filter,
+  mergeMap,
+  map,
+  takeUntil,
+  tap,
+  ignoreElements,
+  withLatestFrom,
+} from 'rxjs/operators'
 import {
   isActionOf,
   RootAction,
@@ -9,6 +18,8 @@ import {
 } from 'typesafe-actions'
 
 import * as actions from './actions'
+import { redirect, buildAlbumRoute } from 'utils/routes'
+import positionBeforeIndex from 'utils/listIndex'
 
 export const fetchAlbumTreeEpic: Epic<
   RootAction,
@@ -38,14 +49,25 @@ export const addAlbumEpic: Epic<
   action$.pipe(
     filter(isActionOf(actions.addAlbum.request)),
     mergeMap(action =>
-      albums.addAlbum(action.payload).pipe(
+      albums.addAlbum(action.payload.isDirectory).pipe(
         mergeMap(response => of(actions.addAlbum.success(response))),
         takeUntil(action$.pipe(filter(isActionOf(actions.addAlbum.cancel)))),
         catchError(error =>
-          of(actions.addAlbum.failure({ error, resource: action.payload })),
+          of(actions.addAlbum.failure({ error, resource: undefined })),
         ),
       ),
     ),
+  )
+
+export const redirectToAlbumEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState
+> = action$ =>
+  action$.pipe(
+    filter(isActionOf(actions.addAlbum.success)),
+    tap(action => redirect(buildAlbumRoute(action.payload.resource))),
+    ignoreElements(),
   )
 
 export const saveAlbumEpic: Epic<
@@ -67,25 +89,79 @@ export const saveAlbumEpic: Epic<
     ),
   )
 
-export const setParentAlbumEpic: Epic<
+export const setAlbumParentEpic: Epic<
   RootAction,
   RootAction,
   RootState,
   Pick<RootService, 'albums'>
 > = (action$, state$, { albums }) =>
   action$.pipe(
-    filter(isActionOf(actions.setParentAlbum.request)),
-    mergeMap(({ payload: { album, parentAlbum } }) =>
-      albums.updateAlbum(album, { parentAlbumId: parentAlbum._id }).pipe(
-        mergeMap(response => of(actions.setParentAlbum.success(response))),
+    filter(isActionOf(actions.setAlbumParent.request)),
+    mergeMap(({ payload: { album, parent } }) =>
+      albums.updateAlbumMeta(album, { parentId: parent._id }).pipe(
+        mergeMap(response => of(actions.setAlbumParent.success(response))),
         takeUntil(
-          action$.pipe(filter(isActionOf(actions.setParentAlbum.cancel))),
+          action$.pipe(filter(isActionOf(actions.setAlbumParent.cancel))),
         ),
         catchError(error =>
           of(
-            actions.setParentAlbum.failure({
+            actions.setAlbumParent.failure({
               error,
-              resource: { album, parentAlbum },
+              resource: { album, parent },
+            }),
+          ),
+        ),
+      ),
+    ),
+  )
+
+export const requestSetAlbumPositionEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState
+> = (action$, state$) =>
+  action$.pipe(
+    filter(isActionOf(actions.requestSetAlbumPosition)),
+    withLatestFrom(state$),
+    map(([action, state]) => {
+      const { album, successor } = action.payload
+      const albumIndices = state.albums.data
+        .toList()
+        .map(a => a.meta.index)
+        .toArray()
+      const position = positionBeforeIndex(
+        albumIndices,
+        album.meta.index,
+        successor.meta.index,
+      )
+      // TODO: Implement reordering if `position` suggests it
+      return actions.setAlbumPosition.request({
+        album,
+        parentId: successor.meta.parentId,
+        index: position.index,
+      })
+    }),
+  )
+
+export const setAlbumPositionEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'albums'>
+> = (action$, state$, { albums }) =>
+  action$.pipe(
+    filter(isActionOf(actions.setAlbumPosition.request)),
+    mergeMap(({ payload: { album, parentId, index } }) =>
+      albums.updateAlbumMeta(album, { index, parentId }).pipe(
+        mergeMap(response => of(actions.setAlbumPosition.success(response))),
+        takeUntil(
+          action$.pipe(filter(isActionOf(actions.setAlbumPosition.cancel))),
+        ),
+        catchError(error =>
+          of(
+            actions.setAlbumPosition.failure({
+              error,
+              resource: { album, index, parentId },
             }),
           ),
         ),

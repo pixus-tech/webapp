@@ -4,14 +4,26 @@ import * as Yup from 'yup'
 import BaseModel, { UnsavedModel } from './'
 import AlbumRecord, { AlbumRecordFactory } from 'db/album'
 
-export default interface Album extends BaseModel {
+export interface AlbumMeta {
   index: number
+  parentId?: string
+}
+
+export const defaultAlbumMeta: AlbumMeta = {
+  index: Number.MAX_SAFE_INTEGER,
+  parentId: undefined,
+}
+
+export default interface Album extends BaseModel {
+  isDirectory: boolean
   name: string
-  parentAlbumId?: string
   privateKey?: string
   publicKey?: string
   signingKeyId?: string
   users: string[]
+
+  // Fields that are stored separately from radiks
+  meta: AlbumMeta
 }
 
 export type UnsavedAlbum = UnsavedModel<Album>
@@ -27,13 +39,13 @@ export function parseAlbumRecord(record: AlbumRecord): Album {
 
   return {
     _id: record._id,
-    index: record.attrs.index,
+    isDirectory: record.attrs.isDirectory,
     name: record.attrs.name,
-    parentAlbumId: record.attrs.parentAlbumId,
     privateKey,
     publicKey,
     signingKeyId: record.attrs.signingKeyId,
     users: record.attrs.users,
+    meta: defaultAlbumMeta,
   }
 }
 

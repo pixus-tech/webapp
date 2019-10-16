@@ -25,26 +25,28 @@ const useStyles = makeStyles(
 interface IProps {
   activeId?: string
   albums: Album[]
-  setParentAlbum: (album: Album, parentAlbum: Album) => void
+  setAlbumParent: (album: Album, parent: Album) => void
+  setAlbumPosition: (album: Album, successor: Album) => void
 }
 
 const AlbumTreeView: React.SFC<IProps> = ({
   activeId,
   albums,
-  setParentAlbum,
+  setAlbumParent,
+  setAlbumPosition,
 }) => {
   const classes = useStyles()
 
+  const orderedAlbums = _.orderBy(albums, album => album.meta.index)
   const rootAlbums = _.filter(
-    albums,
-    album => album.parentAlbumId === undefined,
+    orderedAlbums,
+    album => album.meta.parentId === undefined,
   )
 
   return (
     <DndProvider backend={HTML5Backend}>
       <TreeView
         className={classes.root}
-        defaultExpanded={['3']}
         defaultCollapseIcon={<ArrowDropDownIcon />}
         defaultExpandIcon={<ArrowRightIcon />}
         defaultEndIcon={<div style={{ width: 24 }} />}
@@ -53,9 +55,10 @@ const AlbumTreeView: React.SFC<IProps> = ({
           <AlbumTreeItem
             activeId={activeId}
             album={album}
-            albums={albums}
+            albums={orderedAlbums}
             key={index}
-            setParentAlbum={setParentAlbum}
+            setAlbumParent={setAlbumParent}
+            setAlbumPosition={setAlbumPosition}
           />
         ))}
       </TreeView>

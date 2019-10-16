@@ -8,6 +8,8 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
 import TreeItem from '@material-ui/lab/TreeItem'
 import Typography from '@material-ui/core/Typography'
 
+import DirectoryIcon from '@material-ui/icons/Folder'
+
 import Album from 'models/album'
 import { buildAlbumRoute } from 'utils/routes'
 
@@ -29,6 +31,10 @@ const useStyles = makeStyles((theme: Theme) =>
         backgroundColor: `var(--tree-view-bg-color, ${theme.palette.primary.main})`,
         color: 'var(--tree-view-color)',
       },
+    },
+    directoryIcon: {
+      marginTop: -3,
+      marginRight: 4,
     },
     dragging: {
       opacity: 0.5,
@@ -74,6 +80,21 @@ const useStyles = makeStyles((theme: Theme) =>
     linkActive: {
       color: theme.palette.secondary.main,
     },
+    spacerItem: {
+      height: theme.spacing(0.5),
+    },
+    spacerItemHovered: {
+      '&::after': {
+        content: '" "',
+        display: 'block',
+        marginTop: 2,
+        height: 2,
+        borderRadius: 2,
+        width: '100%',
+        pointerEvents: 'none',
+        backgroundColor: theme.palette.secondary.main,
+      },
+    },
   }),
 )
 
@@ -81,7 +102,8 @@ interface IProps {
   activeId?: string
   album: Album
   albums: Album[]
-  setParentAlbum: (album: Album, parentAlbum: Album) => void
+  setAlbumParent: (album: Album, parent: Album) => void
+  setAlbumPosition: (album: Album, successor: Album) => void
 }
 
 interface AlbumDragObject extends DragObjectWithType {
@@ -97,7 +119,8 @@ const AlbumTreeItem: React.SFC<IProps> = ({
   activeId,
   album,
   albums,
-  setParentAlbum,
+  setAlbumParent,
+  setAlbumPosition,
 }) => {
   const classes = useStyles()
 
@@ -110,70 +133,93 @@ const AlbumTreeItem: React.SFC<IProps> = ({
 
   const [{ canDrop }, dropRef] = useDrop({
     accept: 'album',
-    canDrop: draggedObject => draggedObject.album._id !== album._id,
+    canDrop: draggedObject =>
+      draggedObject.album._id !== album._id && album.isDirectory,
     drop: (droppedObject: AlbumDragObject) =>
-      setParentAlbum(droppedObject.album, album),
+      setAlbumParent(droppedObject.album, album),
     collect: monitor => ({
       isOver: !!monitor.isOver(),
       canDrop: !!monitor.canDrop(),
     }),
   })
 
+  const [{ isOver }, spacerDropRef] = useDrop({
+    accept: 'album',
+    drop: (droppedObject: AlbumDragObject) =>
+      setAlbumPosition(droppedObject.album, album),
+    collect: monitor => ({
+      isOver: !!monitor.isOver(),
+    }),
+  })
+
   const childAlbums = _.filter(
     albums,
-    otherAlbum => album._id === otherAlbum.parentAlbumId,
+    otherAlbum => album._id === otherAlbum.meta.parentId,
   )
 
   return (
-    <TreeItem
-      className={cx({
-        [classes.dragging]: isDragging,
-        [classes.dropDisabled]: !canDrop,
-      })}
-      classes={{
-        root: classes.root,
-        content: classes.content,
-        expanded: classes.expanded,
-        group: classes.group,
-        label: classes.label,
-      }}
-      ref={dragRef}
-      label={
-        <div
-          className={classes.labelRoot}
-          onClick={preventClickThrough}
-          ref={dropRef}
-        >
-          <NavLink
-            activeClassName={classes.linkActive}
-            className={classes.link}
-            to={buildAlbumRoute(album)}
+    <>
+      <TreeItem
+        className={cx(classes.spacerItem, {
+          [classes.spacerItemHovered]: isOver,
+        })}
+        nodeId={`${album._id}-spacer`}
+        ref={spacerDropRef}
+      />
+      <TreeItem
+        className={cx({
+          [classes.dragging]: isDragging,
+          [classes.dropDisabled]: !canDrop,
+        })}
+        classes={{
+          root: classes.root,
+          content: classes.content,
+          expanded: classes.expanded,
+          group: classes.group,
+          label: classes.label,
+        }}
+        ref={dragRef}
+        label={
+          <div
+            className={classes.labelRoot}
+            onClick={preventClickThrough}
+            ref={dropRef}
           >
-            <Typography
-              variant="body1"
-              className={cx(classes.labelText, {
-                [classes.active]: activeId === album._id,
-              })}
+            <NavLink
+              activeClassName={classes.linkActive}
+              className={classes.link}
+              to={buildAlbumRoute(album)}
             >
-              {album.name}
-            </Typography>
-          </NavLink>
-        </div>
-      }
-      nodeId={album._id}
-    >
-      {childAlbums.length === 0
-        ? null
-        : _.map(childAlbums, (album, index) => (
-            <AlbumTreeItem
-              activeId={activeId}
-              album={album}
-              albums={albums}
-              key={index}
-              setParentAlbum={setParentAlbum}
-            />
-          ))}
-    </TreeItem>
+              {album.isDirectory && (
+                <DirectoryIcon className={classes.directoryIcon} />
+              )}
+              <Typography
+                variant="body1"
+                className={cx(classes.labelText, {
+                  [classes.active]: activeId === album._id,
+                })}
+              >
+                {album.name}
+              </Typography>
+            </NavLink>
+          </div>
+        }
+        nodeId={album._id}
+      >
+        {childAlbums.length === 0
+          ? null
+          : _.map(childAlbums, (album, index) => (
+              <AlbumTreeItem
+                activeId={activeId}
+                album={album}
+                albums={albums}
+                key={index}
+                setAlbumParent={setAlbumParent}
+                setAlbumPosition={setAlbumPosition}
+              />
+            ))}
+      </TreeItem>
+    </>
   )
 }
 

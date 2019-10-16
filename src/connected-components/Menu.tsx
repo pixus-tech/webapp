@@ -7,7 +7,6 @@ import { NavLink, withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
-import withImmutablePropsToJS from 'with-immutable-props-to-js'
 import routes, { ShowAlbumURLParameters } from 'utils/routes'
 
 import {
@@ -16,16 +15,19 @@ import {
   withStyles,
   WithStyles,
 } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import Drawer, { DrawerProps } from '@material-ui/core/Drawer'
 import List from '@material-ui/core/List'
-import AddDirectoryIcon from '@material-ui/icons/CreateNewFolder'
 
 import AlbumTreeView from 'components/menu/AlbumTreeView'
+import AddAlbumMenu from 'connected-components/AddAlbumMenu'
 import Album from 'models/album'
-import { addAlbum, getAlbums, setParentAlbum } from 'store/albums/actions'
+import {
+  getAlbums,
+  setAlbumParent,
+  requestSetAlbumPosition,
+} from 'store/albums/actions'
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -34,17 +36,22 @@ const styles = (theme: Theme) =>
         color: theme.palette.secondary.main,
       },
     },
-    button: {
-      margin: theme.spacing(1),
+    addAlbumMenu: {
+      marginLeft: theme.spacing(1),
+      marginTop: -2,
     },
     categoryHeader: {
       color: 'rgba(255, 255, 255, 0.7)',
       paddingTop: theme.spacing(2),
       paddingBottom: theme.spacing(1),
     },
+    myAlbumsHeaderText: {
+      flex: 'none',
+    },
     categoryHeaderPrimary: {
       color: theme.palette.common.white,
       textTransform: 'uppercase',
+      alignItems: 'flex-start',
     },
     drawerPaper: {
       borderRight: 'none',
@@ -67,9 +74,9 @@ const styles = (theme: Theme) =>
   })
 
 interface IDispatchProps {
-  dispatchAddAlbum: typeof addAlbum.request
   dispatchGetAlbumTree: typeof getAlbums.request
-  dispatchSetParentAlbum: typeof setParentAlbum.request
+  dispatchSetAlbumParent: typeof setAlbumParent.request
+  dispatchSetAlbumPosition: typeof requestSetAlbumPosition
 }
 
 interface IStateProps {
@@ -92,10 +99,11 @@ class Menu extends React.Component<ComposedProps> {
 
   requestData = () => this.props.dispatchGetAlbumTree()
 
-  addAlbum = (name: string) => this.props.dispatchAddAlbum(name)
+  setAlbumParent = (album: Album, parent: Album) =>
+    this.props.dispatchSetAlbumParent({ album, parent })
 
-  setParentAlbum = (album: Album, parentAlbum: Album) =>
-    this.props.dispatchSetParentAlbum({ album, parentAlbum })
+  setAlbumPosition = (album: Album, successor: Album) =>
+    this.props.dispatchSetAlbumPosition({ album, successor })
 
   render() {
     const {
@@ -103,9 +111,9 @@ class Menu extends React.Component<ComposedProps> {
       location,
       albumCount: _albumCount,
       albums,
-      dispatchAddAlbum: _dispatchAddAlbum,
       dispatchGetAlbumTree: _dispatchGetAlbumTree,
-      dispatchSetParentAlbum: _dispatchSetParentAlbum,
+      dispatchSetAlbumParent: _dispatchSetAlbumParent,
+      dispatchSetAlbumPosition: _dispatchSetAlbumPosition,
       history: _history,
       match,
       staticContext: _staticContext,
@@ -135,55 +143,48 @@ class Menu extends React.Component<ComposedProps> {
           >
             <ListItemText
               classes={{
+                root: classes.myAlbumsHeaderText,
                 primary: classes.categoryHeaderPrimary,
               }}
             >
-              Albums
+              My Albums
             </ListItemText>
+            <AddAlbumMenu className={classes.addAlbumMenu} />
           </ListItem>
         </List>
-        <Button
-          variant="outlined"
-          color="secondary"
-          className={classes.button}
-          onClick={() => this.addAlbum('New Album')}
-        >
-          <AddDirectoryIcon className={classes.leftIcon} />
-          Add Album
-        </Button>
         <AlbumTreeView
           activeId={activeId}
           albums={_.values(albums)}
-          setParentAlbum={this.setParentAlbum}
+          setAlbumParent={this.setAlbumParent}
+          setAlbumPosition={this.setAlbumPosition}
         />
       </Drawer>
     )
   }
 }
 
-function mapStateToProps(state: RootState) {
-  // TODO use `IStateProps` as a return type...
+function mapStateToProps(state: RootState): IStateProps {
   return {
-    albums: state.albums.data,
+    albums: state.albums.data.toObject(),
     albumCount: state.albums.data.size,
   }
 }
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
-    dispatchAddAlbum: (name: string) => dispatch(addAlbum.request(name)),
     dispatchGetAlbumTree: () => dispatch(getAlbums.request()),
-    dispatchSetParentAlbum: payload =>
-      dispatch(setParentAlbum.request(payload)),
+    dispatchSetAlbumParent: payload =>
+      dispatch(setAlbumParent.request(payload)),
+    dispatchSetAlbumPosition: payload =>
+      dispatch(requestSetAlbumPosition(payload)),
   }
 }
 
 export default compose<ComposedProps, IProps>(
   withRouter,
-  connect<IStateProps, IDispatchProps, undefined, RootState>(
-    mapStateToProps as any, // TODO: remove the as any cast once the return type of mapStateToProps is fixed
+  connect(
+    mapStateToProps,
     mapDispatchToProps,
   ),
-  withImmutablePropsToJS,
   withStyles(styles),
 )(Menu)
