@@ -1,5 +1,5 @@
 import { Attrs, Model, Schema, SchemaAttribute } from 'radiks'
-import { encrypt, decrypt } from 'workers/index'
+import { cryptoWorker } from 'workers/index'
 
 function castValueToClass(value: string, valueClass: any) {
   if (valueClass === Boolean) {
@@ -62,7 +62,8 @@ async function encryptAttributes(
           }
 
           const stringValue = castClassToString(value, valueClass)
-          encrypt(stringValue, publicKey)
+          cryptoWorker
+            .encrypt(stringValue, publicKey)
             .then(encryptedValue => {
               try {
                 encryptedAttributes[key] = JSON.parse(encryptedValue)
@@ -96,10 +97,11 @@ async function decryptAttributes(
             valueClass = schemaAttribute.type
           }
           if (valueClass && schemaAttribute && !schemaAttribute.decrypted) {
-            decrypt(
-              typeof value === 'string' ? value : JSON.stringify(value),
-              privateKey,
-            )
+            cryptoWorker
+              .decrypt(
+                typeof value === 'string' ? value : JSON.stringify(value),
+                privateKey,
+              )
               .then(decryptedValue => {
                 decryptedAttributes[key] = castValueToClass(
                   decryptedValue,

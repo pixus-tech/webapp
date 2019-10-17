@@ -21,16 +21,16 @@ const epicMiddleware = createEpicMiddleware<
 })
 
 localForage.config({
-  name: 'pixus',
+  name: 'pixus-store',
   version: 1,
-  storeName: 'pixus',
+  storeName: 'pixus-store',
 })
 
 const persistConfig = {
   key: 'root',
   storage: localForage,
   transforms: [immutableTransform()],
-  whitelist: ['auth', 'i18n', 'albums'],
+  whitelist: ['auth', 'i18n'],
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

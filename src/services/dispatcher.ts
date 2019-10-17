@@ -37,17 +37,7 @@ export interface Job<T extends any = any> {
   subscriber: Subscriber<T>
 }
 
-let sharedDispatcher: Dispatcher | undefined = undefined
-
-export default class Dispatcher {
-  static sharedInstance = () => {
-    if (sharedDispatcher === undefined) {
-      sharedDispatcher = new Dispatcher()
-    }
-
-    return sharedDispatcher
-  }
-
+class Dispatcher {
   private isRunning = true
   private jobs = OrderedMap<string, Job>()
   private limits = Map<QueueKeys, number>([
@@ -167,3 +157,5 @@ export default class Dispatcher {
     this.limits = this.limits.set(Queue.Upload, settings.uploadConcurrency)
   }
 }
+
+export default new Dispatcher()

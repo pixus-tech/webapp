@@ -5,7 +5,7 @@ import { saveAs } from 'file-saver'
 import Image from 'models/image'
 import { FileHandle, FileHandleWithData } from 'models/fileHandle'
 import userSession from './userSession'
-import { fileReader, encrypt, decrypt } from 'workers/index'
+import { readFileWorker, cryptoWorker } from 'workers/index'
 import BaseService from './baseService'
 import { Queue } from './dispatcher'
 import { currentUsername } from 'utils/blockstack'
@@ -31,7 +31,7 @@ async function encryptAndChunkPayload(
     buffer = Buffer.from(payload)
   }
 
-  const encryptionString = await encrypt(buffer, publicKey)
+  const encryptionString = await cryptoWorker.encrypt(buffer, publicKey)
   const encryptedContent = Buffer.from(encryptionString, 'utf-8')
 
   return chunk(encryptedContent, maxChunkSize)
@@ -162,10 +162,11 @@ class Files extends BaseService {
       getAssembledChunks(path, this.getFile(username)).subscribe({
         next(encryptedBuffer) {
           try {
-            decrypt(
-              encryptedBuffer.toString(),
-              self.ensurePrivateKey(privateKey),
-            )
+            cryptoWorker
+              .decrypt(
+                encryptedBuffer.toString(),
+                self.ensurePrivateKey(privateKey),
+              )
               .then(result => {
                 subscriber.next(Buffer.from(result))
                 subscriber.complete()
@@ -215,7 +216,7 @@ class Files extends BaseService {
       resolve,
       reject,
     ) {
-      fileReader
+      readFileWorker
         .readFile(fileHandle.file)
         .then(({ arrayBuffer, objectURL }) => {
           const fileHandleWithData: FileHandleWithData = {

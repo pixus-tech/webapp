@@ -24,7 +24,7 @@ import AlbumTreeView from 'components/menu/AlbumTreeView'
 import AddAlbumMenu from 'connected-components/AddAlbumMenu'
 import Album from 'models/album'
 import {
-  getAlbums,
+  refreshAlbums,
   setAlbumParent,
   requestSetAlbumPosition,
 } from 'store/albums/actions'
@@ -74,7 +74,7 @@ const styles = (theme: Theme) =>
   })
 
 interface IDispatchProps {
-  dispatchGetAlbumTree: typeof getAlbums.request
+  dispatchRefreshAlbums: typeof refreshAlbums.request
   dispatchSetAlbumParent: typeof setAlbumParent.request
   dispatchSetAlbumPosition: typeof requestSetAlbumPosition
 }
@@ -94,10 +94,10 @@ type ComposedProps = RouteComponentProps<ShowAlbumURLParameters> &
 
 class Menu extends React.Component<ComposedProps> {
   componentDidMount() {
-    this.props.dispatchGetAlbumTree()
+    this.props.dispatchRefreshAlbums()
   }
 
-  requestData = () => this.props.dispatchGetAlbumTree()
+  requestData = () => this.props.dispatchRefreshAlbums()
 
   setAlbumParent = (album: Album, parent: Album) =>
     this.props.dispatchSetAlbumParent({ album, parent })
@@ -111,7 +111,7 @@ class Menu extends React.Component<ComposedProps> {
       location,
       albumCount: _albumCount,
       albums,
-      dispatchGetAlbumTree: _dispatchGetAlbumTree,
+      dispatchRefreshAlbums: _dispatchRefreshAlbums,
       dispatchSetAlbumParent: _dispatchSetAlbumParent,
       dispatchSetAlbumPosition: _dispatchSetAlbumPosition,
       history: _history,
@@ -172,7 +172,7 @@ function mapStateToProps(state: RootState): IStateProps {
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
-    dispatchGetAlbumTree: () => dispatch(getAlbums.request()),
+    dispatchRefreshAlbums: () => dispatch(refreshAlbums.request()),
     dispatchSetAlbumParent: payload =>
       dispatch(setAlbumParent.request(payload)),
     dispatchSetAlbumPosition: payload =>

@@ -21,7 +21,34 @@ import * as actions from './actions'
 import { redirect, buildAlbumRoute } from 'utils/routes'
 import positionBeforeIndex from 'utils/listIndex'
 
-export const fetchAlbumTreeEpic: Epic<
+export const refreshAlbumsEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'albums'>
+> = (action$, state$, { albums }) =>
+  action$.pipe(
+    filter(isActionOf(actions.refreshAlbums.request)),
+    mergeMap(() =>
+      albums.refreshAlbums().pipe(
+        map(actions.refreshAlbums.success),
+        takeUntil(
+          action$.pipe(filter(isActionOf(actions.refreshAlbums.cancel))),
+        ),
+        catchError(error =>
+          of(actions.refreshAlbums.failure({ error, resource: null })),
+        ),
+      ),
+    ),
+  )
+
+export const reloadAlbumsEpic: Epic<RootAction, RootAction> = action$ =>
+  action$.pipe(
+    filter(isActionOf(actions.refreshAlbums.success)),
+    map(actions.getAlbums.request),
+  )
+
+export const getAlbumsEpic: Epic<
   RootAction,
   RootAction,
   RootState,

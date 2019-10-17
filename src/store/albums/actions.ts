@@ -3,6 +3,13 @@ import { createAsyncAction, createStandardAction } from 'typesafe-actions'
 import Album from 'models/album'
 import { API } from 'typings/types'
 
+export const refreshAlbums = createAsyncAction(
+  'ALBUMS__REFRESH_LIST__REQUEST',
+  'ALBUMS__REFRESH_LIST__SUCCESS',
+  'ALBUMS__REFRESH_LIST__FAILURE',
+  'ALBUMS__REFRESH_LIST__CANCEL',
+)<undefined, API.ShowResponse<Album[]>, API.ErrorResponse<null>, undefined>()
+
 export const getAlbums = createAsyncAction(
   'ALBUMS__LIST__REQUEST',
   'ALBUMS__LIST__SUCCESS',
