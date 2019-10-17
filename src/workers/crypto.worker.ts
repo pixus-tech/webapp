@@ -1,11 +1,10 @@
+import * as blockstack from 'blockstack'
 // eslint-disable-next-line no-restricted-globals
-declare const blockstack: any
 const ctx = (self as any) as DedicatedWorkerGlobalScope // eslint-disable-line no-restricted-globals
-
-let _userSession: any
+ctx.importScripts('/static/js/crypto.js')
 
 const BLOCKSTACK_SESSION_STORE = {
-  cache: {},
+  cache: {} as any,
   getSessionData() {
     return this.cache
   },
@@ -13,37 +12,31 @@ const BLOCKSTACK_SESSION_STORE = {
     return (this.cache = data)
   },
   deleteSessionData() {
-    return (this.cache = {})
+    this.cache = {}
+    return true
   },
 }
 
-function sharedUserSession() {
-  if (!_userSession) {
-    ctx.importScripts('/static/js/crypto.js')
-
-    _userSession = new blockstack.UserSession({
-      appConfig: new blockstack.AppConfig({
-        appDomain: ctx.location.origin,
-      }),
-      sessionStore: BLOCKSTACK_SESSION_STORE,
-    })
-  }
-
-  return _userSession
-}
+const userSession = new blockstack.UserSession({
+  appConfig: new blockstack.AppConfig([], ctx.location.origin),
+  sessionStore: BLOCKSTACK_SESSION_STORE,
+})
 
 ctx.addEventListener('message', event => {
-  const userSession = sharedUserSession()
   const { id, job, buffer, key } = event.data
 
-  if (job === 'encrypt') {
-    const result = userSession.encryptContent(buffer, { publicKey: key })
-    ctx.postMessage({ id, result })
-  } else if (job === 'decrypt') {
-    const result = userSession.decryptContent(buffer, {
-      privateKey: key,
-    })
-    ctx.postMessage({ id, result })
+  try {
+    if (job === 'encrypt') {
+      const result = userSession.encryptContent(buffer, { publicKey: key })
+      ctx.postMessage({ id, result })
+    } else if (job === 'decrypt') {
+      const result = userSession.decryptContent(buffer, {
+        privateKey: key,
+      })
+      ctx.postMessage({ id, result })
+    }
+  } catch (error) {
+    ctx.postMessage({ id, error })
   }
 })
 

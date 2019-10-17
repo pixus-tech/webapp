@@ -90,7 +90,7 @@ class Albums extends BaseService {
           meta: { ...album.meta, ...meta },
         }
         // this.db.albums.set(album._id, updatedAlbum.meta)
-        // AlbumMetaRecord.set(album._id, updatedAlbum.meta)
+        // AlbumStore.set(album._id, updatedAlbum.meta)
         // TODO: implement set meta -> parent id
         resolve({ resource: updatedAlbum })
       },

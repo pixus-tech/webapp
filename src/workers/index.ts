@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { Buffer } from 'buffer'
 import workerize from 'workerize'
 import uuid from 'uuid/v4'
@@ -9,38 +10,51 @@ import * as FileReaderType from './fileReader'
 // eslint-disable-next-line
 import CryptoWorker from 'worker-loader!workers/crypto.worker'
 
-const cryptoWorker = new CryptoWorker()
+interface JobActions {
+  resolve: (payload: any) => void
+  reject: (error: Error) => void
+}
 
-function postJob(worker: Worker, job: string, payload: object) {
-  const id = uuid()
+const jobs: { [id: string]: JobActions } = {}
 
-  return new Promise<string>((resolve, reject) => {
-    // eslint-disable-next-line prefer-const
-    let removeEventListeners: () => void
+function register(worker: Worker) {
+  function handleError(errorEvent: ErrorEvent) {
+    // TODO: fix: one failing worker rejects all current workers
+    _.each(jobs, ({ reject }, id) => {
+      if (reject) {
+        reject(Error(errorEvent.message))
+      }
+      delete jobs[id]
+    })
+  }
 
-    function handleError(errorEvent: ErrorEvent) {
-      // TODO: fix: one failing worker rejects all current workers
-      removeEventListeners()
-      reject(errorEvent.error)
-    }
-
-    function handleResult(event: MessageEvent) {
-      if (event.data.id === id) {
-        removeEventListeners()
-        resolve(event.data.result)
+  function handleResult(event: MessageEvent) {
+    const { result, error, id: jobId } = event.data
+    const actions = jobs[jobId]
+    if (actions) {
+      if (result && actions.resolve) {
+        actions.resolve(result)
+      } else if (actions.reject) {
+        actions.reject(error)
       }
     }
+    delete jobs[jobId]
+  }
 
-    removeEventListeners = function() {
-      worker.removeEventListener('error', handleError)
-      worker.removeEventListener('message', handleResult)
-    }
+  worker.addEventListener('error', handleError)
+  worker.addEventListener('message', handleResult)
+}
 
-    worker.addEventListener('error', handleError)
-    worker.addEventListener('message', handleResult)
+function postJob(worker: Worker, job: string, payload: object) {
+  return new Promise<string>((resolve, reject) => {
+    const id = uuid()
+    jobs[id] = { resolve, reject }
     worker.postMessage({ id, job, ...payload })
   })
 }
+
+const cryptoWorker = new CryptoWorker()
+register(cryptoWorker)
 
 export function encrypt(buffer: Buffer | string, publicKey: string) {
   return postJob(cryptoWorker, 'encrypt', { buffer, key: publicKey })
