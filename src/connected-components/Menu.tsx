@@ -25,8 +25,8 @@ import AddAlbumMenu from 'connected-components/AddAlbumMenu'
 import Album from 'models/album'
 import {
   refreshAlbums,
-  setAlbumParent,
   requestSetAlbumPosition,
+  setAlbumPosition,
 } from 'store/albums/actions'
 
 const styles = (theme: Theme) =>
@@ -75,8 +75,8 @@ const styles = (theme: Theme) =>
 
 interface IDispatchProps {
   dispatchRefreshAlbums: typeof refreshAlbums.request
-  dispatchSetAlbumParent: typeof setAlbumParent.request
   dispatchSetAlbumPosition: typeof requestSetAlbumPosition
+  dispatchSetAlbumParent: (album: Album, parent: Album) => void
 }
 
 interface IStateProps {
@@ -100,7 +100,7 @@ class Menu extends React.Component<ComposedProps> {
   requestData = () => this.props.dispatchRefreshAlbums()
 
   setAlbumParent = (album: Album, parent: Album) =>
-    this.props.dispatchSetAlbumParent({ album, parent })
+    this.props.dispatchSetAlbumParent(album, parent)
 
   setAlbumPosition = (album: Album, successor: Album) =>
     this.props.dispatchSetAlbumPosition({ album, successor })
@@ -173,8 +173,14 @@ function mapStateToProps(state: RootState): IStateProps {
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
     dispatchRefreshAlbums: () => dispatch(refreshAlbums.request()),
-    dispatchSetAlbumParent: payload =>
-      dispatch(setAlbumParent.request(payload)),
+    dispatchSetAlbumParent: (album, parent) =>
+      dispatch(
+        setAlbumPosition.request({
+          album,
+          parentId: parent._id,
+          index: Number.MAX_SAFE_INTEGER,
+        }),
+      ),
     dispatchSetAlbumPosition: payload =>
       dispatch(requestSetAlbumPosition(payload)),
   }

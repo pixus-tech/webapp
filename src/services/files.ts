@@ -157,7 +157,7 @@ class Files extends BaseService {
   }
 
   download = (path: string, username?: string, privateKey?: string) => {
-    return new Observable<Buffer | string>(subscriber => {
+    return new Observable<Buffer>(subscriber => {
       const self = this
       getAssembledChunks(path, this.getFile(username)).subscribe({
         next(encryptedBuffer) {

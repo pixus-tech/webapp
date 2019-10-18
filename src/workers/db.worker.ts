@@ -61,65 +61,74 @@ async function getAlbums(): Promise<Album[]> {
   )
 }
 
+function defaultResponse(id: string, promise: Promise<any>) {
+  return promise
+    .then(function() {
+      ctx.postMessage({ id, result: true })
+    })
+    .catch(function(error) {
+      ctx.postMessage({ id, error })
+    })
+}
+
+function resultResponse(id: string, promise: Promise<any>) {
+  return promise
+    .then(function(result) {
+      ctx.postMessage({ id, result })
+    })
+    .catch(function(error) {
+      ctx.postMessage({ id, error })
+    })
+}
+
 ctx.addEventListener('message', event => {
   const { id, job, payload } = event.data
 
   try {
-    if (job === 'albums.add') {
-      db.albums
-        .add(sanitizeAlbum(payload))
-        .then(function() {
-          ctx.postMessage({ id, result: true })
-        })
-        .catch(function(error) {
-          ctx.postMessage({ id, error })
-        })
-    } else if (job === 'albums.all') {
-      getAlbums()
-        .then(function(result) {
-          ctx.postMessage({ id, result })
-        })
-        .catch(function(error) {
-          ctx.postMessage({ id, error })
-        })
-    } else if (job === 'albums.update') {
-      db.albums
-        .put(sanitizeAlbum(payload))
-        .then(function() {
-          ctx.postMessage({ id, result: true })
-        })
-        .catch(function(error) {
-          ctx.postMessage({ id, error })
-        })
-    } else if (job === 'albums.updateAll') {
-      db.albums
-        .bulkPut(payload.map(sanitizeAlbum))
-        .then(function() {
-          ctx.postMessage({ id, result: true })
-        })
-        .catch(function(error) {
-          ctx.postMessage({ id, error })
-        })
-    } else if (job === 'albumMetas.add') {
-      const { albumId, albumMeta } = payload
-      db.albumMetas
-        .add({ ...albumMeta, albumId })
-        .then(function() {
-          ctx.postMessage({ id, result: true })
-        })
-        .catch(function(error) {
-          ctx.postMessage({ id, error })
-        })
-    } else if (job === 'albumMetas.update') {
-      const { albumId, albumMeta } = payload
-      db.albumMetas
-        .put({ ...albumMeta, albumId })
-        .then(function() {
-          ctx.postMessage({ id, result: true })
-        })
-        .catch(function(error) {
-          ctx.postMessage({ id, error })
-        })
+    if (typeof job !== 'string') {
+      throw 'job must be a string'
+    }
+
+    if (job.startsWith('albums.')) {
+      if (job.endsWith('.serialize')) {
+        resultResponse(id, db.albums.toArray().then(JSON.stringify))
+      } else if (job.endsWith('.deserialize')) {
+        defaultResponse(
+          id,
+          db.transaction('rw', db.albums, async () => {
+            const albums = JSON.parse(payload)
+            await db.albums.clear()
+            await db.albums.bulkAdd(albums)
+          }),
+        )
+      } else if (job.endsWith('.add')) {
+        defaultResponse(id, db.albums.add(sanitizeAlbum(payload)))
+      } else if (job.endsWith('.all')) {
+        resultResponse(id, getAlbums())
+      } else if (job.endsWith('.update')) {
+        defaultResponse(id, db.albums.put(sanitizeAlbum(payload)))
+      } else if (job.endsWith('.updateAll')) {
+        defaultResponse(id, db.albums.bulkPut(payload.map(sanitizeAlbum)))
+      }
+    } else if (job.startsWith('albumMetas.')) {
+      if (job.endsWith('.serialize')) {
+        resultResponse(id, db.albumMetas.toArray().then(JSON.stringify))
+      } else if (job.endsWith('.deserialize')) {
+        defaultResponse(
+          id,
+          db.transaction('rw', db.albumMetas, async () => {
+            const albumMetas = JSON.parse(payload)
+            await db.albumMetas.clear()
+            await db.albumMetas.bulkAdd(albumMetas)
+          }),
+        )
+      } else if (job.endsWith('.add')) {
+        const { albumId, albumMeta } = payload
+        defaultResponse(id, db.albumMetas.add({ ...albumMeta, albumId }))
+      } else if (job.endsWith('.update')) {
+        const { albumId, albumMeta } = payload
+        defaultResponse(id, db.albumMetas.put({ ...albumMeta, albumId }))
+      }
     }
   } catch (error) {
     ctx.postMessage({ id, error })

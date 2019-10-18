@@ -27,7 +27,7 @@ export const defaultSettings: Settings = {
   uploadConcurrency: DEFAULT_CONCURRENT_UPLOADS_LIMIT,
 }
 
-export function parseSettings(rawSettings: string | Buffer): Settings {
+export function parseSettings(rawSettings: Buffer): Settings {
   const parsedSettings = JSON.parse(rawSettings.toString())
 
   return Object.assign({}, defaultSettings, parsedSettings)

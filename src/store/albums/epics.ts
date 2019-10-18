@@ -116,32 +116,6 @@ export const saveAlbumEpic: Epic<
     ),
   )
 
-export const setAlbumParentEpic: Epic<
-  RootAction,
-  RootAction,
-  RootState,
-  Pick<RootService, 'albums'>
-> = (action$, state$, { albums }) =>
-  action$.pipe(
-    filter(isActionOf(actions.setAlbumParent.request)),
-    mergeMap(({ payload: { album, parent } }) =>
-      albums.updateMeta(album, { parentId: parent._id }).pipe(
-        map(actions.setAlbumParent.success),
-        takeUntil(
-          action$.pipe(filter(isActionOf(actions.setAlbumParent.cancel))),
-        ),
-        catchError(error =>
-          of(
-            actions.setAlbumParent.failure({
-              error,
-              resource: { album, parent },
-            }),
-          ),
-        ),
-      ),
-    ),
-  )
-
 export const requestSetAlbumPositionEpic: Epic<
   RootAction,
   RootAction,
@@ -194,4 +168,28 @@ export const setAlbumPositionEpic: Epic<
         ),
       ),
     ),
+  )
+
+export const refreshAlbumMetaEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'db' | 'files'>
+> = (action$, state$, { db, files }) =>
+  action$.pipe(
+    filter(isActionOf(actions.refreshAlbums.request)),
+    tap(() => db.albumMetas.load(files.download)),
+    ignoreElements(),
+  )
+
+export const persistAlbumMetaEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'db' | 'files'>
+> = (action$, state$, { db, files }) =>
+  action$.pipe(
+    filter(isActionOf(actions.setAlbumPosition.success)),
+    tap(() => db.albumMetas.save(files.upload)),
+    ignoreElements(),
   )

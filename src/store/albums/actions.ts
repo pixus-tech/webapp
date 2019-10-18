@@ -45,23 +45,6 @@ export const saveAlbum = createAsyncAction(
   'ALBUMS__SAVE_ALBUM__CANCEL',
 )<Album, Album, API.ErrorResponse<Album>, Album>()
 
-interface SetAlbumParentRequest {
-  album: Album
-  parent: Album
-}
-
-export const setAlbumParent = createAsyncAction(
-  'ALBUMS__SET_PARENT__REQUEST',
-  'ALBUMS__SET_PARENT__SUCCESS',
-  'ALBUMS__SET_PARENT__FAILURE',
-  'ALBUMS__SET_PARENT__CANCEL',
-)<
-  SetAlbumParentRequest,
-  API.PutResponse<Album>,
-  API.ErrorResponse<SetAlbumParentRequest>,
-  undefined
->()
-
 interface RequestSetAlbumPosition {
   album: Album
   successor: Album
