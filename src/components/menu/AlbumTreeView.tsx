@@ -23,14 +23,12 @@ const useStyles = makeStyles(
 )
 
 interface IProps {
-  activeId?: string
   albums: Album[]
   setAlbumParent: (album: Album, parent: Album) => void
   setAlbumPosition: (album: Album, successor: Album) => void
 }
 
 const AlbumTreeView: React.SFC<IProps> = ({
-  activeId,
   albums,
   setAlbumParent,
   setAlbumPosition,
@@ -53,7 +51,6 @@ const AlbumTreeView: React.SFC<IProps> = ({
       >
         {_.map(rootAlbums, (album, index) => (
           <AlbumTreeItem
-            activeId={activeId}
             album={album}
             albums={orderedAlbums}
             key={index}

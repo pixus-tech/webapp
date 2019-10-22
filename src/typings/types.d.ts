@@ -19,7 +19,8 @@ declare module 'typesafe-actions' {
 export namespace API {
   interface NoFilter {}
 
-  interface ResourceFilter {
+  interface ResourceFilter<T = undefined> {
+    attributes: T
     perPage: number
     page: number
   }

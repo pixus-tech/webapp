@@ -24,7 +24,7 @@ import AlbumTreeView from 'components/menu/AlbumTreeView'
 import AddAlbumMenu from 'connected-components/AddAlbumMenu'
 import Album from 'models/album'
 import {
-  refreshAlbums,
+  getAlbums,
   requestSetAlbumPosition,
   setAlbumPosition,
 } from 'store/albums/actions'
@@ -57,7 +57,6 @@ const styles = (theme: Theme) =>
       borderRight: 'none',
     },
     itemCategory: {
-      // TODO: Get rid of static colors
       backgroundColor: theme.palette.primary.main,
       boxShadow: `0 -1px 0 ${theme.palette.primary.light} inset`,
       paddingTop: theme.spacing(2),
@@ -68,13 +67,12 @@ const styles = (theme: Theme) =>
       marginRight: theme.spacing(1),
     },
     itemActiveItem: {
-      // TODO: Get rid of static colors
-      color: '#4fc3f7',
+      color: theme.palette.secondary.light,
     },
   })
 
 interface IDispatchProps {
-  dispatchRefreshAlbums: typeof refreshAlbums.request
+  dispatchGetAlbums: typeof getAlbums
   dispatchSetAlbumPosition: typeof requestSetAlbumPosition
   dispatchSetAlbumParent: (album: Album, parent: Album) => void
 }
@@ -94,10 +92,8 @@ type ComposedProps = RouteComponentProps<ShowAlbumURLParameters> &
 
 class Menu extends React.Component<ComposedProps> {
   componentDidMount() {
-    this.props.dispatchRefreshAlbums()
+    this.props.dispatchGetAlbums()
   }
-
-  requestData = () => this.props.dispatchRefreshAlbums()
 
   setAlbumParent = (album: Album, parent: Album) =>
     this.props.dispatchSetAlbumParent(album, parent)
@@ -111,17 +107,14 @@ class Menu extends React.Component<ComposedProps> {
       location,
       albumCount: _albumCount,
       albums,
-      dispatchRefreshAlbums: _dispatchRefreshAlbums,
+      dispatchGetAlbums: _dispatchGetAlbums,
       dispatchSetAlbumParent: _dispatchSetAlbumParent,
       dispatchSetAlbumPosition: _dispatchSetAlbumPosition,
       history: _history,
-      match,
+      match: _match,
       staticContext: _staticContext,
       ...other
     } = this.props
-
-    // TODO: match params are currently not correct
-    const activeId = match.params.albumId
 
     return (
       <Drawer
@@ -153,7 +146,6 @@ class Menu extends React.Component<ComposedProps> {
           </ListItem>
         </List>
         <AlbumTreeView
-          activeId={activeId}
           albums={_.values(albums)}
           setAlbumParent={this.setAlbumParent}
           setAlbumPosition={this.setAlbumPosition}
@@ -172,7 +164,7 @@ function mapStateToProps(state: RootState): IStateProps {
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
-    dispatchRefreshAlbums: () => dispatch(refreshAlbums.request()),
+    dispatchGetAlbums: () => dispatch(getAlbums()),
     dispatchSetAlbumParent: (album, parent) =>
       dispatch(
         setAlbumPosition.request({

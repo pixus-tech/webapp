@@ -7,6 +7,7 @@ import Image, {
   imagePath,
   imagePreviewPath,
   parseImageRecords,
+  QueryableImageAttributes,
 } from 'models/image'
 import { Uint8BitColor } from 'utils/colors'
 import ImageRecord, { ImageRecordFactory } from 'db/radiks/image'
@@ -18,19 +19,36 @@ import { currentUsername } from 'utils/blockstack'
 import { didProcessImage } from 'store/images/actions'
 
 class Images extends BaseService {
-  getAlbumImages = (album: Album) =>
-    this.dispatcher.performAsync<Image[]>(Queue.RecordOperation, function(
-      resolve,
-      reject,
-    ) {
-      ImageRecord.fetchList<ImageRecord>({
-        userGroupId: album._id,
-      })
-        .then((imageRecords: ImageRecord[]) => {
-          resolve(parseImageRecords(imageRecords))
+  refreshImages = (albumId: string) =>
+    this.dispatcher.performAsync<Image[]>(
+      Queue.RecordOperation,
+      (resolve, reject) => {
+        ImageRecord.fetchList<ImageRecord>({
+          userGroupId: albumId,
         })
-        .catch(reject)
-    })
+          .then((imageRecords: ImageRecord[]) => {
+            const images = parseImageRecords(imageRecords)
+            this.db.images
+              .updateAll(images)
+              .then(() => {
+                resolve(images)
+              })
+              .catch(reject)
+          })
+          .catch(reject)
+      },
+    )
+
+  getImagesFromCache = (filter: QueryableImageAttributes) =>
+    this.dispatcher.performAsync<Image[]>(
+      Queue.RecordOperation,
+      (resolve, reject) => {
+        this.db.images
+          .where(filter)
+          .then(resolve)
+          .catch(reject)
+      },
+    )
 
   save = (image: Image) => {
     const imageRecord = ImageRecordFactory.build(image)

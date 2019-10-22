@@ -4,7 +4,7 @@ import { registerWorker, postJob } from './'
 
 import { Buffer } from 'buffer'
 import Album from 'models/album'
-import AlbumMeta from 'models/albumMeta'
+import Image, { QueryableImageAttributes } from 'models/image'
 
 const dbWorker = new DBWorker()
 registerWorker(dbWorker)
@@ -27,32 +27,40 @@ export function allAlbums() {
   return postJob<Album[]>(dbWorker, 'albums.all')
 }
 
-export function updateAlbum(album: Album) {
+export function updateAlbum(album: Partial<Album>) {
   return postJob<boolean>(dbWorker, 'albums.update', { payload: album })
 }
 
-export function updateAlbums(albums: Album[]) {
+export function updateAlbums(albums: Partial<Album>[]) {
   return postJob<boolean>(dbWorker, 'albums.updateAll', { payload: albums })
 }
 
-// --- AlbumMetas
+// --- Images
 
-export function serializeAlbumMetas() {
-  return postJob<string>(dbWorker, 'albumMetas.serialize')
+export function serializeImages() {
+  return postJob<string>(dbWorker, 'images.serialize')
 }
 
-export function deserializeAlbumMetas(payload: string | Buffer) {
-  return postJob<boolean>(dbWorker, 'albumMetas.deserialize', { payload })
+export function deserializeImages(payload: string | Buffer) {
+  return postJob<boolean>(dbWorker, 'images.deserialize', { payload })
 }
 
-export function addAlbumMeta(albumId: string, albumMeta: AlbumMeta) {
-  return postJob<boolean>(dbWorker, 'albumMetas.add', {
-    payload: { albumId, albumMeta },
-  })
+export function addImage(image: Image) {
+  return postJob<boolean>(dbWorker, 'images.add', { payload: image })
 }
 
-export function updateAlbumMeta(albumId: string, albumMeta: AlbumMeta) {
-  return postJob<boolean>(dbWorker, 'albumMetas.update', {
-    payload: { albumId, albumMeta },
-  })
+export function destroyImage(image: Image) {
+  return postJob<boolean>(dbWorker, 'images.destroy', { payload: image })
+}
+
+export function filteredImages(filter: QueryableImageAttributes) {
+  return postJob<Image[]>(dbWorker, 'images.where', { payload: filter })
+}
+
+export function updateImage(image: Partial<Image>) {
+  return postJob<boolean>(dbWorker, 'images.update', { payload: image })
+}
+
+export function updateImages(images: Partial<Image>[]) {
+  return postJob<boolean>(dbWorker, 'images.updateAll', { payload: images })
 }

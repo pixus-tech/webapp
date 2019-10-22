@@ -133,7 +133,7 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
       imageObjectURL === undefined
     ) {
       dispatchRequestDownloadPreviewImage()
-    } else if (!isVisible) {
+    } else if (!isVisible && isPreviewLoading) {
       dispatchCancelDownloadPreviewImage()
     }
 

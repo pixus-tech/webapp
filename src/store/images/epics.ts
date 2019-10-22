@@ -24,26 +24,72 @@ import * as actions from './actions'
 import { FileHandle } from 'models/fileHandle'
 import { imagePreviewPath, imagePath } from 'models/image'
 
-export const getAlbumImagesEpic: Epic<
+export const getImagesEpic: Epic<RootAction, RootAction> = action$ =>
+  action$.pipe(
+    filter(isActionOf(actions.getImages)),
+    mergeMap(({ payload }) =>
+      of(
+        actions.getImagesFromCache.request(payload),
+        actions.refreshImagesCache.request(payload),
+      ),
+    ),
+  )
+
+export const refreshImagesCacheEpic: Epic<
   RootAction,
   RootAction,
   RootState,
   Pick<RootService, 'images'>
 > = (action$, state$, { images }) =>
   action$.pipe(
-    filter(isActionOf(actions.getAlbumImages.request)),
-    mergeMap(action =>
-      images.getAlbumImages(action.payload).pipe(
+    filter(isActionOf(actions.refreshImagesCache.request)),
+    filter(({ payload }) => payload.attributes.userGroupId !== undefined),
+    mergeMap(({ payload }) =>
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      images.refreshImages(payload.attributes.userGroupId!).pipe(
         map(images =>
-          actions.getAlbumImages.success({ album: action.payload, images }),
+          actions.refreshImagesCache.success({ filter: payload, images }),
         ),
         takeUntil(
-          action$.pipe(filter(isActionOf(actions.getAlbumImages.cancel))),
+          action$.pipe(
+            filter(isActionOf(actions.refreshImagesCache.cancel)),
+            filter(cancel => _.isEqual(cancel.payload, payload)),
+          ),
         ),
         catchError(error =>
-          of(
-            actions.getAlbumImages.failure({ error, resource: action.payload }),
+          of(actions.refreshImagesCache.failure({ error, resource: payload })),
+        ),
+      ),
+    ),
+  )
+
+export const reloadImagesEpic: Epic<RootAction, RootAction> = action$ =>
+  action$.pipe(
+    filter(isActionOf(actions.refreshImagesCache.success)),
+    map(({ payload }) => actions.getImagesFromCache.request(payload.filter)),
+  )
+
+export const getImagesFromCacheEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'images'>
+> = (action$, state$, { images }) =>
+  action$.pipe(
+    filter(isActionOf(actions.getImagesFromCache.request)),
+    mergeMap(({ payload }) =>
+      images.getImagesFromCache(payload.attributes).pipe(
+        map(images =>
+          actions.getImagesFromCache.success({ filter: payload, images }),
+        ),
+        takeUntil(
+          action$.pipe(
+            filter(isActionOf(actions.getImagesFromCache.cancel)),
+            filter(cancel => _.isEqual(cancel.payload, payload)),
           ),
+        ),
+        catchError(error =>
+          of(actions.getImagesFromCache.failure({ error, resource: payload })),
         ),
       ),
     ),

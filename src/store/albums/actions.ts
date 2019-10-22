@@ -3,22 +3,29 @@ import { createAsyncAction, createStandardAction } from 'typesafe-actions'
 import Album from 'models/album'
 import { API } from 'typings/types'
 
-export const refreshAlbums = createAsyncAction(
-  'ALBUMS__REFRESH_LIST__REQUEST',
-  'ALBUMS__REFRESH_LIST__SUCCESS',
-  'ALBUMS__REFRESH_LIST__FAILURE',
-  'ALBUMS__REFRESH_LIST__CANCEL',
-)<undefined, API.ShowResponse<Album[]>, API.ErrorResponse<null>, undefined>()
+export const getAlbums = createStandardAction('ALBUMS__GET_LIST')<undefined>()
 
-export const getAlbums = createAsyncAction(
-  'ALBUMS__LIST__REQUEST',
-  'ALBUMS__LIST__SUCCESS',
-  'ALBUMS__LIST__FAILURE',
-  'ALBUMS__LIST__CANCEL',
+export const refreshAlbumsCache = createAsyncAction(
+  'ALBUMS__REFRESH_CACHE__REQUEST',
+  'ALBUMS__REFRESH_CACHE__SUCCESS',
+  'ALBUMS__REFRESH_CACHE__FAILURE',
+  'ALBUMS__REFRESH_CACHE__CANCEL',
+)<
+  undefined,
+  API.ShowResponse<undefined>,
+  API.ErrorResponse<undefined>,
+  undefined
+>()
+
+export const getAlbumsFromCache = createAsyncAction(
+  'ALBUMS__FROM_CACHE__REQUEST',
+  'ALBUMS__FROM_CACHE__SUCCESS',
+  'ALBUMS__FROM_CACHE__FAILURE',
+  'ALBUMS__FROM_CACHE__CANCEL',
 )<
   undefined,
   API.ShowResponse<Album[]>,
-  API.ErrorResponse<null>,
+  API.ErrorResponse<undefined>,
   API.ResourceFilter
 >()
 
@@ -69,5 +76,22 @@ export const setAlbumPosition = createAsyncAction(
   SetAlbumPositionRequest,
   API.PutResponse<Album>,
   API.ErrorResponse<SetAlbumPositionRequest>,
+  undefined
+>()
+
+interface SetAlbumImageColumnCountRequest {
+  album: Album
+  numberOfImageColumns: number
+}
+
+export const setAlbumImageColumnCount = createAsyncAction(
+  'ALBUMS__SET_IMAGE_COLUMN_COUNT__REQUEST',
+  'ALBUMS__SET_IMAGE_COLUMN_COUNT__SUCCESS',
+  'ALBUMS__SET_IMAGE_COLUMN_COUNT__FAILURE',
+  'ALBUMS__SET_IMAGE_COLUMN_COUNT__CANCEL',
+)<
+  SetAlbumImageColumnCountRequest,
+  API.PutResponse<Album>,
+  API.ErrorResponse<SetAlbumImageColumnCountRequest>,
   undefined
 >()

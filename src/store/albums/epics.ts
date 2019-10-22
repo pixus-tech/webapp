@@ -21,22 +21,35 @@ import * as actions from './actions'
 import { redirect, buildAlbumRoute } from 'utils/routes'
 import positionBeforeIndex from 'utils/listIndex'
 
-export const refreshAlbumsEpic: Epic<
+export const getAlbumsEpic: Epic<RootAction, RootAction> = action$ =>
+  action$.pipe(
+    filter(isActionOf(actions.getAlbums)),
+    mergeMap(() =>
+      of(
+        actions.getAlbumsFromCache.request(),
+        actions.refreshAlbumsCache.request(),
+      ),
+    ),
+  )
+
+export const refreshAlbumsCacheEpic: Epic<
   RootAction,
   RootAction,
   RootState,
   Pick<RootService, 'albums'>
 > = (action$, state$, { albums }) =>
   action$.pipe(
-    filter(isActionOf(actions.refreshAlbums.request)),
+    filter(isActionOf(actions.refreshAlbumsCache.request)),
     mergeMap(() =>
       albums.refreshAlbums().pipe(
-        map(actions.refreshAlbums.success),
+        map(actions.refreshAlbumsCache.success),
         takeUntil(
-          action$.pipe(filter(isActionOf(actions.refreshAlbums.cancel))),
+          action$.pipe(filter(isActionOf(actions.refreshAlbumsCache.cancel))),
         ),
         catchError(error =>
-          of(actions.refreshAlbums.failure({ error, resource: null })),
+          of(
+            actions.refreshAlbumsCache.failure({ error, resource: undefined }),
+          ),
         ),
       ),
     ),
@@ -44,24 +57,28 @@ export const refreshAlbumsEpic: Epic<
 
 export const reloadAlbumsEpic: Epic<RootAction, RootAction> = action$ =>
   action$.pipe(
-    filter(isActionOf(actions.refreshAlbums.success)),
-    map(actions.getAlbums.request),
+    filter(isActionOf(actions.refreshAlbumsCache.success)),
+    map(actions.getAlbumsFromCache.request),
   )
 
-export const getAlbumsEpic: Epic<
+export const getAlbumsFromCacheEpic: Epic<
   RootAction,
   RootAction,
   RootState,
   Pick<RootService, 'albums'>
 > = (action$, state$, { albums }) =>
   action$.pipe(
-    filter(isActionOf(actions.getAlbums.request)),
+    filter(isActionOf(actions.getAlbumsFromCache.request)),
     mergeMap(() =>
-      albums.getAlbums().pipe(
-        map(actions.getAlbums.success),
-        takeUntil(action$.pipe(filter(isActionOf(actions.getAlbums.cancel)))),
+      albums.getAlbumsFromCache().pipe(
+        map(actions.getAlbumsFromCache.success),
+        takeUntil(
+          action$.pipe(filter(isActionOf(actions.getAlbumsFromCache.cancel))),
+        ),
         catchError(error =>
-          of(actions.getAlbums.failure({ error, resource: null })),
+          of(
+            actions.getAlbumsFromCache.failure({ error, resource: undefined }),
+          ),
         ),
       ),
     ),
@@ -170,18 +187,35 @@ export const setAlbumPositionEpic: Epic<
     ),
   )
 
-export const refreshAlbumMetaEpic: Epic<
+export const setAlbumImageColumnCountEpic: Epic<
   RootAction,
   RootAction,
   RootState,
-  Pick<RootService, 'db' | 'files'>
-> = (action$, state$, { db, files }) =>
+  Pick<RootService, 'albums'>
+> = (action$, state$, { albums }) =>
   action$.pipe(
-    filter(isActionOf(actions.refreshAlbums.request)),
-    tap(() => db.albumMetas.load(files.download)),
-    ignoreElements(),
+    filter(isActionOf(actions.setAlbumImageColumnCount.request)),
+    mergeMap(({ payload: { album, numberOfImageColumns } }) =>
+      albums.updateMeta(album, { numberOfImageColumns }).pipe(
+        map(actions.setAlbumImageColumnCount.success),
+        takeUntil(
+          action$.pipe(
+            filter(isActionOf(actions.setAlbumImageColumnCount.cancel)),
+          ),
+        ),
+        catchError(error =>
+          of(
+            actions.setAlbumImageColumnCount.failure({
+              error,
+              resource: { album, numberOfImageColumns },
+            }),
+          ),
+        ),
+      ),
+    ),
   )
 
+// TODO: Fix when db is saved remotely and when it is loaded
 export const persistAlbumMetaEpic: Epic<
   RootAction,
   RootAction,
@@ -190,6 +224,6 @@ export const persistAlbumMetaEpic: Epic<
 > = (action$, state$, { db, files }) =>
   action$.pipe(
     filter(isActionOf(actions.setAlbumPosition.success)),
-    tap(() => db.albumMetas.save(files.upload)),
+    tap(() => db.albums.save(files.upload)),
     ignoreElements(),
   )

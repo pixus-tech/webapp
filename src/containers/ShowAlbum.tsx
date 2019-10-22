@@ -31,8 +31,8 @@ import ImageGrid from 'components/ImageGrid'
 import SharePanel from 'components/SharePanel'
 import Album from 'models/album'
 import Image from 'models/image'
-import { saveAlbum } from 'store/albums/actions'
-import { getAlbumImages, uploadImagesToAlbum } from 'store/images/actions'
+import { saveAlbum, setAlbumImageColumnCount } from 'store/albums/actions'
+import { getImages, uploadImagesToAlbum } from 'store/images/actions'
 import { albumImagesSelector } from 'store/images/selectors'
 import { showModal } from 'store/modal/actions'
 import { ModalType } from 'store/modal/types'
@@ -87,8 +87,9 @@ const styles = (theme: Theme) =>
 
 interface IDispatchProps {
   dispatchUploadImagesToAlbum: typeof uploadImagesToAlbum
-  dispatchGetAlbumImages: typeof getAlbumImages.request
+  dispatchGetImages: (album: Album) => void
   dispatchSaveAlbum: typeof saveAlbum.request
+  dispatchSetAlbumImageColumnCount: typeof setAlbumImageColumnCount.request
   dispatchShowModal: (album: Album) => ReturnType<typeof showModal>
 }
 
@@ -121,7 +122,8 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
     const { album } = this.props
 
     if (album !== undefined) {
-      this.props.dispatchGetAlbumImages(album)
+      this.props.dispatchGetImages(album)
+      this.asyncUpdateColumnCount(album)
     }
   }
 
@@ -130,8 +132,17 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
     const prevAlbumId = _.get(prevProps.album, '_id')
 
     if (album !== undefined && album._id !== prevAlbumId) {
-      this.props.dispatchGetAlbumImages(album)
+      this.props.dispatchGetImages(album)
+      this.asyncUpdateColumnCount(album)
     }
+  }
+
+  asyncUpdateColumnCount(album: Album) {
+    requestAnimationFrame(() => {
+      this.setState({
+        numberOfImageColumns: album.meta.numberOfImageColumns,
+      })
+    })
   }
 
   onDropFiles = (imageFiles: File[]) => {
@@ -148,11 +159,18 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
     _event: React.ChangeEvent<{}>,
     value: number | number[],
   ) => {
-    if (typeof value === 'number') {
-      // TODO: Throttle the event
+    const { album } = this.props
+    if (typeof value === 'number' && album) {
       this.setState({ numberOfImageColumns: value })
+      this.debouncedSetImageColumnCount(album, value)
     }
   }
+
+  setImageColumnCount = (album: Album, numberOfImageColumns: number) => {
+    this.props.dispatchSetAlbumImageColumnCount({ album, numberOfImageColumns })
+  }
+
+  debouncedSetImageColumnCount = _.debounce(this.setImageColumnCount, 1000)
 
   presentInviteUserModal = () => {
     const { album, dispatchShowModal } = this.props
@@ -285,11 +303,20 @@ function mapStateToProps(store: RootState, props: ComposedProps): IStateProps {
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
-    dispatchGetAlbumImages: (album: Album) =>
-      dispatch(getAlbumImages.request(album)),
+    dispatchGetImages: (album: Album) => {
+      dispatch(
+        getImages({
+          page: 0,
+          perPage: 1000,
+          attributes: { userGroupId: album._id },
+        }),
+      )
+    },
     dispatchUploadImagesToAlbum: albumImageFiles =>
       dispatch(uploadImagesToAlbum(albumImageFiles)),
     dispatchSaveAlbum: album => dispatch(saveAlbum.request(album)),
+    dispatchSetAlbumImageColumnCount: payload =>
+      dispatch(setAlbumImageColumnCount.request(payload)),
     dispatchShowModal: (album: Album) =>
       dispatch(showModal({ type: ModalType.InviteUser, props: { album } })),
   }

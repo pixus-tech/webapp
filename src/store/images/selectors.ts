@@ -4,10 +4,17 @@ import Album from 'models/album'
 import Image from 'models/image'
 import { RootState } from 'typesafe-actions'
 
+import { keyForFilter } from './types'
+
 const dataSelector = (state: RootState) => state.images.data
 
 const albumImageIdsSelector = (state: RootState, album: Album) => {
-  const imageIds = state.images.albumImageIds.get(album._id)
+  const key = keyForFilter({
+    page: 0,
+    perPage: 1000,
+    attributes: { userGroupId: album._id },
+  })
+  const imageIds = state.images.filterImageIds.get(key)
 
   if (imageIds === undefined || imageIds.size === 0) {
     return List<string>()

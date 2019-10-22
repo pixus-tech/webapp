@@ -22,9 +22,6 @@ declare module 'csstype' {
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    active: {
-      color: theme.palette.secondary.main,
-    },
     root: {
       color: 'rgba(255, 255, 255, 0.7)',
       '&:focus > $content': {
@@ -99,7 +96,6 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 interface IProps {
-  activeId?: string
   album: Album
   albums: Album[]
   setAlbumParent: (album: Album, parent: Album) => void
@@ -116,7 +112,6 @@ function preventClickThrough(event: React.MouseEvent<HTMLElement, MouseEvent>) {
 }
 
 const AlbumTreeItem: React.SFC<IProps> = ({
-  activeId,
   album,
   albums,
   setAlbumParent,
@@ -193,14 +188,7 @@ const AlbumTreeItem: React.SFC<IProps> = ({
               {album.isDirectory && (
                 <DirectoryIcon className={classes.directoryIcon} />
               )}
-              <Typography
-                variant="body1"
-                className={cx(classes.labelText, {
-                  [classes.active]: activeId === album._id,
-                })}
-              >
-                {album.name}
-              </Typography>
+              <Typography variant="body1">{album.name}</Typography>
             </NavLink>
           </div>
         }
@@ -210,7 +198,6 @@ const AlbumTreeItem: React.SFC<IProps> = ({
           ? null
           : _.map(childAlbums, (album, index) => (
               <AlbumTreeItem
-                activeId={activeId}
                 album={album}
                 albums={albums}
                 key={index}

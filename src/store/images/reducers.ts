@@ -5,9 +5,10 @@ import { createReducer } from 'typesafe-actions'
 import Image from 'models/image'
 
 import * as actions from './actions'
+import { keyForFilter } from './types'
 
 export const initialState = {
-  albumImageIds: Map<string, List<string>>(),
+  filterImageIds: Map<Map<string, any>, List<string>>(),
   currentUploadIds: List<string>(),
   data: Map<string, Image>(),
   failedUploads: Map<string, Error>(),
@@ -39,7 +40,7 @@ const succeededUploadIds = createReducer(
 )
 
 const data = createReducer(initialState.data)
-  .handleAction(actions.getAlbumImages.success, (state, action) => {
+  .handleAction(actions.getImagesFromCache.success, (state, action) => {
     return Map(action.payload.images.map(image => [image._id, image]))
   })
   .handleAction(
@@ -50,17 +51,21 @@ const data = createReducer(initialState.data)
     },
   )
 
-const albumImageIds = createReducer(initialState.albumImageIds)
-  .handleAction(actions.getAlbumImages.success, (state, action) => {
-    const imageIds = List<string>(action.payload.images.map(image => image._id))
-    return state.set(action.payload.album._id, imageIds)
-  })
+const filterImageIds = createReducer(initialState.filterImageIds).handleAction(
+  actions.getImagesFromCache.success,
+  (state, { payload }) => {
+    const imageIds = List<string>(payload.images.map(image => image._id))
+    return state.set(keyForFilter(payload.filter), imageIds)
+  },
+)
+/* TODO: Add image to current filter during upload
   .handleAction([actions.didProcessImage], (state, action) => {
     const albumId = action.payload.album._id
     const imageId = action.payload.image._id
     const imageIds = state.get(albumId) || List<string>()
     return state.set(action.payload.album._id, imageIds.push(imageId))
   })
+*/
 
 const imageObjectURLMap = createReducer(initialState.imageObjectURLMap)
   .handleAction(actions.downloadImage.success, (state, action) => {
@@ -133,10 +138,10 @@ const previewImageIsLoadingMap = createReducer(
   })
 
 export default combineReducers({
-  albumImageIds,
   currentUploadIds,
   data,
   failedUploads,
+  filterImageIds,
   imageIsLoadingMap,
   imageObjectURLMap,
   previewImageIsLoadingMap,

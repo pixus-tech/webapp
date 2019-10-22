@@ -1,7 +1,7 @@
 export const CONNECTIVITY_FILE_PATH = 'connectivity.json'
 export const SETTINGS_FILE_PATH = 'settings.json'
 export const ALBUMS_FILE_PATH = 'albums.json'
-export const ALBUM_METAS_FILE_PATH = 'albumMetas.json'
+export const IMAGES_FILE_PATH = 'images.json'
 export const DEFAULT_ALBUM_NAME = 'Album'
 export const DEFAULT_ALBUM_DIRECTORY_NAME = 'Directory'
 export const DEFAULT_UPLOAD_FILE_CHUNK_SIZE = 5 * 1000 * 1000

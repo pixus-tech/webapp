@@ -20,7 +20,7 @@ const data = createReducer(initialState.data)
    *   const album = action.payload.resource
    *   return state.remove(album._id)
    * }) */
-  .handleAction(actions.getAlbums.success, (state, action) => {
+  .handleAction(actions.getAlbumsFromCache.success, (state, action) => {
     return Map(action.payload.map(album => [album._id, album]))
   })
   .handleAction(actions.setAlbumPosition.request, (state, action) => {

@@ -1,8 +1,8 @@
 import { Observable } from 'rxjs'
 
-import { ALBUMS_FILE_PATH, ALBUM_METAS_FILE_PATH } from 'constants/index'
+import { ALBUMS_FILE_PATH, IMAGES_FILE_PATH } from 'constants/index'
 import Album from 'models/album'
-import AlbumMeta from 'models/albumMeta'
+import Image, { QueryableImageAttributes } from 'models/image'
 import { dbWorker } from 'workers'
 
 type UploadFunction = (
@@ -24,10 +24,10 @@ class DB {
     all: function() {
       return dbWorker.allAlbums()
     },
-    update: function(album: Album) {
+    update: function(album: Partial<Album>) {
       return dbWorker.updateAlbum(album)
     },
-    updateAll: function(albums: Album[]) {
+    updateAll: function(albums: Partial<Album>[]) {
       return dbWorker.updateAlbums(albums)
     },
     save: (upload: UploadFunction) => {
@@ -44,23 +44,32 @@ class DB {
     },
   }
 
-  albumMetas = {
-    add: function(albumId: string, albumMeta: AlbumMeta) {
-      return dbWorker.addAlbumMeta(albumId, albumMeta)
+  images = {
+    add: function(image: Image) {
+      return dbWorker.addImage(image)
     },
-    update: function(albumId: string, albumMeta: AlbumMeta) {
-      return dbWorker.updateAlbumMeta(albumId, albumMeta)
+    destroy: function(image: Image) {
+      return dbWorker.destroyImage(image)
+    },
+    where: function(filter: QueryableImageAttributes) {
+      return dbWorker.filteredImages(filter)
+    },
+    update: function(image: Partial<Image>) {
+      return dbWorker.updateImage(image)
+    },
+    updateAll: function(images: Partial<Image>[]) {
+      return dbWorker.updateImages(images)
     },
     save: (upload: UploadFunction) => {
       return this.save(
-        dbWorker.serializeAlbumMetas,
-        upload.bind(undefined, ALBUM_METAS_FILE_PATH),
+        dbWorker.serializeImages,
+        upload.bind(undefined, IMAGES_FILE_PATH),
       )
     },
     load: (download: DownloadFunction) => {
       return this.load(
-        dbWorker.deserializeAlbumMetas,
-        download.bind(undefined, ALBUM_METAS_FILE_PATH),
+        dbWorker.deserializeImages,
+        download.bind(undefined, IMAGES_FILE_PATH),
       )
     },
   }

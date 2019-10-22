@@ -4,21 +4,23 @@ import { createAsyncAction, createStandardAction } from 'typesafe-actions'
 import Album from 'models/album'
 import { FileHandle } from 'models/fileHandle'
 import Image from 'models/image'
+import { FilteredImages, ImageFilter } from './types'
 
-export const getAlbumImages = createAsyncAction(
-  'IMAGES__LIST_REQUEST',
-  'IMAGES__LIST_SUCCESS',
-  'IMAGES__LIST_FAILURE',
-  'IMAGES__LIST_CANCEL',
-)<
-  Album,
-  API.ShowResponse<{
-    album: Album
-    images: Image[]
-  }>,
-  API.ErrorResponse<Album>,
-  API.ResourceFilter
->()
+export const getImages = createStandardAction('IMAGES__GET_LIST')<ImageFilter>()
+
+export const refreshImagesCache = createAsyncAction(
+  'IMAGES__REFRESH_CACHE__REQUEST',
+  'IMAGES__REFRESH_CACHE__SUCCESS',
+  'IMAGES__REFRESH_CACHE__FAILURE',
+  'IMAGES__REFRESH_CACHE__CANCEL',
+)<ImageFilter, FilteredImages, API.ErrorResponse<ImageFilter>, ImageFilter>()
+
+export const getImagesFromCache = createAsyncAction(
+  'IMAGES__FROM_CACHE__REQUEST',
+  'IMAGES__FROM_CACHE__SUCCESS',
+  'IMAGES__FROM_CACHE__FAILURE',
+  'IMAGES__FROM_CACHE__CANCEL',
+)<ImageFilter, FilteredImages, API.ErrorResponse<ImageFilter>, ImageFilter>()
 
 export const uploadImagesToAlbum = createStandardAction(
   'IMAGES__UPLOAD_IMAGES_TO_ALBUM',

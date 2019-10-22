@@ -2,7 +2,7 @@ import * as _ from 'lodash'
 import * as Yup from 'yup'
 
 import BaseModel, { UnsavedModel } from './'
-import AlbumMeta, { defaultAlbumMeta } from './albumMeta'
+import AlbumMeta from './albumMeta'
 import AlbumRecord, { AlbumRecordFactory } from 'db/radiks/album'
 
 export default interface Album extends BaseModel {
@@ -23,7 +23,7 @@ export function buildAlbumRecord(album: UnsavedAlbum | Album): AlbumRecord {
   return AlbumRecordFactory.build(album)
 }
 
-export function parseAlbumRecord(record: AlbumRecord): Album {
+export function parseAlbumRecord(record: AlbumRecord): Omit<Album, 'meta'> {
   const privateKey = record.encryptionPrivateKey()
   record.privateKey = privateKey
   const publicKey = record.publicKey()
@@ -36,12 +36,13 @@ export function parseAlbumRecord(record: AlbumRecord): Album {
     publicKey,
     signingKeyId: record.attrs.signingKeyId,
     users: record.attrs.users,
-    meta: defaultAlbumMeta,
   }
 }
 
-export function parseAlbumRecords(records: AlbumRecord[]): Album[] {
-  return _.compact(_.map(records, parseAlbumRecord))
+export function parseAlbumRecords(
+  records: AlbumRecord[],
+): Omit<Album, 'meta'>[] {
+  return _.map(records, parseAlbumRecord)
 }
 
 export const validationSchema = Yup.object().shape({

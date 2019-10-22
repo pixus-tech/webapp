@@ -15,7 +15,6 @@ import {
   DEFAULT_ALBUM_NAME,
   DEFAULT_ALBUM_DIRECTORY_NAME,
 } from 'constants/index'
-import { getAlbums } from 'store/albums/actions'
 
 type StreamCallback = (record: AlbumRecord) => void
 
@@ -28,18 +27,20 @@ class Albums extends BaseService {
       (resolve, reject) => {
         const user = currentUser()
 
-        const album: UnsavedAlbum = {
+        const unsavedAlbum: UnsavedAlbum = {
           isDirectory,
           name: isDirectory ? DEFAULT_ALBUM_DIRECTORY_NAME : DEFAULT_ALBUM_NAME,
           users: [user.attrs.username],
           meta: defaultAlbumMeta,
         }
 
-        createUserGroup(AlbumRecordFactory.build, album)
+        createUserGroup(AlbumRecordFactory.build, unsavedAlbum)
           .then(albumRecord => {
-            const album = parseAlbumRecord(albumRecord)
+            const album: Album = {
+              ...parseAlbumRecord(albumRecord),
+              meta: unsavedAlbum.meta,
+            }
             this.db.albums.add(album)
-            this.db.albumMetas.add(album._id, album.meta)
             resolve({ resource: album })
           })
           .catch(reject)
@@ -47,7 +48,7 @@ class Albums extends BaseService {
     )
 
   refreshAlbums = () =>
-    this.dispatcher.performAsync<Album[]>(
+    this.dispatcher.performAsync<undefined>(
       Queue.RecordOperation,
       (resolve, reject) => {
         AlbumRecord.fetchList<AlbumRecord>({ users: currentUsername() })
@@ -56,8 +57,7 @@ class Albums extends BaseService {
             this.db.albums
               .updateAll(albums)
               .then(() => {
-                this.dispatch(getAlbums.request())
-                resolve(albums)
+                resolve(undefined)
               })
               .catch(reject)
           })
@@ -65,7 +65,7 @@ class Albums extends BaseService {
       },
     )
 
-  getAlbums = () =>
+  getAlbumsFromCache = () =>
     this.dispatcher.performAsync<Album[]>(
       Queue.RecordOperation,
       (resolve, reject) => {
@@ -80,7 +80,7 @@ class Albums extends BaseService {
     const albumRecord = AlbumRecordFactory.build(album)
     // TODO: The db update should be returned here because it is more likely to succeed
     // the album should then have a flag dirty and sync to radiks if the client is online
-    this.db.albums.update(parseAlbumRecord(albumRecord))
+    this.db.albums.update(album)
     return records.save(albumRecord)
   }
 
@@ -91,11 +91,12 @@ class Albums extends BaseService {
         const albumRecord = buildAlbumRecord(album)
         // TODO: The db update should be returned here because it is more likely to succeed
         // the album should then have a flag dirty and sync to radiks if the client is online
-        this.db.albums.update({ ...album, ...updates })
+        const updatedAlbum = { ...album, ...updates }
+        this.db.albums.update(updatedAlbum)
         albumRecord.update(updates)
         records.save(albumRecord).subscribe({
           next() {
-            resolve({ resource: parseAlbumRecord(albumRecord) })
+            resolve({ resource: updatedAlbum })
           },
           error(error) {
             reject(error)
@@ -113,8 +114,8 @@ class Albums extends BaseService {
           ...album,
           meta: updatedMeta,
         }
-        this.db.albumMetas
-          .update(album._id, updatedMeta)
+        this.db.albums
+          .update(updatedAlbum)
           .then(() => {
             resolve({ resource: updatedAlbum })
           })

@@ -1,6 +1,6 @@
 import * as _ from 'lodash'
 
-import BaseModel, { UnsavedModel } from './'
+import BaseModel, { RecursivePartial, UnsavedModel } from './'
 import ImageRecord from 'db/radiks/image'
 import { decodeColors, Uint8BitColor } from 'utils/colors'
 
@@ -28,6 +28,8 @@ export default interface Image extends BaseModel {
   username: string
   width: number
 }
+
+export type QueryableImageAttributes = RecursivePartial<Image>
 
 export type UnsavedImage = UnsavedModel<Image>
 
