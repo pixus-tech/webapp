@@ -6,12 +6,14 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { ReactComponent as NoConnection } from './assets/pluto-no-connection.svg'
 import { ReactComponent as EmptyList } from './assets/list-is-empty-3.svg'
 import { ReactComponent as SignIn } from './assets/pluto-sign-in.svg'
+import { ReactComponent as Loading } from './assets/pluto-waiting.svg'
 import colors from 'constants/colors'
 
 const illustrations = {
   emptyList: EmptyList,
   noConnection: NoConnection,
   signIn: SignIn,
+  loading: Loading,
 }
 
 const useStyles = makeStyles((_theme: Theme) =>

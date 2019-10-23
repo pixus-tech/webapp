@@ -8,6 +8,7 @@ import * as actions from './actions'
 import { keyForFilter } from './types'
 
 export const initialState = {
+  albumImagesLoaded: Map<string, boolean>(),
   filterImageIds: Map<Map<string, any>, List<string>>(),
   currentUploadIds: List<string>(),
   data: Map<string, Image>(),
@@ -18,6 +19,18 @@ export const initialState = {
   previewImageObjectURLMap: Map<string, string>(),
   succeededUploadIds: List<string>(),
 }
+
+const albumImagesLoaded = createReducer(
+  initialState.albumImagesLoaded,
+).handleAction(actions.getImagesFromCache.success, (state, action) => {
+  const { userGroupId } = action.payload.filter.attributes
+
+  if (userGroupId === undefined) {
+    return state
+  }
+
+  return state.set(userGroupId, true)
+})
 
 const currentUploadIds = createReducer(initialState.currentUploadIds)
   .handleAction(actions.uploadImageToAlbum.request, (state, action) =>
@@ -138,6 +151,7 @@ const previewImageIsLoadingMap = createReducer(
   })
 
 export default combineReducers({
+  albumImagesLoaded,
   currentUploadIds,
   data,
   failedUploads,

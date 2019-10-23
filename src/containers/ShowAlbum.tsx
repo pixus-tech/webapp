@@ -68,16 +68,16 @@ const styles = (theme: Theme) =>
       flex: 1,
       padding: theme.spacing(1, 0.5, 0),
     },
-    emptyListMessageContainer: {
+    messageContainer: {
       alignItems: 'center',
       display: 'flex',
       flexFlow: 'column',
       justifyContent: 'center',
       height: '100%',
     },
-    emptyListMessageIllustration: {
+    messageIllustration: {
       [theme.breakpoints.up('sm')]: {
-        marginTop: theme.spacing(3),
+        marginTop: theme.spacing(1),
       },
       height: 320,
       maxWidth: 320,
@@ -114,6 +114,7 @@ interface IDispatchProps {
 interface IStateProps {
   album?: Album
   images: Image[]
+  isLoadingImages: boolean
   numberOfImages: number
 }
 
@@ -156,9 +157,15 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
   }
 
   asyncUpdateColumnCount(album: Album) {
+    const { numberOfImageColumns } = album.meta
+
+    if (numberOfImageColumns === undefined) {
+      return
+    }
+
     requestAnimationFrame(() => {
       this.setState({
-        numberOfImageColumns: album.meta.numberOfImageColumns,
+        numberOfImageColumns,
       })
     })
   }
@@ -204,13 +211,33 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
       classes,
       dispatchSaveAlbum,
       images,
+      isLoadingImages,
       numberOfImages,
       theme,
     } = this.props
     const { numberOfImageColumns } = this.state
 
-    if (!album) {
-      return <CircularProgress className={classes.progress} size={16} />
+    if (!album || isLoadingImages) {
+      const title = album ? `"${album.name}"` : 'The album'
+      return (
+        <div className={classes.container}>
+          <div className={classes.messageContainer}>
+            <Typography align="center" variant="h6" component="h2">
+              <CircularProgress
+                color="secondary"
+                className={classes.progress}
+                size={18}
+              />
+              &nbsp;
+              {title} is being loaded...
+            </Typography>
+            <Illustration
+              className={classes.messageIllustration}
+              type="loading"
+            />
+          </div>
+        </div>
+      )
     }
 
     return (
@@ -249,24 +276,26 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
                   )}
                 </Dropzone>
               </Grid>
-              <Grid item>
+              {numberOfImages > 0 && (
                 <Hidden xsDown>
-                  <Grid container spacing={2}>
-                    <Grid item>
-                      <Slider
-                        className={classes.slider}
-                        color="secondary"
-                        value={numberOfImageColumns}
-                        step={1}
-                        min={2}
-                        max={10}
-                        onChange={this.onChangeImageColumnCount}
-                        valueLabelDisplay="auto"
-                      />
+                  <Grid item>
+                    <Grid container spacing={2}>
+                      <Grid item>
+                        <Slider
+                          className={classes.slider}
+                          color="secondary"
+                          value={numberOfImageColumns}
+                          step={1}
+                          min={2}
+                          max={10}
+                          onChange={this.onChangeImageColumnCount}
+                          valueLabelDisplay="auto"
+                        />
+                      </Grid>
                     </Grid>
                   </Grid>
                 </Hidden>
-              </Grid>
+              )}
             </Grid>
           </Toolbar>
         </AppBar>
@@ -276,14 +305,14 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
               <div className={classes.autosizeContainer} {...getRootProps()}>
                 <input {...getInputProps()} />
                 {numberOfImages === 0 ? (
-                  <div className={classes.emptyListMessageContainer}>
+                  <div className={classes.messageContainer}>
                     <Typography align="center" variant="h6" component="h2">
                       There are no images to show.
                       <br />
                       Click here or drop images to add some.
                     </Typography>
                     <Illustration
-                      className={classes.emptyListMessageIllustration}
+                      className={classes.messageIllustration}
                       type="emptyList"
                     />
                   </div>
@@ -323,13 +352,16 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
 }
 
 function mapStateToProps(store: RootState, props: ComposedProps): IStateProps {
-  const album = store.albums.data.get(props.match.params.albumId)
+  const { albumId } = props.match.params
+  const album = store.albums.data.get(albumId)
+  const isLoadingImages = !store.images.albumImagesLoaded.get(albumId)
   const images =
     album === undefined ? [] : albumImagesSelector(store, album).toArray()
 
   return {
     album,
     images,
+    isLoadingImages,
     numberOfImages: images.length,
   }
 }
