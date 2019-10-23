@@ -1,6 +1,5 @@
 import React from 'react'
 import compose from 'recompose/compose'
-import Button from '@material-ui/core/Button'
 import {
   createStyles,
   Theme,
@@ -9,6 +8,7 @@ import {
 } from '@material-ui/core/styles'
 
 import userSession from 'services/userSession'
+import SignInButton from './SignInButton'
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -28,16 +28,7 @@ function redirectToSignIn() {
 }
 
 const LoginForm: React.FC<ComposedProps> = ({ classes }) => (
-  <Button
-    className={classes.submit}
-    color="primary"
-    fullWidth
-    type="submit"
-    variant="contained"
-    onClick={redirectToSignIn}
-  >
-    Sign in with Blockstack
-  </Button>
+  <SignInButton className={classes.submit} onClick={redirectToSignIn} />
 )
 
 export default compose<ComposedProps, IProps>(withStyles(styles))(LoginForm)

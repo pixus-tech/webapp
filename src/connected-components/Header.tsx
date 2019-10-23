@@ -56,7 +56,7 @@ interface IStateProps {
 }
 
 interface IProps {
-  onDrawerToggle: () => void
+  onDrawerToggle?: () => void
 }
 
 type ComposedProps = IDispatchProps & IStateProps & IProps
@@ -78,18 +78,20 @@ function Header({ dispatchLogout, onDrawerToggle, user }: ComposedProps) {
           }}
         >
           <Grid container spacing={1} alignItems="center">
-            <Hidden mdUp>
-              <Grid item>
-                <IconButton
-                  color="inherit"
-                  aria-label="open drawer"
-                  onClick={onDrawerToggle}
-                  className={classes.menuButton}
-                >
-                  <MenuIcon />
-                </IconButton>
-              </Grid>
-            </Hidden>
+            {onDrawerToggle !== undefined && (
+              <Hidden mdUp>
+                <Grid item>
+                  <IconButton
+                    color="inherit"
+                    aria-label="open drawer"
+                    onClick={onDrawerToggle}
+                    className={classes.menuButton}
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                </Grid>
+              </Hidden>
+            )}
             <Hidden xsDown mdUp>
               <Grid item xs />
             </Hidden>
@@ -99,30 +101,32 @@ function Header({ dispatchLogout, onDrawerToggle, user }: ComposedProps) {
               </Grid>
             </Hidden>
             <Grid item xs />
-            <Grid item>
-              <UploadInfo />
-            </Grid>
-            <Grid item>
-              <Notifications />
-            </Grid>
-            <Grid item>
-              {user && (
-                <IconWithPopover
-                  id="user-menu-popover"
-                  tooltip={user.username}
-                  Icon={<UserAvatar user={user} />}
-                >
-                  <MenuList>
-                    <MenuItem>
-                      <Link to={routes.settings} className={classes.link}>
-                        Settings
-                      </Link>
-                    </MenuItem>
-                    <MenuItem onClick={dispatchLogout}>Logout</MenuItem>
-                  </MenuList>
-                </IconWithPopover>
-              )}
-            </Grid>
+            {user && (
+              <>
+                <Grid item>
+                  <UploadInfo />
+                </Grid>
+                <Grid item>
+                  <Notifications />
+                </Grid>
+                <Grid item>
+                  <IconWithPopover
+                    id="user-menu-popover"
+                    tooltip={user.username}
+                    Icon={<UserAvatar user={user} />}
+                  >
+                    <MenuList>
+                      <MenuItem>
+                        <Link to={routes.settings} className={classes.link}>
+                          Settings
+                        </Link>
+                      </MenuItem>
+                      <MenuItem onClick={dispatchLogout}>Logout</MenuItem>
+                    </MenuList>
+                  </IconWithPopover>
+                </Grid>
+              </>
+            )}
           </Grid>
         </Toolbar>
       </Container>

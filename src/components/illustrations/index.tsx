@@ -5,14 +5,16 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
 import { ReactComponent as NoConnection } from './assets/pluto-no-connection.svg'
 import { ReactComponent as EmptyList } from './assets/list-is-empty-3.svg'
+import { ReactComponent as SignIn } from './assets/pluto-sign-in.svg'
 import colors from 'constants/colors'
 
 const illustrations = {
   emptyList: EmptyList,
   noConnection: NoConnection,
+  signIn: SignIn,
 }
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((_theme: Theme) =>
   createStyles({
     root: {
       alignItems: 'center',
@@ -40,13 +42,6 @@ const useStyles = makeStyles((theme: Theme) =>
       '--illu-brown--light': colors.brown.light,
       '--illu-brown--main': colors.brown.main,
       '--illu-brown--dark': colors.brown.dark,
-    },
-    button: {
-      marginTop: theme.spacing(1),
-    },
-    icon: {
-      height: 64,
-      width: 64,
     },
   }),
 )

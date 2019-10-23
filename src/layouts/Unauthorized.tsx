@@ -7,8 +7,17 @@ import {
   WithStyles,
 } from '@material-ui/core/styles'
 
+import Header from 'connected-components/Header'
+
 const styles = (theme: Theme) =>
   createStyles({
+    root: {
+      display: 'flex',
+      flexFlow: 'column',
+      height: '100%',
+      position: 'relative',
+      width: '100%',
+    },
     paper: {
       marginTop: theme.spacing(8),
       display: 'flex',
@@ -20,9 +29,12 @@ const styles = (theme: Theme) =>
 type StyleProps = WithStyles<typeof styles>
 
 const UnauthorizedLayout: React.FC<StyleProps> = ({ children, classes }) => (
-  <Container component="main" maxWidth="xs">
-    <div className={classes.paper}>{children}</div>
-  </Container>
+  <div className={classes.root}>
+    <Header />
+    <Container component="main" maxWidth="xs">
+      <div className={classes.paper}>{children}</div>
+    </Container>
+  </div>
 )
 
 export default withStyles(styles)(UnauthorizedLayout)
