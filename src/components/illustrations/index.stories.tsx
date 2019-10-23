@@ -3,7 +3,5 @@ import Illustration from './'
 
 export default { title: 'Illustrations' }
 
-export const standard = () => (
-  <Illustration
-  />
-)
+export const noConnection = () => <Illustration type="noConnection" />
+export const emptyList = () => <Illustration type="emptyList" />

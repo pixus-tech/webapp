@@ -17,6 +17,7 @@ import Grid from '@material-ui/core/Grid'
 import Hidden from '@material-ui/core/Hidden'
 import Slider from '@material-ui/core/Slider'
 import Toolbar from '@material-ui/core/Toolbar'
+import Typography from '@material-ui/core/Typography'
 import {
   createStyles,
   Theme,
@@ -37,6 +38,7 @@ import { albumImagesSelector } from 'store/images/selectors'
 import { showModal } from 'store/modal/actions'
 import { ModalType } from 'store/modal/types'
 import { ShowAlbumURLParameters } from 'utils/routes'
+import Illustration from 'components/illustrations'
 
 // TODO: extract color
 const lightColor = 'rgba(255, 255, 255, 0.7)'
@@ -45,6 +47,7 @@ const styles = (theme: Theme) =>
   createStyles({
     autosizeContainer: {
       height: '100%',
+      outline: 0,
       overflow: 'hidden',
       width: '100%',
     },
@@ -64,6 +67,21 @@ const styles = (theme: Theme) =>
       background: theme.palette.primary.main,
       flex: 1,
       padding: theme.spacing(1, 0.5, 0),
+    },
+    emptyListMessageContainer: {
+      alignItems: 'center',
+      display: 'flex',
+      flexFlow: 'column',
+      justifyContent: 'center',
+      height: '100%',
+    },
+    emptyListMessageIllustration: {
+      [theme.breakpoints.up('sm')]: {
+        marginTop: theme.spacing(3),
+      },
+      height: 320,
+      maxWidth: 320,
+      width: '100%',
     },
     root: {
       border: '1px solid black',
@@ -254,32 +272,47 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
         </AppBar>
         <div className={classes.content}>
           <Dropzone onDrop={this.onDropFiles}>
-            {({ getRootProps }) => (
+            {({ getInputProps, getRootProps }) => (
               <div className={classes.autosizeContainer} {...getRootProps()}>
-                <AutoSizer>
-                  {({ height, width }) => {
-                    if (height === 0 || width === 0) {
-                      return null
-                    }
+                <input {...getInputProps()} />
+                {numberOfImages === 0 ? (
+                  <div className={classes.emptyListMessageContainer}>
+                    <Typography align="center" variant="h6" component="h2">
+                      There are no images to show.
+                      <br />
+                      Click here or drop images to add some.
+                    </Typography>
+                    <Illustration
+                      className={classes.emptyListMessageIllustration}
+                      type="emptyList"
+                    />
+                  </div>
+                ) : (
+                  <AutoSizer>
+                    {({ height, width }) => {
+                      if (height === 0 || width === 0) {
+                        return null
+                      }
 
-                    const columnCount =
-                      width <= theme.breakpoints.width('sm')
-                        ? 4
-                        : numberOfImageColumns
+                      const columnCount =
+                        width <= theme.breakpoints.width('sm')
+                          ? 4
+                          : numberOfImageColumns
 
-                    return (
-                      <ImageGrid
-                        album={album}
-                        columnCount={columnCount}
-                        height={height}
-                        images={images}
-                        key={album._id}
-                        numberOfImages={numberOfImages}
-                        width={width}
-                      />
-                    )
-                  }}
-                </AutoSizer>
+                      return (
+                        <ImageGrid
+                          album={album}
+                          columnCount={columnCount}
+                          height={height}
+                          images={images}
+                          key={album._id}
+                          numberOfImages={numberOfImages}
+                          width={width}
+                        />
+                      )
+                    }}
+                  </AutoSizer>
+                )}
               </div>
             )}
           </Dropzone>

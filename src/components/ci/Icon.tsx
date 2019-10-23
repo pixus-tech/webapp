@@ -16,7 +16,7 @@ function Icon() {
           .cls-6{fill:#fcdc00;}
           .cls-3,
           .cls-7{fill:#0ca438;}
-          .cls-4{fill:#05b6de;}
+          .cls-4{fill:#06b6dc;}
           .cls-5{opacity:0.74;}
           .cls-6{opacity:0.62;}
           .cls-7{opacity:0.35;}
