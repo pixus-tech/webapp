@@ -43,7 +43,7 @@ async function encryptAttributes(
   await Promise.all(
     Object.keys(schema).map(
       key =>
-        new Promise(resolve => {
+        new Promise((resolve, reject) => {
           let valueClass = schema[key]
           const schemaAttribute = schema[key] as SchemaAttribute
           const value = attributes[key]
@@ -72,6 +72,7 @@ async function encryptAttributes(
               }
             })
             .finally(resolve)
+            .catch(reject)
         }),
     ),
   )
@@ -89,7 +90,7 @@ async function decryptAttributes(
   await Promise.all(
     Object.keys(encryptedAttributes).map(
       key =>
-        new Promise(resolve => {
+        new Promise((resolve, reject) => {
           const value = encryptedAttributes[key]
           let valueClass = schema[key]
           const schemaAttribute = schema[key] as SchemaAttribute
@@ -109,6 +110,7 @@ async function decryptAttributes(
                 )
               })
               .finally(resolve)
+              .catch(reject)
           } else {
             resolve()
           }

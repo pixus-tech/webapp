@@ -121,7 +121,7 @@ ctx.addEventListener('message', event => {
       throw 'unknown job'
     }
   } catch (error) {
-    ctx.postMessage({ id, error })
+    ctx.postMessage({ id, error: `${error}` })
   }
 })
 

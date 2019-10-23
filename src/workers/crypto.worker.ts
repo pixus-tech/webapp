@@ -36,7 +36,7 @@ ctx.addEventListener('message', event => {
       ctx.postMessage({ id, result })
     }
   } catch (error) {
-    ctx.postMessage({ id, error })
+    ctx.postMessage({ id, error: `${error}` })
   }
 })
 
