@@ -9,7 +9,10 @@ import Image, {
   parseImageRecords,
   QueryableImageAttributes,
 } from 'models/image'
-import ImageMeta, { defaultImageMeta, CurrentEXIFIndexVersion } from 'models/imageMeta'
+import ImageMeta, {
+  defaultImageMeta,
+  CurrentEXIFIndexVersion,
+} from 'models/imageMeta'
 import { Uint8BitColor } from 'utils/colors'
 import ImageRecord, { ImageRecordFactory } from 'db/radiks/image'
 import BaseService from './baseService'

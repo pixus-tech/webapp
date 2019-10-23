@@ -47,9 +47,7 @@ export const refreshImagesCacheEpic: Epic<
     mergeMap(({ payload }) =>
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       images.refreshImages(payload.attributes.userGroupId!).pipe(
-        map(images =>
-          actions.refreshImagesCache.success(payload),
-        ),
+        map(images => actions.refreshImagesCache.success(payload)),
         takeUntil(
           action$.pipe(
             filter(isActionOf(actions.refreshImagesCache.cancel)),
@@ -359,14 +357,29 @@ export const saveImageFileEpic: Epic<
     ignoreElements(),
   )
 
-export const getEXIFTagsAfterUploadEpic: Epic<RootAction, RootAction, RootState, Pick<RootService, 'images'>> = (action$, state$, { images }) =>
+export const getEXIFTagsAfterUploadEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'images'>
+> = (action$, state$, { images }) =>
   action$.pipe(
     filter(isActionOf(actions.didProcessImage)),
     filter(({ payload }) => images.shouldScanEXIFTags(payload.image)),
-    map(({ payload }) => actions.updateImageEXIFTags.request({ image: payload.image, imageData: payload.imageData })),
+    map(({ payload }) =>
+      actions.updateImageEXIFTags.request({
+        image: payload.image,
+        imageData: payload.imageData,
+      }),
+    ),
   )
 
-export const getEXIFTagsAfterDownloadEpic: Epic<RootAction, RootAction, RootState, Pick<RootService, 'images'>> = (action$, state$, { images }) =>
+export const getEXIFTagsAfterDownloadEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'images'>
+> = (action$, state$, { images }) =>
   action$.pipe(
     filter(isActionOf(actions.downloadImage.success)),
     filter(({ payload }) => images.shouldScanEXIFTags(payload.image)),
@@ -376,10 +389,16 @@ export const getEXIFTagsAfterDownloadEpic: Epic<RootAction, RootAction, RootStat
       if (typeof payload.fileContent !== 'string') {
         imageData = payload.fileContent.buffer
       } else {
-        return actions.updateImageEXIFTags.failure({ error: Error('String could not be converted to ArrayBuffer'), resource: payload.image})
+        return actions.updateImageEXIFTags.failure({
+          error: Error('String could not be converted to ArrayBuffer'),
+          resource: payload.image,
+        })
       }
 
-      return actions.updateImageEXIFTags.request({ image: payload.image, imageData })
+      return actions.updateImageEXIFTags.request({
+        image: payload.image,
+        imageData,
+      })
     }),
   )
 
