@@ -13,7 +13,7 @@ export const refreshImagesCache = createAsyncAction(
   'IMAGES__REFRESH_CACHE__SUCCESS',
   'IMAGES__REFRESH_CACHE__FAILURE',
   'IMAGES__REFRESH_CACHE__CANCEL',
-)<ImageFilter, FilteredImages, API.ErrorResponse<ImageFilter>, ImageFilter>()
+)<ImageFilter, ImageFilter, API.ErrorResponse<ImageFilter>, ImageFilter>()
 
 export const getImagesFromCache = createAsyncAction(
   'IMAGES__FROM_CACHE__REQUEST',
@@ -108,10 +108,10 @@ interface SaveImageResult {
 }
 
 export const saveImage = createAsyncAction(
-  'IMAGES__SAVE_IMAGE__REQUEST',
-  'IMAGES__SAVE_IMAGE__SUCCESS',
-  'IMAGES__SAVE_IMAGE__FAILURE',
-  'IMAGES__SAVE_IMAGE__CANCEL',
+  'IMAGES__SAVE__REQUEST',
+  'IMAGES__SAVE__SUCCESS',
+  'IMAGES__SAVE__FAILURE',
+  'IMAGES__SAVE__CANCEL',
 )<
   DownloadImageRequest,
   SaveImageResult,
@@ -120,8 +120,20 @@ export const saveImage = createAsyncAction(
 >()
 
 export const deleteImage = createAsyncAction(
-  'IMAGES__DELETE_IMAGE__REQUEST',
-  'IMAGES__DELETE_IMAGE__SUCCESS',
-  'IMAGES__DELETE_IMAGE__FAILURE',
-  'IMAGES__DELETE_IMAGE__CANCEL',
+  'IMAGES__DELETE__REQUEST',
+  'IMAGES__DELETE__SUCCESS',
+  'IMAGES__DELETE__FAILURE',
+  'IMAGES__DELETE__CANCEL',
 )<Image, Image, API.ErrorResponse<Image>, Image>()
+
+interface UpdateEXIFTagsData {
+  image: Image
+  imageData: ArrayBuffer
+}
+
+export const updateImageEXIFTags = createAsyncAction(
+  'IMAGES__UPDATE_EXIF_TAGS__REQUEST',
+  'IMAGES__UPDATE_EXIF_TAGS__SUCCESS',
+  'IMAGES__UPDATE_EXIF_TAGS__FAILURE',
+  'IMAGES__UPDATE_EXIF_TAGS__CANCEL',
+)<UpdateEXIFTagsData, Image, API.ErrorResponse<Image>, Image>()

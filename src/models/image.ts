@@ -1,6 +1,7 @@
 import * as _ from 'lodash'
 
 import BaseModel, { RecursivePartial, UnsavedModel } from './'
+import ImageMeta from './imageMeta'
 import ImageRecord from 'db/radiks/image'
 import { decodeColors, Uint8BitColor } from 'utils/colors'
 
@@ -27,11 +28,15 @@ export default interface Image extends BaseModel {
   userGroupId: string
   username: string
   width: number
+
+  // Fields that are stored separately from radiks
+  meta: ImageMeta
 }
 
 export type QueryableImageAttributes = RecursivePartial<Image>
 
 export type UnsavedImage = UnsavedModel<Image>
+export type RemoteImage = Omit<Image, 'meta'>
 
 export function imagePath(image: Image) {
   return `images/${image._id}-${image.name}`
@@ -41,7 +46,7 @@ export function imagePreviewPath(image: Image) {
   return `thumbnails/${image._id}-${image.name}`
 }
 
-export function parseImageRecord(record: ImageRecord): Image {
+export function parseImageRecord(record: ImageRecord): RemoteImage {
   const decodedColors = decodeColors(record.attrs.previewColors)
   return {
     _id: record._id,
@@ -61,6 +66,6 @@ export function parseImageRecord(record: ImageRecord): Image {
   }
 }
 
-export function parseImageRecords(records: ImageRecord[]): Image[] {
+export function parseImageRecords(records: ImageRecord[]): RemoteImage[] {
   return _.map(records, parseImageRecord)
 }

@@ -48,7 +48,7 @@ export const refreshImagesCacheEpic: Epic<
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       images.refreshImages(payload.attributes.userGroupId!).pipe(
         map(images =>
-          actions.refreshImagesCache.success({ filter: payload, images }),
+          actions.refreshImagesCache.success(payload),
         ),
         takeUntil(
           action$.pipe(
@@ -66,7 +66,7 @@ export const refreshImagesCacheEpic: Epic<
 export const reloadImagesEpic: Epic<RootAction, RootAction> = action$ =>
   action$.pipe(
     filter(isActionOf(actions.refreshImagesCache.success)),
-    map(({ payload }) => actions.getImagesFromCache.request(payload.filter)),
+    map(({ payload }) => actions.getImagesFromCache.request(payload)),
   )
 
 export const getImagesFromCacheEpic: Epic<
@@ -357,4 +357,60 @@ export const saveImageFileEpic: Epic<
       files.save(payload.image, payload.objectURL)
     }),
     ignoreElements(),
+  )
+
+export const getEXIFTagsAfterUploadEpic: Epic<RootAction, RootAction, RootState, Pick<RootService, 'images'>> = (action$, state$, { images }) =>
+  action$.pipe(
+    filter(isActionOf(actions.didProcessImage)),
+    filter(({ payload }) => images.shouldScanEXIFTags(payload.image)),
+    map(({ payload }) => actions.updateImageEXIFTags.request({ image: payload.image, imageData: payload.imageData })),
+  )
+
+export const getEXIFTagsAfterDownloadEpic: Epic<RootAction, RootAction, RootState, Pick<RootService, 'images'>> = (action$, state$, { images }) =>
+  action$.pipe(
+    filter(isActionOf(actions.downloadImage.success)),
+    filter(({ payload }) => images.shouldScanEXIFTags(payload.image)),
+    map(({ payload }) => {
+      let imageData: ArrayBuffer
+
+      if (typeof payload.fileContent !== 'string') {
+        imageData = payload.fileContent.buffer
+      } else {
+        return actions.updateImageEXIFTags.failure({ error: Error('String could not be converted to ArrayBuffer'), resource: payload.image})
+      }
+
+      return actions.updateImageEXIFTags.request({ image: payload.image, imageData })
+    }),
+  )
+
+export const updateEXIFTagsEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'images'>
+> = (action$, state$, { images }) =>
+  action$.pipe(
+    filter(isActionOf(actions.updateImageEXIFTags.request)),
+    mergeMap(({ payload: { image, imageData } }) => {
+      // TODO: Type exif tags
+      const exifTags = images.getEXIFTags(imageData)
+      // TODO: Also update current exif index
+      return images.updateMeta(image, { exifTags }).pipe(
+        map(({ resource }) => actions.updateImageEXIFTags.success(resource)),
+        takeUntil(
+          action$.pipe(
+            filter(isActionOf(actions.updateImageEXIFTags.cancel)),
+            filter(cancel => cancel.payload._id === image._id),
+          ),
+        ),
+        catchError(error =>
+          of(
+            actions.updateImageEXIFTags.failure({
+              error,
+              resource: image,
+            }),
+          ),
+        ),
+      )
+    }),
   )

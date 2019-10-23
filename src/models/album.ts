@@ -18,12 +18,13 @@ export default interface Album extends BaseModel {
 }
 
 export type UnsavedAlbum = UnsavedModel<Album>
+export type RemoteAlbum = Omit<Album, 'meta'>
 
 export function buildAlbumRecord(album: UnsavedAlbum | Album): AlbumRecord {
   return AlbumRecordFactory.build(album)
 }
 
-export function parseAlbumRecord(record: AlbumRecord): Omit<Album, 'meta'> {
+export function parseAlbumRecord(record: AlbumRecord): RemoteAlbum {
   const privateKey = record.encryptionPrivateKey()
   record.privateKey = privateKey
   const publicKey = record.publicKey()
@@ -39,9 +40,7 @@ export function parseAlbumRecord(record: AlbumRecord): Omit<Album, 'meta'> {
   }
 }
 
-export function parseAlbumRecords(
-  records: AlbumRecord[],
-): Omit<Album, 'meta'>[] {
+export function parseAlbumRecords(records: AlbumRecord[]): RemoteAlbum[] {
   return _.map(records, parseAlbumRecord)
 }
 

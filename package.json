@@ -11,6 +11,7 @@
     "buffer": "^5.4.3",
     "classnames": "^2.2.6",
     "dexie": "^2.0.4",
+    "exif-js": "^2.3.0",
     "file-saver": "^2.0.2",
     "formik": "^1.5.7",
     "immutable": "^4.0.0-rc.12",

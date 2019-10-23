@@ -21,6 +21,7 @@ import Drawer, { DrawerProps } from '@material-ui/core/Drawer'
 import List from '@material-ui/core/List'
 
 import AlbumTreeView from 'components/menu/AlbumTreeView'
+import SmartAlbumTreeView from 'components/menu/SmartAlbumTreeView'
 import AddAlbumMenu from 'connected-components/AddAlbumMenu'
 import Album from 'models/album'
 import {
@@ -41,17 +42,17 @@ const styles = (theme: Theme) =>
       marginTop: -2,
     },
     categoryHeader: {
-      color: 'rgba(255, 255, 255, 0.7)',
+      color: theme.palette.common.white,
       paddingTop: theme.spacing(2),
       paddingBottom: theme.spacing(1),
     },
-    myAlbumsHeaderText: {
-      flex: 'none',
+    categoryHeaderActive: {
+      color: theme.palette.secondary.main,
     },
-    categoryHeaderPrimary: {
-      color: theme.palette.common.white,
-      textTransform: 'uppercase',
+    categoryHeaderText: {
       alignItems: 'flex-start',
+      flex: 'none',
+      textTransform: 'uppercase',
     },
     drawerPaper: {
       borderRight: 'none',
@@ -65,9 +66,6 @@ const styles = (theme: Theme) =>
     leftIcon: {
       fontSize: 20,
       marginRight: theme.spacing(1),
-    },
-    itemActiveItem: {
-      color: theme.palette.secondary.light,
     },
   })
 
@@ -128,7 +126,27 @@ class Menu extends React.Component<ComposedProps> {
           <ListItem
             button
             className={cx(classes.categoryHeader, {
-              [classes.itemActiveItem]:
+              [classes.categoryHeaderActive]:
+                location.pathname === routes.smartAlbumsOverview,
+            })}
+            component={NavLink}
+            to={routes.smartAlbumsOverview}
+          >
+            <ListItemText
+              classes={{
+                root: classes.categoryHeaderText,
+              }}
+            >
+              Smart Albums
+            </ListItemText>
+          </ListItem>
+        </List>
+        <SmartAlbumTreeView />
+        <List disablePadding>
+          <ListItem
+            button
+            className={cx(classes.categoryHeader, {
+              [classes.categoryHeaderActive]:
                 location.pathname === routes.albumsOverview,
             })}
             component={NavLink}
@@ -136,8 +154,7 @@ class Menu extends React.Component<ComposedProps> {
           >
             <ListItemText
               classes={{
-                root: classes.myAlbumsHeaderText,
-                primary: classes.categoryHeaderPrimary,
+                root: classes.categoryHeaderText,
               }}
             >
               My Albums

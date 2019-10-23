@@ -1,7 +1,9 @@
 import Dexie, { IndexableType } from 'dexie'
 import BaseModel from 'models'
 import Album from 'models/album'
+import AlbumMeta from 'models/albumMeta'
 import Image from 'models/image'
+import ImageMeta from 'models/imageMeta'
 
 // eslint-disable-next-line no-restricted-globals
 const ctx = (self as any) as DedicatedWorkerGlobalScope // eslint-disable-line no-restricted-globals
@@ -36,8 +38,27 @@ async function findImages(filter: QueryableAttributes): Promise<Image[]> {
   return await db.images.where(filter).toArray()
 }
 
-function upsert<T extends BaseModel>(table: Dexie.Table<T, string>, model: T) {
-  return table.update(model._id, model)
+function upsert<T extends BaseModel>(
+  table: Dexie.Table<T, string>,
+  model: T,
+  defaultMeta: AlbumMeta | ImageMeta,
+) {
+  return new Promise((resolve, reject) => {
+    table
+      .update(model._id, model)
+      .then(updates => {
+        if (updates === 0) {
+          // Add the model if it could not be updated
+          table
+            .add({ meta: defaultMeta, ...model })
+            .then(resolve)
+            .catch(reject)
+        } else {
+          resolve()
+        }
+      })
+      .catch(reject)
+  })
 }
 
 const upsertAlbum = upsert.bind(null, db.albums)
@@ -87,9 +108,16 @@ ctx.addEventListener('message', event => {
     } else if (job.endsWith('albums.all')) {
       resultResponse(id, getAlbums())
     } else if (job.endsWith('albums.update')) {
-      defaultResponse(id, upsertAlbum(payload))
+      defaultResponse(id, upsertAlbum(payload.album, payload.defaultMeta))
     } else if (job.endsWith('albums.updateAll')) {
-      defaultResponse(id, Promise.all(payload.map(upsertAlbum)))
+      defaultResponse(
+        id,
+        Promise.all(
+          payload.albums.map((album: Album) =>
+            upsertAlbum(album, payload.defaultMeta),
+          ),
+        ),
+      )
     } else if (job.endsWith('images.serialize')) {
       resultResponse(id, db.images.toArray().then(JSON.stringify))
     } else if (job.endsWith('images.deserialize')) {
@@ -114,9 +142,16 @@ ctx.addEventListener('message', event => {
     } else if (job.endsWith('images.where')) {
       resultResponse(id, findImages(payload))
     } else if (job.endsWith('images.update')) {
-      defaultResponse(id, upsertImage(payload))
+      defaultResponse(id, upsertImage(payload.image, payload.defaultMeta))
     } else if (job.endsWith('images.updateAll')) {
-      defaultResponse(id, Promise.all(payload.map(upsertImage)))
+      defaultResponse(
+        id,
+        Promise.all(
+          payload.images.map((image: Image) =>
+            upsertImage(image, payload.defaultMeta),
+          ),
+        ),
+      )
     } else {
       throw 'unknown job'
     }

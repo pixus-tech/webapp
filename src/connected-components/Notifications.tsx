@@ -81,9 +81,8 @@ class Notifications extends React.PureComponent<ComposedProps> {
         {hasNotifications ? (
           <List className={classes.list}>
             {_.map(notifications, (notification, index) => (
-              <>
+              <div key={`${index}-item`}>
                 <UserListItem
-                  key={`${index}-item`}
                   message={notification.message}
                   user={{ username: notification.creator }}
                 />
@@ -94,7 +93,7 @@ class Notifications extends React.PureComponent<ComposedProps> {
                     component="li"
                   />
                 )}
-              </>
+              </div>
             ))}
           </List>
         ) : (

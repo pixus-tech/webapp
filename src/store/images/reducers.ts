@@ -64,21 +64,22 @@ const data = createReducer(initialState.data)
     },
   )
 
-const filterImageIds = createReducer(initialState.filterImageIds).handleAction(
-  actions.getImagesFromCache.success,
-  (state, { payload }) => {
+const filterImageIds = createReducer(initialState.filterImageIds)
+  .handleAction(actions.getImagesFromCache.success, (state, { payload }) => {
     const imageIds = List<string>(payload.images.map(image => image._id))
     return state.set(keyForFilter(payload.filter), imageIds)
-  },
-)
-/* TODO: Add image to current filter during upload
+  })
   .handleAction([actions.didProcessImage], (state, action) => {
     const albumId = action.payload.album._id
     const imageId = action.payload.image._id
-    const imageIds = state.get(albumId) || List<string>()
-    return state.set(action.payload.album._id, imageIds.push(imageId))
+    const key = keyForFilter({
+      page: 0,
+      perPage: 1000,
+      attributes: { userGroupId: albumId },
+    })
+    const imageIds = state.get(key) || List<string>()
+    return state.set(key, imageIds.push(imageId))
   })
-*/
 
 const imageObjectURLMap = createReducer(initialState.imageObjectURLMap)
   .handleAction(actions.downloadImage.success, (state, action) => {

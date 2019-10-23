@@ -13,6 +13,7 @@ import LazyPreviewImage from 'connected-components/LazyPreviewImage'
 import Slideshow from 'components/Slideshow'
 import Album from 'models/album'
 import Image from 'models/image'
+import { preventClickThrough } from 'utils/ui'
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -65,7 +66,10 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
   }
 
   setCellSelection = (event: React.MouseEvent<HTMLElement>) => {
+    preventClickThrough(event)
+
     const { index } = event.currentTarget.dataset
+
     if (typeof index === 'string') {
       this.setState({
         selection: parseInt(index, 10),

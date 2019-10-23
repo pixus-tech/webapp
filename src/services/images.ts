@@ -9,6 +9,7 @@ import Image, {
   parseImageRecords,
   QueryableImageAttributes,
 } from 'models/image'
+import ImageMeta, { defaultImageMeta, CurrentEXIFIndexVersion } from 'models/imageMeta'
 import { Uint8BitColor } from 'utils/colors'
 import ImageRecord, { ImageRecordFactory } from 'db/radiks/image'
 import BaseService from './baseService'
@@ -18,9 +19,11 @@ import records from './records'
 import { currentUsername } from 'utils/blockstack'
 import { didProcessImage } from 'store/images/actions'
 
+import EXIF from 'exif-js'
+
 class Images extends BaseService {
   refreshImages = (albumId: string) =>
-    this.dispatcher.performAsync<Image[]>(
+    this.dispatcher.performAsync<undefined>(
       Queue.RecordOperation,
       (resolve, reject) => {
         ImageRecord.fetchList<ImageRecord>({
@@ -31,7 +34,7 @@ class Images extends BaseService {
             this.db.images
               .updateAll(images)
               .then(() => {
-                resolve(images)
+                resolve(undefined)
               })
               .catch(reject)
           })
@@ -81,6 +84,11 @@ class Images extends BaseService {
     })
   }
 
+  shouldScanEXIFTags = (image: Image) =>
+    CurrentEXIFIndexVersion > image.meta.exifIndexVersion
+
+  getEXIFTags = (imageData: ArrayBuffer) => EXIF.readFromBinaryFile(imageData)
+
   uploadImageToAlbum = (album: Album, fileHandle: FileHandle) => {
     return new Observable<Image>(subscriber => {
       const self = this
@@ -105,6 +113,7 @@ class Images extends BaseService {
                 userGroupId: album._id,
                 username: currentUsername(),
                 width: imageMetaData.width,
+                meta: defaultImageMeta,
               }
 
               self.dispatch(
@@ -242,6 +251,24 @@ class Images extends BaseService {
 
       img.src = imageObjectURL
     })
+
+  updateMeta = (image: Image, meta: Partial<ImageMeta>) =>
+    this.dispatcher.performAsync<{ resource: Image }>(
+      Queue.RecordOperation,
+      (resolve, reject) => {
+        const updatedMeta: ImageMeta = { ...image.meta, ...meta }
+        const updatedImage: Image = {
+          ...image,
+          meta: updatedMeta,
+        }
+        this.db.images
+          .update(updatedImage)
+          .then(() => {
+            resolve({ resource: updatedImage })
+          })
+          .catch(reject)
+      },
+    )
 }
 
 const images = new Images()

@@ -14,11 +14,7 @@ import Album from 'models/album'
 
 const useStyles = makeStyles(
   createStyles({
-    root: {
-      height: 264,
-      flexGrow: 1,
-      maxWidth: 400,
-    },
+    root: {},
   }),
 )
 

@@ -4,7 +4,9 @@ import { registerWorker, postJob } from './'
 
 import { Buffer } from 'buffer'
 import Album from 'models/album'
+import { defaultAlbumMeta } from 'models/albumMeta'
 import Image, { QueryableImageAttributes } from 'models/image'
+import { defaultImageMeta } from 'models/imageMeta'
 
 const dbWorker = new DBWorker()
 registerWorker(dbWorker)
@@ -28,11 +30,15 @@ export function allAlbums() {
 }
 
 export function updateAlbum(album: Partial<Album>) {
-  return postJob<boolean>(dbWorker, 'albums.update', { payload: album })
+  return postJob<boolean>(dbWorker, 'albums.update', {
+    payload: { album, defaultMeta: defaultAlbumMeta },
+  })
 }
 
 export function updateAlbums(albums: Partial<Album>[]) {
-  return postJob<boolean>(dbWorker, 'albums.updateAll', { payload: albums })
+  return postJob<boolean>(dbWorker, 'albums.updateAll', {
+    payload: { albums, defaultMeta: defaultAlbumMeta },
+  })
 }
 
 // --- Images
@@ -58,9 +64,13 @@ export function filteredImages(filter: QueryableImageAttributes) {
 }
 
 export function updateImage(image: Partial<Image>) {
-  return postJob<boolean>(dbWorker, 'images.update', { payload: image })
+  return postJob<boolean>(dbWorker, 'images.update', {
+    payload: { image, defaultMeta: defaultImageMeta },
+  })
 }
 
 export function updateImages(images: Partial<Image>[]) {
-  return postJob<boolean>(dbWorker, 'images.updateAll', { payload: images })
+  return postJob<boolean>(dbWorker, 'images.updateAll', {
+    payload: { images, defaultMeta: defaultImageMeta },
+  })
 }
