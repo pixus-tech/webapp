@@ -1,19 +1,25 @@
-import Dexie, { IndexableType } from 'dexie'
-import BaseModel from 'models'
+import * as DB from 'worker-scripts/db'
+
+// Imported types
+import DexieNamespace, { IndexableType } from 'dexie'
 import Album from 'models/album'
 import AlbumMeta from 'models/albumMeta'
+import BaseModel from 'models'
 import Image from 'models/image'
 import ImageMeta from 'models/imageMeta'
 
-// eslint-disable-next-line no-restricted-globals
-const ctx = (self as any) as DedicatedWorkerGlobalScope // eslint-disable-line no-restricted-globals
-ctx.importScripts('/static/js/dexie.js')
+declare const db: typeof DB
+declare const self: DedicatedWorkerGlobalScope
+
+self.importScripts('/static/js/db.dev.js')
+
+const { Dexie } = db
 
 type QueryableAttributes = { [key: string]: IndexableType }
 
 class PixusDatabase extends Dexie {
-  public albums: Dexie.Table<Album, string>
-  public images: Dexie.Table<Image, string>
+  public albums: DexieNamespace.Table<Album, string>
+  public images: DexieNamespace.Table<Image, string>
 
   public constructor() {
     super('pixus-database')
@@ -28,18 +34,18 @@ class PixusDatabase extends Dexie {
   }
 }
 
-const db = new PixusDatabase()
+const database = new PixusDatabase()
 
 async function getAlbums(): Promise<Album[]> {
-  return await db.albums.toArray()
+  return await database.albums.toArray()
 }
 
 async function findImages(filter: QueryableAttributes): Promise<Image[]> {
-  return await db.images.where(filter).toArray()
+  return await database.images.where(filter).toArray()
 }
 
 function upsert<T extends BaseModel>(
-  table: Dexie.Table<T, string>,
+  table: DexieNamespace.Table<T, string>,
   model: T,
   defaultMeta: AlbumMeta | ImageMeta,
 ) {
@@ -61,30 +67,30 @@ function upsert<T extends BaseModel>(
   })
 }
 
-const upsertAlbum = upsert.bind(null, db.albums)
-const upsertImage = upsert.bind(null, db.images)
+const upsertAlbum = upsert.bind(null, database.albums)
+const upsertImage = upsert.bind(null, database.images)
 
 function defaultResponse(id: string, promise: Promise<any>) {
   return promise
     .then(function() {
-      ctx.postMessage({ id, result: true })
+      self.postMessage({ id, result: true })
     })
     .catch(function(error) {
-      ctx.postMessage({ id, error })
+      self.postMessage({ id, error })
     })
 }
 
 function resultResponse(id: string, promise: Promise<any>) {
   return promise
     .then(function(result) {
-      ctx.postMessage({ id, result })
+      self.postMessage({ id, result })
     })
     .catch(function(error) {
-      ctx.postMessage({ id, error })
+      self.postMessage({ id, error })
     })
 }
 
-ctx.addEventListener('message', event => {
+self.addEventListener('message', event => {
   const { id, job, payload } = event.data
 
   try {
@@ -93,18 +99,18 @@ ctx.addEventListener('message', event => {
     }
 
     if (job.endsWith('albums.serialize')) {
-      resultResponse(id, db.albums.toArray().then(JSON.stringify))
+      resultResponse(id, database.albums.toArray().then(JSON.stringify))
     } else if (job.endsWith('albums.deserialize')) {
       defaultResponse(
         id,
-        db.transaction('rw', db.albums, async () => {
+        database.transaction('rw', database.albums, async () => {
           const albums = JSON.parse(payload)
-          await db.albums.clear()
-          await db.albums.bulkAdd(albums)
+          await database.albums.clear()
+          await database.albums.bulkAdd(albums)
         }),
       )
     } else if (job.endsWith('albums.add')) {
-      defaultResponse(id, db.albums.add(payload))
+      defaultResponse(id, database.albums.add(payload))
     } else if (job.endsWith('albums.all')) {
       resultResponse(id, getAlbums())
     } else if (job.endsWith('albums.update')) {
@@ -119,22 +125,22 @@ ctx.addEventListener('message', event => {
         ),
       )
     } else if (job.endsWith('images.serialize')) {
-      resultResponse(id, db.images.toArray().then(JSON.stringify))
+      resultResponse(id, database.images.toArray().then(JSON.stringify))
     } else if (job.endsWith('images.deserialize')) {
       defaultResponse(
         id,
-        db.transaction('rw', db.images, async () => {
+        database.transaction('rw', database.images, async () => {
           const images = JSON.parse(payload)
-          await db.images.clear()
-          await db.images.bulkAdd(images)
+          await database.images.clear()
+          await database.images.bulkAdd(images)
         }),
       )
     } else if (job.endsWith('images.add')) {
-      defaultResponse(id, db.images.add(payload))
+      defaultResponse(id, database.images.add(payload))
     } else if (job.endsWith('images.destroy')) {
       defaultResponse(
         id,
-        db.images
+        database.images
           .where('_id')
           .equals(payload._id)
           .delete(),
@@ -156,7 +162,7 @@ ctx.addEventListener('message', event => {
       throw 'unknown job'
     }
   } catch (error) {
-    ctx.postMessage({ id, error: `${error}` })
+    self.postMessage({ id, error: `${error}` })
   }
 })
 

@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "target": "es6",
     "lib": [
       "webworker",
       "dom",
@@ -19,7 +18,9 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strict": true
+    "sourceMap": true,
+    "strict": true,
+    "target": "es6"
   },
   "include": [
     "src"

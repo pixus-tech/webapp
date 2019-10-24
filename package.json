@@ -7,6 +7,7 @@
     "@material-ui/core": "^4.5.1",
     "@material-ui/icons": "^4.5.1",
     "@material-ui/lab": "^4.0.0-alpha.26",
+    "@tensorflow-models/coco-ssd": "^2.0.0",
     "@tensorflow/tfjs": "^1.2.11",
     "blockstack": "^19.3.0",
     "buffer": "^5.4.3",
@@ -51,14 +52,16 @@
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "react-app-rewired build; npm run build:worker",
-    "build:worker": "bin/build-workers.sh",
+    "build": "react-app-rewired build",
+    "build:worker-script": "rollup --config rollup.worker.js",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject",
     "lint:fix": "eslint --fix './src/**/*.{ts,tsx}'",
     "lint": "eslint './src/**/*.{ts,tsx}'",
     "update": "npm-check --update",
-    "storybook": "start-storybook"
+    "storybook": "start-storybook",
+    "postinstall": "./bin/build-workers.sh",
+    "postbuild": "./bin/post-build.sh"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -108,8 +111,11 @@
     "raw-loader": "^3.1.0",
     "react-app-rewired": "^2.1.4",
     "react-test-renderer": "^16.10.2",
-    "ts-loader": "^6.2.0",
-    "worker-loader": "^2.0.0",
-    "workerize-loader": "^1.1.0"
+    "rollup": "^1.25.2",
+    "rollup-plugin-analyzer": "^3.2.1",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-typescript2": "^0.24.3",
+    "rollup-plugin-uglify": "^6.0.3",
+    "worker-loader": "^2.0.0"
   }
 }
