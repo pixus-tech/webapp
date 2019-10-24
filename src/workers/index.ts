@@ -3,6 +3,7 @@ import uuid from 'uuid/v4'
 
 import * as cryptoWorker from './crypto'
 import * as dbWorker from './db'
+import * as aiWorker from './ai'
 import { readFileWorker } from './readFile'
 
 interface JobActions {
@@ -51,8 +52,8 @@ export function postJob<T>(worker: Worker, job: string, payload: object = {}) {
       if (reject) {
         reject(Error('job took too long'))
       }
-    }, 30000)
+    }, 300000)
   })
 }
 
-export { cryptoWorker, dbWorker, readFileWorker }
+export { aiWorker, cryptoWorker, dbWorker, readFileWorker }

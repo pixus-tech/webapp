@@ -34,6 +34,8 @@ ctx.addEventListener('message', event => {
         privateKey: key,
       })
       ctx.postMessage({ id, result })
+    } else {
+      throw 'unknown job'
     }
   } catch (error) {
     ctx.postMessage({ id, error: `${error}` })
