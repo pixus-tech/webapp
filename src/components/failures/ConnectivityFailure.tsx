@@ -5,9 +5,6 @@ import Typography from '@material-ui/core/Typography'
 import CloudOffIcon from '@material-ui/icons/CloudOff'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
-import { predict } from 'workers/ai'
-import catImage from "cat.jpg"
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -28,21 +25,6 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 )
 
-function onLoad(event: React.SyntheticEvent<HTMLImageElement, Event>) {
-  const img = event.target as HTMLImageElement
-
-  const canvas = document.createElement('canvas')
-  canvas.width = img.width
-  canvas.height = img.height
-  const ctx = canvas.getContext('2d')
-  if (ctx === null) {
-    return
-  }
-  ctx.drawImage(img, 0, 0, img.width, img.height)
-  const imageData = ctx.getImageData(0,0,img.width,img.height)
-  predict(imageData)
-}
-
 interface IProps {
   isBlockstackReachable: boolean | null
   isHubReachable: boolean | null
@@ -60,7 +42,6 @@ function ConnectivityFailure({
 
   return (
     <div className={classes.root}>
-      <img src={catImage} onLoad={onLoad} />
       {(!isBlockstackReachable || !isHubReachable || !isRadiksReachable) && (
         <CloudOffIcon className={classes.icon} />
       )}

@@ -5,6 +5,7 @@ import { compose } from 'recompose'
 import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
 
+import Badge from '@material-ui/core/Badge'
 import Typography from '@material-ui/core/Typography'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import {
@@ -14,9 +15,11 @@ import {
   WithStyles,
 } from '@material-ui/core/styles'
 
+import CloudIcon from '@material-ui/icons/CloudQueue'
 import UploadIcon from '@material-ui/icons/CloudUpload'
 
 import IconWithPopover from 'components/IconWithPopover'
+import colors from 'constants/colors'
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -53,6 +56,38 @@ type ComposedProps = WithStyles<typeof styles> &
   IDispatchProps &
   IStateProps
 
+const DirtyBadge = withStyles((theme: Theme) =>
+  createStyles({
+    badge: {
+      backgroundColor: colors.red.main,
+      boxShadow: `0 0 0 2px ${theme.palette.primary.main}`,
+      right: '20%',
+      top: '30%',
+      '&::after': {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        borderRadius: '50%',
+        animation: '$ripple 1.2s infinite ease-in-out',
+        border: `1px solid ${colors.red.main}`,
+        content: '""',
+      },
+    },
+    '@keyframes ripple': {
+      '0%': {
+        transform: 'scale(.8)',
+        opacity: 1,
+      },
+      '100%': {
+        transform: 'scale(2.4)',
+        opacity: 0,
+      },
+    },
+  }),
+)(Badge);
+
 class UploadInfo extends React.PureComponent<ComposedProps> {
   render() {
     const {
@@ -66,17 +101,28 @@ class UploadInfo extends React.PureComponent<ComposedProps> {
     const successCount = succeededUploadIds.length
     const failureCount = _.size(failedUploads)
 
-    if (totalCount === 0) {
-      return null
-    }
+    const Icon = totalCount === 0 ? CloudIcon : UploadIcon
+    const icon = (
+      <DirtyBadge
+        overlap="circle"
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        variant="dot"
+      >
+        <Icon />
+      </DirtyBadge>
+    )
 
+    const unpersisted = true
     const progress = ((successCount + failureCount) / totalCount) * 100
 
     return (
       <IconWithPopover
         id="uploads-info-popover"
         tooltip="Uploads"
-        Icon={<UploadIcon />}
+        Icon={icon}
       >
         <div>
           <LinearProgress

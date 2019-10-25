@@ -30,7 +30,7 @@ const persistConfig = {
   key: 'root',
   storage: localForage,
   transforms: [immutableTransform()],
-  whitelist: ['auth', 'i18n'],
+  whitelist: ['auth', 'i18n', 'settings'],
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

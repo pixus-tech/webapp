@@ -31,10 +31,18 @@ const styles = (theme: Theme) =>
       padding: theme.spacing(2),
     },
     headline: {},
+    h2: {
+      marginTop: theme.spacing(3),
+    },
+    h3: {
+      marginTop: theme.spacing(1),
+    },
     progress: {
       marginLeft: theme.spacing(1),
     },
-    submit: {},
+    submit: {
+      marginTop: theme.spacing(3),
+    },
     textField: {},
     paper: {
       backgroundColor: theme.palette.common.white,
@@ -63,7 +71,7 @@ const Settings: React.FC<ComposedProps> = ({
   return (
     <div className={classes.container}>
       <Paper className={classes.paper} elevation={3}>
-        <Typography className={classes.headline} component="h2" variant="h4">
+        <Typography className={classes.headline} component="h1" variant="h4">
           Settings
         </Typography>
 
@@ -80,7 +88,7 @@ const Settings: React.FC<ComposedProps> = ({
               <Grid container alignItems="flex-start" spacing={1}>
                 <Grid item xs={6}>
                   <Grid item xs={12}>
-                    <Typography component="h3" variant="h5">
+                    <Typography component="h2" variant="h5" className={classes.h2}>
                       Analytics
                     </Typography>
                     <Typography component="p" variant="body1">
@@ -92,14 +100,14 @@ const Settings: React.FC<ComposedProps> = ({
                     <Field name="optOutAnalytics">
                       {({ field }: FieldProps) => (
                         <FormControlLabel
-                          control={<Checkbox {...field} />}
+                          control={<Checkbox {...field} checked={field.value} />}
                           label="Disable analytics"
                         />
                       )}
                     </Field>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography component="h3" variant="h5">
+                    <Typography component="h2" variant="h5" className={classes.h2}>
                       File chunking
                     </Typography>
                     <Typography component="p" variant="body1">
@@ -138,7 +146,7 @@ const Settings: React.FC<ComposedProps> = ({
                     </Field>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography component="h3" variant="h5">
+                    <Typography component="h2" variant="h5" className={classes.h2}>
                       Concurrency
                     </Typography>
                     <Typography component="p" variant="body1">
@@ -149,7 +157,7 @@ const Settings: React.FC<ComposedProps> = ({
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography component="h4" variant="h6">
+                    <Typography component="h3" variant="h6" className={classes.h3}>
                       Uploading
                     </Typography>
                     <Typography component="p" variant="body1">
@@ -182,7 +190,7 @@ const Settings: React.FC<ComposedProps> = ({
                     </Field>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography component="h4" variant="h6">
+                    <Typography component="h3" variant="h6" className={classes.h3}>
                       Downloading
                     </Typography>
                     <Typography component="p" variant="body1">
@@ -215,7 +223,7 @@ const Settings: React.FC<ComposedProps> = ({
                     </Field>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography component="h4" variant="h6">
+                    <Typography component="h3" variant="h6" className={classes.h3}>
                       En- and Decryption
                     </Typography>
                     <Typography component="p" variant="body1">
@@ -248,7 +256,7 @@ const Settings: React.FC<ComposedProps> = ({
                     </Field>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography component="h4" variant="h6">
+                    <Typography component="h3" variant="h6" className={classes.h3}>
                       File Operations
                     </Typography>
                     <Typography component="p" variant="body1">

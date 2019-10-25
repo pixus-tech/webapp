@@ -3,6 +3,8 @@ import { createMuiTheme } from '@material-ui/core/styles'
 import SourceSansProRegularWoff2 from 'fonts/SourceSansPro-Regular.otf.woff2'
 import SourceSansProRegularWoff from 'fonts/SourceSansPro-Regular.otf.woff'
 
+import colors from 'constants/colors'
+
 const sourceSansPro = {
   regular: {
     fontFamily: 'SourceSansPro',
@@ -20,22 +22,34 @@ const sourceSansPro = {
 let theme = createMuiTheme({
   palette: {
     type: 'light',
+    text: {
+      primary: colors.black.main,
+      secondary: colors.black.light,
+    },
+    divider: colors.black.light,
+    background: {
+      paper: colors.white.main,
+      default: colors.white.dark,
+    },
     common: {
-      white: '#f3f3f3',
+      black: colors.black.main,
+      white: colors.white.main,
     },
     primary: {
-      light: '#434345',
-      main: '#1c1c1e',
-      dark: '#000000',
+      light: colors.black.light,
+      main: colors.black.main,
+      dark: colors.black.dark,
     },
     secondary: {
-      light: '#64e8ff',
-      main: '#06b6dc',
-      dark: '#0086aa',
-      contrastText: '#f3f3f3',
+      light: colors.blue.light,
+      main: colors.blue.main,
+      dark: colors.blue.dark,
+      contrastText: colors.white.main,
     },
-    background: {
-      paper: '#f3f3f3',
+    error: {
+      light: colors.red.light,
+      main: colors.red.main,
+      dark: colors.red.dark,
     },
   },
   typography: {

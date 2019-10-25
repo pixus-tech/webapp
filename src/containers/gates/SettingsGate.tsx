@@ -14,14 +14,11 @@ interface IDispatchProps {
 
 interface IStateProps {
   isAuthenticated: boolean
-  isFailed: boolean
-  isLoaded: boolean
-  isLoading: boolean
 }
 
 type ComposedProps = IDispatchProps & IStateProps
 
-class ConnectivityGate extends React.PureComponent<ComposedProps> {
+class SettingsGate extends React.PureComponent<ComposedProps> {
   componentDidMount() {
     if (this.props.isAuthenticated) {
       this.loadSettings()
@@ -41,22 +38,11 @@ class ConnectivityGate extends React.PureComponent<ComposedProps> {
   render() {
     const {
       children,
-      isFailed,
-      isLoaded,
-      isLoading,
       isAuthenticated,
     } = this.props
 
     if (!isAuthenticated) {
       return children
-    }
-
-    if (!isLoaded || isFailed) {
-      return (
-        <FullScreenLoader isLoading={isLoading}>
-          {isFailed && <SettingsFailure onRetry={this.loadSettings} />}
-        </FullScreenLoader>
-      )
     }
 
     return children
@@ -66,9 +52,6 @@ class ConnectivityGate extends React.PureComponent<ComposedProps> {
 function mapStateToProps(store: RootState): IStateProps {
   return {
     isAuthenticated: store.auth.isAuthenticated,
-    isFailed: store.settings.loadingDidFail,
-    isLoaded: store.settings.isLoaded,
-    isLoading: store.settings.isLoading,
   }
 }
 
@@ -83,4 +66,4 @@ export default compose<ComposedProps, {}>(
     mapStateToProps,
     mapDispatchToProps,
   ),
-)(ConnectivityGate)
+)(SettingsGate)
