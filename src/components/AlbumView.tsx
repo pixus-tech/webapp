@@ -45,6 +45,13 @@ const useStyles = makeStyles((theme: Theme) =>
     slider: {
       width: 100,
     },
+    sliderWrapper: {
+      alignItems: 'center',
+      display: 'flex',
+      flexFlow: 'column',
+      justifyContent: 'center',
+      height: '100%',
+    },
   }),
 )
 
@@ -92,7 +99,7 @@ function AlbumView({
     value: number | number[],
   ) => {
     if (typeof value === 'number') {
-      setNumberOfImageColumns(value)
+      setNumberOfImageColumns(10 - value)
     }
   }
 
@@ -101,7 +108,15 @@ function AlbumView({
       <AppBar component="div" color="primary" position="static" elevation={1}>
         <Toolbar>
           <Grid container alignItems="flex-start" spacing={1}>
-            <Grid item>{title}</Grid>
+            <Grid item>
+              {typeof title === 'string' ? (
+                <Typography color="inherit" variant="h5" component="h1">
+                  {title}
+                </Typography>
+              ) : (
+                title
+              )}
+            </Grid>
           </Grid>
         </Toolbar>
         <Toolbar>
@@ -117,16 +132,24 @@ function AlbumView({
                 <Grid item>
                   <Grid container spacing={2}>
                     <Grid item>
-                      <Slider
-                        className={classes.slider}
-                        color="secondary"
-                        value={numberOfImageColumns}
-                        step={1}
-                        min={2}
-                        max={10}
-                        onChange={onChangeImageColumnCount}
-                        valueLabelDisplay="auto"
-                      />
+                      <div className={classes.sliderWrapper}>
+                        <Typography
+                          color="inherit"
+                          variant="body2"
+                          component="span"
+                        >
+                          Zoom
+                        </Typography>
+                        <Slider
+                          className={classes.slider}
+                          color="secondary"
+                          value={10 - numberOfImageColumns}
+                          step={1}
+                          min={2}
+                          max={8}
+                          onChange={onChangeImageColumnCount}
+                        />
+                      </div>
                     </Grid>
                   </Grid>
                 </Grid>

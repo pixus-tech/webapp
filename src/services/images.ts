@@ -109,6 +109,7 @@ class Images extends BaseService {
 
               const image: Image = {
                 _id: imageId,
+                createdAt: new Date().getTime(),
                 height: imageMetaData.height,
                 name: fileHandle.file.name,
                 previewColors: imageMetaData.previewColors,

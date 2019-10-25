@@ -28,6 +28,7 @@ const styles = (theme: Theme) =>
         display: 'none',
       },
       msOverflowStyle: 'none',
+      outline: 0,
       overflow: '-moz-scrollbars-none',
       scrollbarWidth: 'none',
     },

@@ -14,6 +14,7 @@ declare const self: DedicatedWorkerGlobalScope
 self.importScripts('/static/js/db.dev.js')
 
 const { Dexie } = db
+const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000
 
 type Query = { [keyPath: string]: IndexableType }
 
@@ -26,7 +27,7 @@ class PixusDatabase extends Dexie {
 
     this.version(1).stores({
       albums: '_id,name',
-      images: '_id,userGroupId,meta.isFavorite',
+      images: '_id,createdAt,userGroupId,meta.isFavorite',
     })
 
     this.albums = this.table('albums')
@@ -45,18 +46,28 @@ async function findImages(
   filterData?: any,
 ): Promise<Image[]> {
   switch (filterName) {
-    case 'album':
+    case 'album': {
       if (typeof filterData !== 'string') {
         return Promise.reject('Filter data (userGroupId) should be a string.')
       }
       return await database.images.where({ userGroupId: filterData }).toArray()
-    case 'favorites':
+    }
+    case 'favorites': {
       return await database.images.where({ 'meta.isFavorite': 1 }).toArray()
-    case 'last-upload':
-      // TODO: implement last upload filter
+    }
+    case 'recent-uploads': {
+      const latestUpload = await database.images.orderBy('createdAt').last()
+      if (latestUpload === undefined) {
+        return Promise.resolve([])
+      }
+      return await database.images
+        .where('createdAt')
+        .above(latestUpload.createdAt - MILLISECONDS_PER_DAY)
+        .toArray()
+    }
+    default: {
       return Promise.resolve([])
-    default:
-      return Promise.resolve([])
+    }
   }
 }
 

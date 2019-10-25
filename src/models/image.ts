@@ -21,6 +21,7 @@ export interface ImageMetaData {
 }
 
 export default interface Image extends BaseModel {
+  createdAt: number
   height: number
   name: string
   previewColors: PreviewColors
@@ -33,7 +34,7 @@ export default interface Image extends BaseModel {
   meta: ImageMeta
 }
 
-export type ImageFilterName = 'album' | 'favorites' | 'last-upload'
+export type ImageFilterName = 'album' | 'favorites' | 'recent-uploads'
 export interface ImageFilterAttributes {
   name: ImageFilterName
   data?: any
@@ -52,8 +53,11 @@ export function imagePreviewPath(image: Image) {
 
 export function parseImageRecord(record: ImageRecord): RemoteImage {
   const decodedColors = decodeColors(record.attrs.previewColors)
+  const createdAt = record.attrs.createdAt || new Date().getTime()
+
   return {
     _id: record._id,
+    createdAt,
     height: record.attrs.height,
     name: record.attrs.name,
     previewColors: {

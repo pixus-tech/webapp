@@ -34,8 +34,8 @@ const SmartAlbumTreeView: React.SFC = () => {
         Icon={FavoritesIcon}
       />
       <SmartAlbumTreeItem
-        title="Last Upload"
-        targetPath={buildSmartAlbumRoute('last-upload')}
+        title="Recent Uploads"
+        targetPath={buildSmartAlbumRoute('recent-uploads')}
         Icon={LastUploadIcon}
       />
     </TreeView>

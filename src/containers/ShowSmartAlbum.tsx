@@ -69,7 +69,7 @@ interface IState {
   numberOfImageColumns: number
 }
 
-class ShowSmartAlbum extends React.PureComponent<ComposedProps, IState> {
+class ShowSmartAlbum extends React.Component<ComposedProps, IState> {
   constructor(props: ComposedProps) {
     super(props)
 
@@ -82,19 +82,53 @@ class ShowSmartAlbum extends React.PureComponent<ComposedProps, IState> {
     this.props.dispatchGetImages()
   }
 
+  componentDidUpdate(prevProps: ComposedProps) {
+    const { filterName } = this.props.match.params
+
+    if (filterName !== prevProps.match.params.filterName) {
+      this.props.dispatchGetImages()
+    }
+  }
+
   onChangeImageColumnCount = (value: number) => {
     this.setState({ numberOfImageColumns: value })
   }
 
-  render() {
-    const { classes, images, isLoadingImages, numberOfImages } = this.props
+  shouldComponentUpdate(nextProps: ComposedProps, nextState: IState) {
+    const { match, numberOfImages } = this.props
     const { numberOfImageColumns } = this.state
+    const { filterName } = match.params
 
-    const albumName = 'Favorites'
+    return (
+      numberOfImages !== nextProps.numberOfImages ||
+      filterName !== nextProps.match.params.filterName ||
+      numberOfImageColumns !== nextState.numberOfImageColumns
+    )
+  }
+
+  render() {
+    const {
+      classes,
+      images,
+      isLoadingImages,
+      match,
+      numberOfImages,
+    } = this.props
+    const { numberOfImageColumns } = this.state
+    const { filterName } = match.params
+
+    let albumName = 'The album is loading.'
+    switch (filterName) {
+      case 'favorites':
+        albumName = 'Favorites'
+        break
+      case 'recent-uploads':
+        albumName = 'Recent Uploads'
+        break
+      default:
+    }
 
     if (isLoadingImages) {
-      const loadingMessage = 'Your favorites are loading'
-
       return (
         <AlbumView
           actions={[]}
@@ -102,7 +136,7 @@ class ShowSmartAlbum extends React.PureComponent<ComposedProps, IState> {
           numberOfImageColumns={numberOfImageColumns}
           numberOfImages={numberOfImages}
           setNumberOfImageColumns={this.onChangeImageColumnCount}
-          title={loadingMessage}
+          title={albumName}
         />
       )
     }
