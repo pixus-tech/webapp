@@ -1,7 +1,7 @@
 import React from 'react'
 import { compose } from 'recompose'
 
-import { Formik, FormikProps, Form, Field, FieldProps } from 'formik'
+import { Formik, FormikProps, Field, FieldProps } from 'formik'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
@@ -93,8 +93,12 @@ class AlbumTitle extends React.Component<ComposedProps, IState> {
             actions.setSubmitting(false)
           }}
         >
-          {({ isSubmitting, isValid }: FormikProps<Partial<Album>>) => (
-            <Form className={classes.form}>
+          {({
+            handleSubmit,
+            isSubmitting,
+            isValid,
+          }: FormikProps<Partial<Album>>) => (
+            <form className={classes.form} onSubmit={handleSubmit}>
               <Field name="name">
                 {({ field, form }: FieldProps) => {
                   const errorMessage =
@@ -131,7 +135,7 @@ class AlbumTitle extends React.Component<ComposedProps, IState> {
                 Save
                 <SaveIcon className={classes.saveIcon} />
               </Button>
-            </Form>
+            </form>
           )}
         </Formik>
       )

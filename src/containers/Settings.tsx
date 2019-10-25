@@ -11,7 +11,7 @@ import {
   WithStyles,
 } from '@material-ui/core/styles'
 
-import { Formik, FormikProps, Form, Field, FieldProps } from 'formik'
+import { Formik, FormikProps, Field, FieldProps } from 'formik'
 import Button from '@material-ui/core/Button'
 import Checkbox from '@material-ui/core/Checkbox'
 import CircularProgress from '@material-ui/core/CircularProgress'
@@ -83,8 +83,8 @@ const Settings: React.FC<ComposedProps> = ({
             actions.setSubmitting(false)
           }}
         >
-          {({ isValid }: FormikProps<SettingsSchema>) => (
-            <Form>
+          {({ handleSubmit, isValid }: FormikProps<SettingsSchema>) => (
+            <form onSubmit={handleSubmit}>
               <Grid container alignItems="flex-start" spacing={1}>
                 <Grid item xs={6}>
                   <Grid item xs={12}>
@@ -338,7 +338,7 @@ const Settings: React.FC<ComposedProps> = ({
                   </Grid>
                 </Grid>
               </Grid>
-            </Form>
+            </form>
           )}
         </Formik>
       </Paper>
