@@ -3,45 +3,38 @@ import React from 'react'
 import Dropzone from 'react-dropzone'
 import { RouteComponentProps } from 'react-router'
 import { withRouter } from 'react-router-dom'
-import { AutoSizer } from 'react-virtualized'
 
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
 
-import AppBar from '@material-ui/core/AppBar'
 import Button from '@material-ui/core/Button'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import Grid from '@material-ui/core/Grid'
-import Hidden from '@material-ui/core/Hidden'
-import Slider from '@material-ui/core/Slider'
-import Toolbar from '@material-ui/core/Toolbar'
+import Tooltip from '@material-ui/core/Tooltip'
 import Typography from '@material-ui/core/Typography'
 import {
   createStyles,
   Theme,
   withStyles,
   WithStyles,
-  withTheme,
-  WithTheme,
 } from '@material-ui/core/styles'
+import UploadIcon from '@material-ui/icons/AddAPhoto'
 
+import AlbumView from 'components/AlbumView'
 import AlbumTitle from 'components/AlbumTitle'
 import ImageGrid from 'components/ImageGrid'
 import SharePanel from 'components/SharePanel'
 import Album from 'models/album'
-import Image from 'models/image'
+import Image, { ImageFilterName } from 'models/image'
 import { saveAlbum, setAlbumImageColumnCount } from 'store/albums/actions'
 import { getImages, uploadImagesToAlbum } from 'store/images/actions'
 import { albumImagesSelector } from 'store/images/selectors'
+import { keyForFilter } from 'store/images/types'
 import { showModal } from 'store/modal/actions'
 import { ModalType } from 'store/modal/types'
 import { ShowAlbumURLParameters } from 'utils/routes'
 import Illustration from 'components/illustrations'
-
-// TODO: extract color
-const lightColor = 'rgba(255, 255, 255, 0.7)'
+import { AVATAR_SIZE } from 'components/UserAvatar'
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -50,23 +43,6 @@ const styles = (theme: Theme) =>
       outline: 0,
       overflow: 'hidden',
       width: '100%',
-    },
-    button: {
-      borderColor: lightColor,
-    },
-    center: {
-      textAlign: 'center',
-    },
-    container: {
-      height: '100%',
-      overflow: 'hidden',
-      display: 'flex',
-      flexFlow: 'column',
-    },
-    content: {
-      background: theme.palette.primary.main,
-      flex: 1,
-      padding: theme.spacing(1, 0.5, 0),
     },
     messageContainer: {
       alignItems: 'center',
@@ -83,23 +59,18 @@ const styles = (theme: Theme) =>
       maxWidth: 320,
       width: '100%',
     },
-    root: {
-      border: '1px solid black',
-      marginBottom: theme.spacing(1),
-      width: '100%',
-    },
-    leftRightContainer: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      margin: `${theme.spacing(2)}px 0`,
-    },
-    progress: {},
-    spacer: {
-      display: 'inline-block',
-      width: '1cm',
-    },
-    slider: {
-      width: 100,
+    uploadButton: {
+      backgroundColor: theme.palette.secondary.main,
+      borderRadius: '50%',
+      color: theme.palette.secondary.contrastText,
+      fontSize: 20,
+      height: AVATAR_SIZE,
+      minHeight: 0,
+      minWidth: 0,
+      width: AVATAR_SIZE,
+      '&:hover': {
+        backgroundColor: theme.palette.secondary.dark,
+      },
     },
   })
 
@@ -121,8 +92,7 @@ interface IStateProps {
 type ComposedProps = RouteComponentProps<ShowAlbumURLParameters> &
   IDispatchProps &
   IStateProps &
-  WithStyles<typeof styles> &
-  WithTheme
+  WithStyles<typeof styles>
 
 interface IState {
   numberOfImageColumns: number
@@ -180,12 +150,9 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
     }
   }
 
-  onChangeImageColumnCount = (
-    _event: React.ChangeEvent<{}>,
-    value: number | number[],
-  ) => {
+  onChangeImageColumnCount = (value: number) => {
     const { album } = this.props
-    if (typeof value === 'number' && album) {
+    if (album) {
       this.setState({ numberOfImageColumns: value })
       this.debouncedSetImageColumnCount(album, value)
     }
@@ -213,148 +180,105 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
       images,
       isLoadingImages,
       numberOfImages,
-      theme,
     } = this.props
     const { numberOfImageColumns } = this.state
 
     if (!album || isLoadingImages) {
-      const title = album ? `"${album.name}"` : 'The album'
+      const title = album
+        ? `"${album.name}" is loading`
+        : 'The album is loading'
       return (
-        <div className={classes.container}>
-          <div className={classes.messageContainer}>
-            <Typography align="center" variant="h6" component="h2">
-              <CircularProgress
-                color="secondary"
-                className={classes.progress}
-                size={18}
-              />
-              &nbsp;
-              {title} is being loaded...
-            </Typography>
-            <Illustration
-              className={classes.messageIllustration}
-              type="loading"
-            />
-          </div>
-        </div>
+        <AlbumView
+          actions={[]}
+          isLoading
+          numberOfImageColumns={numberOfImageColumns}
+          numberOfImages={numberOfImages}
+          setNumberOfImageColumns={this.onChangeImageColumnCount}
+          title={title}
+        />
       )
     }
 
     return (
-      <div className={classes.container}>
-        <AppBar component="div" color="primary" position="static" elevation={1}>
-          <Toolbar>
-            <Grid container alignItems="flex-start" spacing={1}>
-              <Grid item>
-                <AlbumTitle album={album} onSave={dispatchSaveAlbum} />
-              </Grid>
-            </Grid>
-          </Toolbar>
-          <Toolbar>
-            <Grid container alignItems="center" spacing={1}>
-              <Grid item>
-                <SharePanel
-                  onAddUser={this.presentInviteUserModal}
-                  users={album.users.map(username => ({ username }))}
-                />
-              </Grid>
-              <Grid item xs />
-              <Grid item>
-                <Dropzone onDrop={this.onDropFiles}>
-                  {({ getInputProps, getRootProps }) => (
-                    <div {...getRootProps()}>
-                      <input {...getInputProps()} />
-                      <Button
-                        color="secondary"
-                        size="small"
-                        type="submit"
-                        variant="outlined"
-                      >
-                        Add image
-                      </Button>
-                    </div>
-                  )}
-                </Dropzone>
-              </Grid>
-              {numberOfImages > 0 && (
-                <Hidden xsDown>
-                  <Grid item>
-                    <Grid container spacing={2}>
-                      <Grid item>
-                        <Slider
-                          className={classes.slider}
-                          color="secondary"
-                          value={numberOfImageColumns}
-                          step={1}
-                          min={2}
-                          max={10}
-                          onChange={this.onChangeImageColumnCount}
-                          valueLabelDisplay="auto"
-                        />
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </Hidden>
-              )}
-            </Grid>
-          </Toolbar>
-        </AppBar>
-        <div className={classes.content}>
-          <Dropzone onDrop={this.onDropFiles}>
+      <AlbumView
+        actions={[
+          <Dropzone onDrop={this.onDropFiles} key="dropzone">
             {({ getInputProps, getRootProps }) => (
-              <div className={classes.autosizeContainer} {...getRootProps()}>
+              <div {...getRootProps()}>
                 <input {...getInputProps()} />
-                {numberOfImages === 0 ? (
-                  <div className={classes.messageContainer}>
-                    <Typography align="center" variant="h6" component="h2">
-                      There are no images to show.
-                      <br />
-                      Click here or drop images to add some.
-                    </Typography>
-                    <Illustration
-                      className={classes.messageIllustration}
-                      type="emptyList"
-                    />
-                  </div>
-                ) : (
-                  <AutoSizer>
-                    {({ height, width }) => {
-                      if (height === 0 || width === 0) {
-                        return null
-                      }
-
-                      const columnCount =
-                        width <= theme.breakpoints.width('sm')
-                          ? 4
-                          : numberOfImageColumns
-
-                      return (
-                        <ImageGrid
-                          album={album}
-                          columnCount={columnCount}
-                          height={height}
-                          images={images}
-                          key={album._id}
-                          numberOfImages={numberOfImages}
-                          width={width}
-                        />
-                      )
-                    }}
-                  </AutoSizer>
-                )}
+                <Tooltip title="Add photos to this album">
+                  <Button
+                    className={classes.uploadButton}
+                    color="secondary"
+                    type="submit"
+                  >
+                    <UploadIcon fontSize="inherit" />
+                  </Button>
+                </Tooltip>
               </div>
             )}
-          </Dropzone>
-        </div>
-      </div>
+          </Dropzone>,
+          <SharePanel
+            key="share-panel"
+            onAddUser={this.presentInviteUserModal}
+            users={album.users.map(username => ({ username }))}
+          />,
+        ]}
+        isLoading={false}
+        numberOfImageColumns={numberOfImageColumns}
+        numberOfImages={numberOfImages}
+        setNumberOfImageColumns={this.onChangeImageColumnCount}
+        title={<AlbumTitle album={album} onSave={dispatchSaveAlbum} />}
+      >
+        <Dropzone onDrop={this.onDropFiles}>
+          {({ getInputProps, getRootProps }) => (
+            <div className={classes.autosizeContainer} {...getRootProps()}>
+              <input {...getInputProps()} />
+              {numberOfImages === 0 ? (
+                <div className={classes.messageContainer}>
+                  <Typography align="center" variant="h6" component="h2">
+                    There are no images to show.
+                    <br />
+                    Click here or drop images to add some.
+                  </Typography>
+                  <Illustration
+                    className={classes.messageIllustration}
+                    type="emptyList"
+                  />
+                </div>
+              ) : (
+                <ImageGrid
+                  columnCount={numberOfImageColumns}
+                  images={images}
+                  key={album._id}
+                  numberOfImages={numberOfImages}
+                />
+              )}
+            </div>
+          )}
+        </Dropzone>
+      </AlbumView>
     )
+  }
+}
+
+function albumFilter(album: Album) {
+  return {
+    page: 0,
+    perPage: 1000,
+    filter: {
+      name: 'album' as ImageFilterName,
+      data: album._id,
+    },
   }
 }
 
 function mapStateToProps(store: RootState, props: ComposedProps): IStateProps {
   const { albumId } = props.match.params
   const album = store.albums.data.get(albumId)
-  const isLoadingImages = !store.images.albumImagesLoaded.get(albumId)
+  const isLoadingImages = album
+    ? !store.images.filterImagesLoaded.get(keyForFilter(albumFilter(album)))
+    : true
   const images =
     album === undefined ? [] : albumImagesSelector(store, album).toArray()
 
@@ -369,13 +293,7 @@ function mapStateToProps(store: RootState, props: ComposedProps): IStateProps {
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
     dispatchGetImages: (album: Album) => {
-      dispatch(
-        getImages({
-          page: 0,
-          perPage: 1000,
-          attributes: { userGroupId: album._id },
-        }),
-      )
+      dispatch(getImages(albumFilter(album)))
     },
     dispatchUploadImagesToAlbum: albumImageFiles =>
       dispatch(uploadImagesToAlbum(albumImageFiles)),
@@ -394,5 +312,4 @@ export default compose<ComposedProps, {}>(
     mapDispatchToProps,
   ),
   withStyles(styles),
-  withTheme,
 )(ShowAlbum)

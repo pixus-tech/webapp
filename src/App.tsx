@@ -14,10 +14,12 @@ import {
 import PrivateRoute from 'components/auth/PrivateRoute'
 import AuthVerifier from 'containers/AuthVerifier'
 import Albums from 'containers/Albums'
+import SmartAlbums from 'containers/SmartAlbums'
 import Settings from 'containers/Settings'
 import ModalRoot from 'connected-components/ModalRoot'
 import ToastRoot from 'connected-components/ToastRoot'
 import ShowAlbum from 'containers/ShowAlbum'
+import ShowSmartAlbum from 'containers/ShowSmartAlbum'
 import Login from 'containers/Login'
 import AppLayout from 'layouts/App'
 import UnauthorizedLayout from 'layouts/Unauthorized'
@@ -77,6 +79,10 @@ class App extends React.PureComponent<ComposedProps> {
                     <Switch>
                       <Route component={ShowAlbum} path={routes.albums} />
                       <Route
+                        component={ShowSmartAlbum}
+                        path={routes.smartAlbums}
+                      />
+                      <Route
                         component={Albums}
                         exact
                         path={routes.applicationRoot}
@@ -85,6 +91,11 @@ class App extends React.PureComponent<ComposedProps> {
                         component={Albums}
                         exact
                         path={routes.albumsOverview}
+                      />
+                      <Route
+                        component={SmartAlbums}
+                        exact
+                        path={routes.smartAlbumsOverview}
                       />
                       <Route
                         component={Settings}

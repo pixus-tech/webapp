@@ -23,6 +23,9 @@ import uuid from 'uuid/v4'
 import * as actions from './actions'
 import { FileHandle } from 'models/fileHandle'
 import { imagePreviewPath, imagePath } from 'models/image'
+import { toggleBooleanNumber } from 'utils/db'
+
+const albumMissingError = Error('Album of image was not present.')
 
 export const getImagesEpic: Epic<RootAction, RootAction> = action$ =>
   action$.pipe(
@@ -43,11 +46,21 @@ export const refreshImagesCacheEpic: Epic<
 > = (action$, state$, { images }) =>
   action$.pipe(
     filter(isActionOf(actions.refreshImagesCache.request)),
-    filter(({ payload }) => payload.attributes.userGroupId !== undefined),
-    mergeMap(({ payload }) =>
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      images.refreshImages(payload.attributes.userGroupId!).pipe(
-        map(images => actions.refreshImagesCache.success(payload)),
+    filter(({ payload }) => payload.filter.name === 'album'),
+    mergeMap(({ payload }) => {
+      const userGroupId = payload.filter.data
+
+      if (typeof userGroupId !== 'string') {
+        return of(
+          actions.refreshImagesCache.failure({
+            error: Error('UserGroupId was missing from resource filter.'),
+            resource: payload,
+          }),
+        )
+      }
+
+      return images.refreshImages(userGroupId).pipe(
+        map(() => actions.refreshImagesCache.success(payload)),
         takeUntil(
           action$.pipe(
             filter(isActionOf(actions.refreshImagesCache.cancel)),
@@ -57,8 +70,8 @@ export const refreshImagesCacheEpic: Epic<
         catchError(error =>
           of(actions.refreshImagesCache.failure({ error, resource: payload })),
         ),
-      ),
-    ),
+      )
+    }),
   )
 
 export const reloadImagesEpic: Epic<RootAction, RootAction> = action$ =>
@@ -76,7 +89,7 @@ export const getImagesFromCacheEpic: Epic<
   action$.pipe(
     filter(isActionOf(actions.getImagesFromCache.request)),
     mergeMap(({ payload }) =>
-      images.getImagesFromCache(payload.attributes).pipe(
+      images.getImagesFromCache(payload.filter).pipe(
         map(images =>
           actions.getImagesFromCache.success({ filter: payload, images }),
         ),
@@ -180,7 +193,7 @@ export const requestDownloadPreviewImageEpic: Epic<
     filter(isActionOf(actions.requestDownloadPreviewImage)),
     withLatestFrom(state$),
     filter(([action, state]) => {
-      const imageId = action.payload.image._id
+      const imageId = action.payload._id
       return (
         !state.images.previewImageIsLoadingMap.get(imageId) &&
         !state.images.previewImageObjectURLMap.get(imageId)
@@ -197,8 +210,21 @@ export const downloadPreviewImageEpic: Epic<
 > = (action$, state$, { files }) =>
   action$.pipe(
     filter(isActionOf(actions.downloadPreviewImage.request)),
-    mergeMap(action => {
-      const { album, image } = action.payload
+    withLatestFrom(state$),
+    mergeMap(([action, state]) => {
+      const image = action.payload
+      const album = state.albums.data.get(image.userGroupId)
+
+      if (album === undefined) {
+        return of(
+          actions.downloadPreviewImage.failure({
+            error: albumMissingError,
+            resource: image,
+            showToast: true,
+          }),
+        )
+      }
+
       return files
         .download(imagePreviewPath(image), image.username, album.privateKey)
         .pipe(
@@ -208,11 +234,7 @@ export const downloadPreviewImageEpic: Epic<
           takeUntil(
             action$.pipe(
               filter(isActionOf(actions.downloadPreviewImage.cancel)),
-              filter(
-                ({ payload }) =>
-                  payload.album._id === album._id &&
-                  payload.image._id === image._id,
-              ),
+              filter(cancel => cancel.payload._id === image._id),
             ),
           ),
           catchError(error =>
@@ -237,7 +259,7 @@ export const requestDownloadImageEpic: Epic<
     filter(isActionOf(actions.requestDownloadImage)),
     withLatestFrom(state$),
     filter(([action, state]) => {
-      const imageId = action.payload.image._id
+      const imageId = action.payload._id
       return (
         !state.images.imageIsLoadingMap.get(imageId) &&
         !state.images.imageObjectURLMap.get(imageId)
@@ -254,8 +276,21 @@ export const downloadImageEpic: Epic<
 > = (action$, state$, { files }) =>
   action$.pipe(
     filter(isActionOf(actions.downloadImage.request)),
-    mergeMap(action => {
-      const { album, image } = action.payload
+    withLatestFrom(state$),
+    mergeMap(([action, state]) => {
+      const image = action.payload
+      const album = state.albums.data.get(image.userGroupId)
+
+      if (album === undefined) {
+        return of(
+          actions.downloadImage.failure({
+            error: albumMissingError,
+            resource: image,
+            showToast: true,
+          }),
+        )
+      }
+
       return files
         .download(imagePath(image), image.username, album.privateKey)
         .pipe(
@@ -265,11 +300,7 @@ export const downloadImageEpic: Epic<
           takeUntil(
             action$.pipe(
               filter(isActionOf(actions.downloadImage.cancel)),
-              filter(
-                ({ payload }) =>
-                  payload.album._id === album._id &&
-                  payload.image._id === image._id,
-              ),
+              filter(cancel => cancel.payload._id === image._id),
             ),
           ),
           catchError(error =>
@@ -293,7 +324,17 @@ export const saveImageEpic: Epic<RootAction, RootAction, RootState> = (
     filter(isActionOf(actions.saveImage.request)),
     withLatestFrom(state$),
     mergeMap(([action, state]) => {
-      const { album, image } = action.payload
+      const image = action.payload
+      const album = state.albums.data.get(image.userGroupId)
+
+      if (album === undefined) {
+        return of(
+          actions.saveImage.failure({
+            error: albumMissingError,
+            resource: image,
+          }),
+        )
+      }
 
       const objectURL = state.images.imageObjectURLMap.get(image._id)
       if (objectURL !== undefined) {
@@ -305,11 +346,7 @@ export const saveImageEpic: Epic<RootAction, RootAction, RootState> = (
         race(
           action$.pipe(
             filter(isActionOf(actions.saveImage.cancel)),
-            filter(
-              ({ payload }) =>
-                payload.album._id === album._id &&
-                payload.image._id === image._id,
-            ),
+            filter(cancel => cancel.payload._id === image._id),
             take(1),
             map(({ payload }) => actions.downloadImage.cancel(payload)),
           ),
@@ -432,4 +469,37 @@ export const updateEXIFTagsEpic: Epic<
         ),
       )
     }),
+  )
+
+export const toggleImageFavoriteEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'images'>
+> = (action$, state$, { images }) =>
+  action$.pipe(
+    filter(isActionOf(actions.toggleImageFavorite.request)),
+    mergeMap(({ payload: image }) =>
+      images
+        .updateMeta(image, {
+          isFavorite: toggleBooleanNumber(image.meta.isFavorite),
+        })
+        .pipe(
+          map(actions.toggleImageFavorite.success),
+          takeUntil(
+            action$.pipe(
+              filter(isActionOf(actions.toggleImageFavorite.cancel)),
+              filter(cancel => cancel.payload._id === image._id),
+            ),
+          ),
+          catchError(error =>
+            of(
+              actions.toggleImageFavorite.failure({
+                error,
+                resource: image,
+              }),
+            ),
+          ),
+        ),
+    ),
   )

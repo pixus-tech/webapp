@@ -86,7 +86,7 @@ const DirtyBadge = withStyles((theme: Theme) =>
       },
     },
   }),
-)(Badge);
+)(Badge)
 
 class UploadInfo extends React.PureComponent<ComposedProps> {
   render() {
@@ -119,11 +119,7 @@ class UploadInfo extends React.PureComponent<ComposedProps> {
     const progress = ((successCount + failureCount) / totalCount) * 100
 
     return (
-      <IconWithPopover
-        id="uploads-info-popover"
-        tooltip="Uploads"
-        Icon={icon}
-      >
+      <IconWithPopover id="uploads-info-popover" tooltip="Uploads" Icon={icon}>
         <div>
           <LinearProgress
             color="secondary"

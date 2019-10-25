@@ -31,12 +31,12 @@ export default interface ImageMeta {
   exifTags: EXIFTags
   exifIndexVersion: EXIFIndexVersion
   aiIndexVersion: AIIndexVersion
-  isFavorite: boolean
+  isFavorite: number // Using a number because booleans are not indexable by indexeddb
 }
 
 export const defaultImageMeta: ImageMeta = {
   exifTags: {},
   exifIndexVersion: EXIFIndexVersion.V0,
   aiIndexVersion: AIIndexVersion.V0,
-  isFavorite: false,
+  isFavorite: 0,
 }

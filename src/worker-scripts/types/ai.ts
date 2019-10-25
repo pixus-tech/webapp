@@ -1,10 +1,10 @@
 export interface ObjectDetectionClass {
-  name: string;
-  id: number;
-  displayName: string;
+  name: string
+  id: number
+  displayName: string
 }
 
-export const CLASSES: {[key: string]: ObjectDetectionClass} = {
+export const CLASSES: { [key: string]: ObjectDetectionClass } = {
   1: {
     name: '/m/01g317',
     id: 1,
@@ -404,5 +404,5 @@ export const CLASSES: {[key: string]: ObjectDetectionClass} = {
     name: '/m/012xff',
     id: 90,
     displayName: 'toothbrush',
-  }
-};
+  },
+}

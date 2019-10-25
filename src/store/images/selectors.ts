@@ -1,18 +1,21 @@
 import { List } from 'immutable'
 
 import Album from 'models/album'
-import Image from 'models/image'
+import Image, { ImageFilterAttributes } from 'models/image'
 import { RootState } from 'typesafe-actions'
 
 import { keyForFilter } from './types'
 
 const dataSelector = (state: RootState) => state.images.data
 
-const albumImageIdsSelector = (state: RootState, album: Album) => {
+const filterImageIdsSelector = (
+  state: RootState,
+  filter: ImageFilterAttributes,
+) => {
   const key = keyForFilter({
     page: 0,
     perPage: 1000,
-    attributes: { userGroupId: album._id },
+    filter,
   })
   const imageIds = state.images.filterImageIds.get(key)
 
@@ -23,14 +26,21 @@ const albumImageIdsSelector = (state: RootState, album: Album) => {
   return imageIds
 }
 
-export const albumImagesSelector = (
+export const filteredImagesSelector = (
   state: RootState,
-  album: Album,
+  filter: ImageFilterAttributes,
 ): List<Image> => {
   const data = dataSelector(state)
-  const imageIds = albumImageIdsSelector(state, album)
+  const imageIds = filterImageIdsSelector(state, filter)
 
   return imageIds
     .map(imageId => data.get(imageId))
     .filterNot(i => typeof i === 'undefined') as List<Image>
+}
+
+export const albumImagesSelector = (
+  state: RootState,
+  album: Album,
+): List<Image> => {
+  return filteredImagesSelector(state, { name: 'album', data: album._id })
 }

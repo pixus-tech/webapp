@@ -1,8 +1,8 @@
 import { fromJS, Map } from 'immutable'
 import { API } from 'typings/types'
-import Image, { QueryableImageAttributes } from 'models/image'
+import Image, { ImageFilterAttributes } from 'models/image'
 
-export type ImageFilter = API.ResourceFilter<QueryableImageAttributes>
+export type ImageFilter = API.ResourceFilter<ImageFilterAttributes>
 
 export interface FilteredImages {
   images: Image[]
@@ -10,9 +10,9 @@ export interface FilteredImages {
 }
 
 export function keyForFilter({
+  filter,
   page,
   perPage,
-  attributes,
 }: ImageFilter): Map<string, any> {
-  return fromJS({ page, perPage, ...attributes })
+  return fromJS({ page, perPage, ...filter })
 }

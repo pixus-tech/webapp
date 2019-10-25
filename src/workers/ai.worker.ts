@@ -32,13 +32,18 @@ self.addEventListener('message', event => {
       sharedCocoSsdModel()
         .then(model => {
           const imageData = payload as ImageData
-          model.detect(imageData, 5)
-               .then((predictions: any) => {
-                 console.log('Predictions: ', predictions);
-               })
-               .catch((error: any) => { throw(error) });
+          model
+            .detect(imageData, 5)
+            .then((predictions: any) => {
+              console.log('Predictions: ', predictions)
+            })
+            .catch((error: any) => {
+              throw error
+            })
         })
-        .catch((error: any) => { throw(error) })
+        .catch((error: any) => {
+          throw error
+        })
     } else {
       throw 'unknown job'
     }

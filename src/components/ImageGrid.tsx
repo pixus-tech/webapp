@@ -1,5 +1,5 @@
 import React from 'react'
-import { Grid, GridCellRenderer } from 'react-virtualized'
+import { AutoSizer, Grid, GridCellRenderer } from 'react-virtualized'
 import { compose } from 'recompose'
 
 import {
@@ -7,11 +7,12 @@ import {
   Theme,
   withStyles,
   WithStyles,
+  withTheme,
+  WithTheme,
 } from '@material-ui/core/styles'
 
 import LazyPreviewImage from 'connected-components/LazyPreviewImage'
 import Slideshow from 'components/Slideshow'
-import Album from 'models/album'
 import Image from 'models/image'
 import { preventClickThrough } from 'utils/ui'
 
@@ -33,19 +34,16 @@ const styles = (theme: Theme) =>
   })
 
 interface IProps {
-  album: Album
   columnCount: number
-  height: number
   images: Image[]
   numberOfImages: number
-  width: number
 }
 
 interface IState {
   selection?: number
 }
 
-type ComposedProps = IProps & WithStyles<typeof styles>
+type ComposedProps = IProps & WithStyles<typeof styles> & WithTheme
 
 class ImageGrid extends React.PureComponent<ComposedProps, IState> {
   private gridRef = React.createRef<Grid>()
@@ -84,7 +82,7 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
     rowIndex,
     style,
   }) => {
-    const { album, columnCount, classes, images } = this.props
+    const { columnCount, classes, images } = this.props
 
     const index = columnIndex + rowIndex * columnCount
 
@@ -104,7 +102,6 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
       >
         <LazyPreviewImage
           showActions={true}
-          album={album}
           image={image}
           isVisible={isVisible}
         />
@@ -113,10 +110,7 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
   }
 
   componentDidUpdate(prevProps: ComposedProps) {
-    if (
-      prevProps.album._id === this.props.album._id &&
-      prevProps.numberOfImages !== this.props.numberOfImages
-    ) {
+    if (prevProps.numberOfImages !== this.props.numberOfImages) {
       this.updateGrid()
     }
   }
@@ -126,37 +120,56 @@ class ImageGrid extends React.PureComponent<ComposedProps, IState> {
   }
 
   render() {
-    const { album, classes, columnCount, images, height, width } = this.props
+    const {
+      classes,
+      columnCount: requestedColumnCount,
+      images,
+      theme,
+    } = this.props
     const { selection } = this.state
 
-    const cellWidth = width / columnCount
-    const cellHeight = cellWidth
-
     return (
-      <>
-        <Grid
-          cellRenderer={this.renderCell}
-          className={classes.hideScrollbar}
-          columnCount={columnCount}
-          columnWidth={cellWidth}
-          height={height}
-          ref={this.gridRef}
-          rowCount={Math.ceil(images.length / columnCount)}
-          rowHeight={cellHeight}
-          style={{ overflowX: 'hidden' }}
-          width={width}
-        />
-        {selection !== undefined && (
-          <Slideshow
-            album={album}
-            images={images}
-            initialSlide={selection}
-            onClose={this.clearSelection}
-          />
-        )}
-      </>
+      <AutoSizer>
+        {({ height, width }) => {
+          if (height === 0 || width === 0) {
+            return null
+          }
+
+          const columnCount =
+            width <= theme.breakpoints.width('sm') ? 4 : requestedColumnCount
+          const cellWidth = width / columnCount
+          const cellHeight = cellWidth
+
+          return (
+            <>
+              <Grid
+                cellRenderer={this.renderCell}
+                className={classes.hideScrollbar}
+                columnCount={columnCount}
+                columnWidth={cellWidth}
+                height={height}
+                ref={this.gridRef}
+                rowCount={Math.ceil(images.length / columnCount)}
+                rowHeight={cellHeight}
+                style={{ overflowX: 'hidden' }}
+                width={width}
+              />
+              {selection !== undefined && (
+                <Slideshow
+                  images={images}
+                  initialSlide={selection}
+                  onClose={this.clearSelection}
+                />
+              )}
+            </>
+          )
+        }}
+      </AutoSizer>
     )
   }
 }
 
-export default compose<ComposedProps, IProps>(withStyles(styles))(ImageGrid)
+export default compose<ComposedProps, IProps>(
+  withStyles(styles),
+  withTheme,
+)(ImageGrid)

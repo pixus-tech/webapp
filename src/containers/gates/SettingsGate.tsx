@@ -4,8 +4,6 @@ import { compose } from 'recompose'
 import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
 
-import FullScreenLoader from 'components/FullScreenLoader'
-import SettingsFailure from 'components/failures/SettingsFailure'
 import { loadSettings } from 'store/settings/actions'
 
 interface IDispatchProps {
@@ -36,10 +34,7 @@ class SettingsGate extends React.PureComponent<ComposedProps> {
   }
 
   render() {
-    const {
-      children,
-      isAuthenticated,
-    } = this.props
+    const { children, isAuthenticated } = this.props
 
     if (!isAuthenticated) {
       return children

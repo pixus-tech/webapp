@@ -3,12 +3,13 @@ import { combineReducers } from 'redux'
 import { createReducer } from 'typesafe-actions'
 
 import Image from 'models/image'
+import { toggleBooleanNumber } from 'utils/db'
 
 import * as actions from './actions'
 import { keyForFilter } from './types'
 
 export const initialState = {
-  albumImagesLoaded: Map<string, boolean>(),
+  filterImagesLoaded: Map<Map<string, any>, boolean>(),
   filterImageIds: Map<Map<string, any>, List<string>>(),
   currentUploadIds: List<string>(),
   data: Map<string, Image>(),
@@ -20,16 +21,12 @@ export const initialState = {
   succeededUploadIds: List<string>(),
 }
 
-const albumImagesLoaded = createReducer(
-  initialState.albumImagesLoaded,
+const filterImagesLoaded = createReducer(
+  initialState.filterImagesLoaded,
 ).handleAction(actions.getImagesFromCache.success, (state, action) => {
-  const { userGroupId } = action.payload.filter.attributes
+  const key = keyForFilter(action.payload.filter)
 
-  if (userGroupId === undefined) {
-    return state
-  }
-
-  return state.set(userGroupId, true)
+  return state.set(key, true)
 })
 
 const currentUploadIds = createReducer(initialState.currentUploadIds)
@@ -63,6 +60,14 @@ const data = createReducer(initialState.data)
       return state.set(image._id, image)
     },
   )
+  .handleAction(actions.toggleImageFavorite.request, (state, action) => {
+    const image = action.payload
+    const isFavorite = toggleBooleanNumber(image.meta.isFavorite)
+    return state.set(image._id, {
+      ...image,
+      meta: { ...image.meta, isFavorite },
+    })
+  })
 
 const filterImageIds = createReducer(initialState.filterImageIds)
   .handleAction(actions.getImagesFromCache.success, (state, { payload }) => {
@@ -72,10 +77,14 @@ const filterImageIds = createReducer(initialState.filterImageIds)
   .handleAction([actions.didProcessImage], (state, action) => {
     const albumId = action.payload.album._id
     const imageId = action.payload.image._id
+    // TODO: Use the current filter
     const key = keyForFilter({
       page: 0,
       perPage: 1000,
-      attributes: { userGroupId: albumId },
+      filter: {
+        name: 'album',
+        data: albumId,
+      },
     })
     const imageIds = state.get(key) || List<string>()
     return state.set(key, imageIds.push(imageId))
@@ -102,7 +111,7 @@ const imageObjectURLMap = createReducer(initialState.imageObjectURLMap)
 
 const imageIsLoadingMap = createReducer(initialState.imageIsLoadingMap)
   .handleAction(actions.downloadImage.request, (state, action) => {
-    return state.set(action.payload.image._id, true)
+    return state.set(action.payload._id, true)
   })
   .handleAction(actions.downloadImage.success, (state, action) => {
     return state.delete(action.payload.image._id)
@@ -111,7 +120,7 @@ const imageIsLoadingMap = createReducer(initialState.imageIsLoadingMap)
     return state.delete(action.payload.resource._id)
   })
   .handleAction(actions.downloadImage.cancel, (state, action) => {
-    return state.delete(action.payload.image._id)
+    return state.delete(action.payload._id)
   })
 
 const previewImageObjectURLMap = createReducer(
@@ -139,7 +148,7 @@ const previewImageIsLoadingMap = createReducer(
   initialState.previewImageIsLoadingMap,
 )
   .handleAction(actions.downloadPreviewImage.request, (state, action) => {
-    return state.set(action.payload.image._id, true)
+    return state.set(action.payload._id, true)
   })
   .handleAction(actions.downloadPreviewImage.success, (state, action) => {
     return state.delete(action.payload.image._id)
@@ -148,11 +157,11 @@ const previewImageIsLoadingMap = createReducer(
     return state.delete(action.payload.resource._id)
   })
   .handleAction(actions.downloadPreviewImage.cancel, (state, action) => {
-    return state.delete(action.payload.image._id)
+    return state.delete(action.payload._id)
   })
 
 export default combineReducers({
-  albumImagesLoaded,
+  filterImagesLoaded,
   currentUploadIds,
   data,
   failedUploads,

@@ -1,6 +1,6 @@
 import * as _ from 'lodash'
 
-import BaseModel, { RecursivePartial, UnsavedModel } from './'
+import BaseModel, { UnsavedModel } from './'
 import ImageMeta from './imageMeta'
 import ImageRecord from 'db/radiks/image'
 import { decodeColors, Uint8BitColor } from 'utils/colors'
@@ -33,7 +33,11 @@ export default interface Image extends BaseModel {
   meta: ImageMeta
 }
 
-export type QueryableImageAttributes = RecursivePartial<Image>
+export type ImageFilterName = 'album' | 'favorites' | 'last-upload'
+export interface ImageFilterAttributes {
+  name: ImageFilterName
+  data?: any
+}
 
 export type UnsavedImage = UnsavedModel<Image>
 export type RemoteImage = Omit<Image, 'meta'>

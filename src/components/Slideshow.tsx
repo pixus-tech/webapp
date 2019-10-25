@@ -15,8 +15,8 @@ import { withTheme, WithTheme } from '@material-ui/core/styles'
 
 import LazyImage from 'connected-components/LazyImage'
 import LazyPreviewImage from 'connected-components/LazyPreviewImage'
-import Album from 'models/album'
 import Image from 'models/image'
+import { preventClickThrough } from 'utils/ui'
 
 import 'swiper/css/swiper.css'
 import Swiper from 'swiper'
@@ -93,7 +93,6 @@ const styles = (theme: Theme) =>
   })
 
 interface IProps {
-  album: Album
   images: Image[]
   initialSlide: number
   onClose: () => void
@@ -182,11 +181,11 @@ class Slideshow extends React.PureComponent<ComposedProps, IState> {
   }
 
   render() {
-    const { album, classes, onClose } = this.props
+    const { classes, onClose } = this.props
     const { virtualData, virtualThumbsData } = this.state
 
     return ReactDOM.createPortal(
-      <>
+      <div onClick={preventClickThrough}>
         <div className={cx('swiper-container', classes.container)}>
           <div className="swiper-wrapper">
             {virtualData.slides.map((slide, index) => (
@@ -197,7 +196,7 @@ class Slideshow extends React.PureComponent<ComposedProps, IState> {
                 style={{ left: virtualData.offset }}
               >
                 <div className="swiper-zoom-container">
-                  <LazyImage album={album} image={slide.image} isVisible />
+                  <LazyImage image={slide.image} isVisible />
                 </div>
               </div>
             ))}
@@ -219,17 +218,13 @@ class Slideshow extends React.PureComponent<ComposedProps, IState> {
                   key={index}
                   style={{ left: virtualThumbsData.offset }}
                 >
-                  <LazyPreviewImage
-                    album={album}
-                    image={slide.image}
-                    isVisible
-                  />
+                  <LazyPreviewImage image={slide.image} isVisible />
                 </div>
               ))}
             </div>
           </div>
         </div>
-      </>,
+      </div>,
       document.body,
     )
   }

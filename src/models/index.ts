@@ -12,10 +12,6 @@ export function parseAttribute(attributeValue: string | object) {
   return attributeValue
 }
 
-export type RecursivePartial<T> = {
-  [P in keyof T]?: RecursivePartial<T[P]>
-}
-
 /* import uuid from 'uuid/v4'
  * export function buildModel<T extends BaseModel>(model: UnsavedModel<T>): T {
  *   return {

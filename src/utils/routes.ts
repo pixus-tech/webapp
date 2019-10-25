@@ -1,4 +1,5 @@
 import Album from 'models/album'
+import { ImageFilterName } from 'models/image'
 import history from 'utils/history'
 
 const routes = {
@@ -8,7 +9,7 @@ const routes = {
   albumsOverview: '/app/albums',
   albums: '/app/albums/:albumId',
   smartAlbumsOverview: '/app/smart-albums',
-  smartAlbums: '/app/smart-albums/:albumId',
+  smartAlbums: '/app/smart-albums/:filterName',
   settings: '/app/settings',
 } as const
 
@@ -16,11 +17,19 @@ export interface ShowAlbumURLParameters {
   albumId: string
 }
 
+export interface ShowSmartAlbumURLParameters {
+  filterName: ImageFilterName
+}
+
 export type RouteNames = keyof typeof routes
 export type Routes = typeof routes[RouteNames]
 
 export function buildAlbumRoute(album: Album) {
   return `/app/albums/${album._id}` as Routes
+}
+
+export function buildSmartAlbumRoute(filterName: ImageFilterName) {
+  return `/app/smart-albums/${filterName}` as Routes
 }
 
 export const redirect = (route: Routes) => history.push(route)

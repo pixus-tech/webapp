@@ -60,11 +60,6 @@ export const didProcessImage = createStandardAction('IMAGES__PROCESSED_IMAGE')<{
   previewData: ArrayBuffer
 }>()
 
-interface DownloadImageRequest {
-  album: Album
-  image: Image
-}
-
 interface DownloadImageResult {
   image: Image
   fileContent: Buffer | string
@@ -72,35 +67,25 @@ interface DownloadImageResult {
 
 export const requestDownloadPreviewImage = createStandardAction(
   'IMAGES__REQUEST_DOWNLOAD_PREVIEW_IMAGE',
-)<DownloadImageRequest>()
+)<Image>()
 
 export const downloadPreviewImage = createAsyncAction(
   'IMAGES__DOWNLOAD_PREVIEW_IMAGE__REQUEST',
   'IMAGES__DOWNLOAD_PREVIEW_IMAGE__SUCCESS',
   'IMAGES__DOWNLOAD_PREVIEW_IMAGE__FAILURE',
   'IMAGES__DOWNLOAD_PREVIEW_IMAGE__CANCEL',
-)<
-  DownloadImageRequest,
-  DownloadImageResult,
-  API.ErrorResponse<Image>,
-  DownloadImageRequest
->()
+)<Image, DownloadImageResult, API.ErrorResponse<Image>, Image>()
 
 export const requestDownloadImage = createStandardAction(
   'IMAGES__REQUEST_DOWNLOAD_IMAGE',
-)<DownloadImageRequest>()
+)<Image>()
 
 export const downloadImage = createAsyncAction(
   'IMAGES__DOWNLOAD_IMAGE__REQUEST',
   'IMAGES__DOWNLOAD_IMAGE__SUCCESS',
   'IMAGES__DOWNLOAD_IMAGE__FAILURE',
   'IMAGES__DOWNLOAD_IMAGE__CANCEL',
-)<
-  DownloadImageRequest,
-  DownloadImageResult,
-  API.ErrorResponse<Image>,
-  DownloadImageRequest
->()
+)<Image, DownloadImageResult, API.ErrorResponse<Image>, Image>()
 
 interface SaveImageResult {
   image: Image
@@ -112,12 +97,7 @@ export const saveImage = createAsyncAction(
   'IMAGES__SAVE__SUCCESS',
   'IMAGES__SAVE__FAILURE',
   'IMAGES__SAVE__CANCEL',
-)<
-  DownloadImageRequest,
-  SaveImageResult,
-  API.ErrorResponse<Image>,
-  DownloadImageRequest
->()
+)<Image, SaveImageResult, API.ErrorResponse<Image>, Image>()
 
 export const deleteImage = createAsyncAction(
   'IMAGES__DELETE__REQUEST',
@@ -137,3 +117,10 @@ export const updateImageEXIFTags = createAsyncAction(
   'IMAGES__UPDATE_EXIF_TAGS__FAILURE',
   'IMAGES__UPDATE_EXIF_TAGS__CANCEL',
 )<UpdateEXIFTagsData, Image, API.ErrorResponse<Image>, Image>()
+
+export const toggleImageFavorite = createAsyncAction(
+  'IMAGES__TOGGLE_FAVORITE__REQUEST',
+  'IMAGES__TOGGLE_FAVORITE__SUCCESS',
+  'IMAGES__TOGGLE_FAVORITE__FAILURE',
+  'IMAGES__TOGGLE_FAVORITE__CANCEL',
+)<Image, API.PutResponse<Image>, API.ErrorResponse<Image>, Image>()

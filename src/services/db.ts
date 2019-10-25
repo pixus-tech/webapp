@@ -2,7 +2,7 @@ import { Observable } from 'rxjs'
 
 import { ALBUMS_FILE_PATH, IMAGES_FILE_PATH } from 'constants/index'
 import Album from 'models/album'
-import Image, { QueryableImageAttributes } from 'models/image'
+import Image, { ImageFilterAttributes } from 'models/image'
 import { dbWorker } from 'workers'
 
 type UploadFunction = (
@@ -51,7 +51,7 @@ class DB {
     destroy: function(image: Image) {
       return dbWorker.destroyImage(image)
     },
-    where: function(filter: QueryableImageAttributes) {
+    where: function(filter: ImageFilterAttributes) {
       return dbWorker.filteredImages(filter)
     },
     update: function(image: Partial<Image>) {

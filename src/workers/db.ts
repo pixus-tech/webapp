@@ -5,7 +5,7 @@ import { registerWorker, postJob } from './'
 import { Buffer } from 'buffer'
 import Album from 'models/album'
 import { defaultAlbumMeta } from 'models/albumMeta'
-import Image, { QueryableImageAttributes } from 'models/image'
+import Image, { ImageFilterAttributes } from 'models/image'
 import { defaultImageMeta } from 'models/imageMeta'
 
 const dbWorker = new DBWorker()
@@ -59,7 +59,7 @@ export function destroyImage(image: Image) {
   return postJob<boolean>(dbWorker, 'images.destroy', { payload: image })
 }
 
-export function filteredImages(filter: QueryableImageAttributes) {
+export function filteredImages(filter: ImageFilterAttributes) {
   return postJob<Image[]>(dbWorker, 'images.where', { payload: filter })
 }
 

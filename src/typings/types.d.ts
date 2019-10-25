@@ -20,7 +20,7 @@ export namespace API {
   interface NoFilter {}
 
   interface ResourceFilter<T = undefined> {
-    attributes: T
+    filter: T
     perPage: number
     page: number
   }

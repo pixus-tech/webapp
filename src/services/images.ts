@@ -4,10 +4,10 @@ import Album from 'models/album'
 import { FileHandle } from 'models/fileHandle'
 import Image, {
   ImageMetaData,
+  ImageFilterAttributes,
   imagePath,
   imagePreviewPath,
   parseImageRecords,
-  QueryableImageAttributes,
 } from 'models/image'
 import ImageMeta, {
   defaultImageMeta,
@@ -45,7 +45,7 @@ class Images extends BaseService {
       },
     )
 
-  getImagesFromCache = (filter: QueryableImageAttributes) =>
+  getImagesFromCache = (filter: ImageFilterAttributes) =>
     this.dispatcher.performAsync<Image[]>(
       Queue.RecordOperation,
       (resolve, reject) => {

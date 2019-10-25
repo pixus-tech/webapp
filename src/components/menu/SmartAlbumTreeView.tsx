@@ -10,6 +10,7 @@ import FavoritesIcon from '@material-ui/icons/Star'
 import LastUploadIcon from '@material-ui/icons/History'
 
 import SmartAlbumTreeItem from './SmartAlbumTreeItem'
+import { buildSmartAlbumRoute } from 'utils/routes'
 
 const useStyles = makeStyles(
   createStyles({
@@ -17,7 +18,7 @@ const useStyles = makeStyles(
   }),
 )
 
-const SmartAlbumTreeView: React.SFC = ({}) => {
+const SmartAlbumTreeView: React.SFC = () => {
   const classes = useStyles()
 
   return (
@@ -29,12 +30,12 @@ const SmartAlbumTreeView: React.SFC = ({}) => {
     >
       <SmartAlbumTreeItem
         title="Favorites"
-        targetPath="/"
+        targetPath={buildSmartAlbumRoute('favorites')}
         Icon={FavoritesIcon}
       />
       <SmartAlbumTreeItem
         title="Last Upload"
-        targetPath="/"
+        targetPath={buildSmartAlbumRoute('last-upload')}
         Icon={LastUploadIcon}
       />
     </TreeView>

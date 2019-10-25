@@ -13,7 +13,6 @@ import {
 
 import ImageActions from 'connected-components/ImageActions'
 import ImagePreviewGradient from 'components/ImagePreviewGradient'
-import Album from 'models/album'
 import Image from 'models/image'
 import {
   downloadPreviewImage,
@@ -67,7 +66,6 @@ const styles = (_theme: Theme) =>
   })
 
 export interface IProps {
-  album: Album
   className?: string
   image: Image
   showActions?: boolean
@@ -173,7 +171,6 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
 
   render() {
     const {
-      album,
       classes,
       className,
       image,
@@ -212,11 +209,7 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
         )}
 
         {showActions && (
-          <ImageActions
-            className={classes.actionPanel}
-            image={image}
-            album={album}
-          />
+          <ImageActions className={classes.actionPanel} image={image} />
         )}
       </div>
     )
@@ -236,12 +229,12 @@ function mapDispatchToProps(
   dispatch: Dispatch<RootAction>,
   props: ComposedProps,
 ): IDispatchProps {
-  const payload = { album: props.album, image: props.image }
+  const { image } = props
   return {
     dispatchCancelDownloadPreviewImage: () =>
-      dispatch(downloadPreviewImage.cancel(payload)),
+      dispatch(downloadPreviewImage.cancel(image)),
     dispatchRequestDownloadPreviewImage: () =>
-      dispatch(requestDownloadPreviewImage(payload)),
+      dispatch(requestDownloadPreviewImage(image)),
   }
 }
 

@@ -12,7 +12,6 @@ import {
 } from '@material-ui/core/styles'
 
 import LazyPreviewImage from './LazyPreviewImage'
-import Album from 'models/album'
 import Image from 'models/image'
 import { requestDownloadImage, downloadImage } from 'store/images/actions'
 
@@ -44,7 +43,6 @@ const styles = (_theme: Theme) =>
   })
 
 export interface IProps {
-  album: Album
   className?: string
   image: Image
   isVisible: boolean
@@ -145,14 +143,7 @@ class LazyImage extends React.PureComponent<ComposedProps, IState> {
   }
 
   render() {
-    const {
-      album,
-      classes,
-      className,
-      image,
-      imageObjectURL,
-      isVisible,
-    } = this.props
+    const { classes, className, image, imageObjectURL, isVisible } = this.props
     const { shouldRenderPreview } = this.state
 
     const isImageLoaded = imageObjectURL !== undefined
@@ -176,7 +167,6 @@ class LazyImage extends React.PureComponent<ComposedProps, IState> {
 
         {shouldRenderPreview && (
           <LazyPreviewImage
-            album={album}
             image={image}
             isVisible={isVisible}
             className={cx(classes.preview, {
@@ -200,10 +190,10 @@ function mapDispatchToProps(
   dispatch: Dispatch<RootAction>,
   props: ComposedProps,
 ): IDispatchProps {
-  const payload = { album: props.album, image: props.image }
+  const { image } = props
   return {
-    dispatchCancelDownloadImage: () => dispatch(downloadImage.cancel(payload)),
-    dispatchRequestDownloadImage: () => dispatch(requestDownloadImage(payload)),
+    dispatchCancelDownloadImage: () => dispatch(downloadImage.cancel(image)),
+    dispatchRequestDownloadImage: () => dispatch(requestDownloadImage(image)),
   }
 }
 

@@ -4,6 +4,4 @@ const models = {
   cocoSsd,
 }
 
-export {
-  models,
-}
+export { models }

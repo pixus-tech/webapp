@@ -5,7 +5,7 @@ import DexieNamespace, { IndexableType } from 'dexie'
 import Album from 'models/album'
 import AlbumMeta from 'models/albumMeta'
 import BaseModel from 'models'
-import Image from 'models/image'
+import Image, { ImageFilterName } from 'models/image'
 import ImageMeta from 'models/imageMeta'
 
 declare const db: typeof DB
@@ -15,7 +15,7 @@ self.importScripts('/static/js/db.dev.js')
 
 const { Dexie } = db
 
-type QueryableAttributes = { [key: string]: IndexableType }
+type Query = { [keyPath: string]: IndexableType }
 
 class PixusDatabase extends Dexie {
   public albums: DexieNamespace.Table<Album, string>
@@ -26,7 +26,7 @@ class PixusDatabase extends Dexie {
 
     this.version(1).stores({
       albums: '_id,name',
-      images: '_id,userGroupId',
+      images: '_id,userGroupId,meta.isFavorite',
     })
 
     this.albums = this.table('albums')
@@ -40,8 +40,24 @@ async function getAlbums(): Promise<Album[]> {
   return await database.albums.toArray()
 }
 
-async function findImages(filter: QueryableAttributes): Promise<Image[]> {
-  return await database.images.where(filter).toArray()
+async function findImages(
+  filterName: ImageFilterName,
+  filterData?: any,
+): Promise<Image[]> {
+  switch (filterName) {
+    case 'album':
+      if (typeof filterData !== 'string') {
+        return Promise.reject('Filter data (userGroupId) should be a string.')
+      }
+      return await database.images.where({ userGroupId: filterData }).toArray()
+    case 'favorites':
+      return await database.images.where({ 'meta.isFavorite': 1 }).toArray()
+    case 'last-upload':
+      // TODO: implement last upload filter
+      return Promise.resolve([])
+    default:
+      return Promise.resolve([])
+  }
 }
 
 function upsert<T extends BaseModel>(
@@ -146,7 +162,7 @@ self.addEventListener('message', event => {
           .delete(),
       )
     } else if (job.endsWith('images.where')) {
-      resultResponse(id, findImages(payload))
+      resultResponse(id, findImages(payload.name, payload.data))
     } else if (job.endsWith('images.update')) {
       defaultResponse(id, upsertImage(payload.image, payload.defaultMeta))
     } else if (job.endsWith('images.updateAll')) {
