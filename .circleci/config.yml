@@ -8,15 +8,14 @@ workflows:
   build-deploy:
     jobs:
       - install
-      - test:
-          requires:
-            - install
       - lint:
           requires:
             - install
-      - deploy:
+      - test:
           requires:
             - lint
+      - deploy:
+          requires:
             - test
           filters:
             branches:

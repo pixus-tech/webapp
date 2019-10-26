@@ -15,7 +15,8 @@ function config({plugins = [], output = {}}) {
       typescript({
         tsconfigOverride: {
           compilerOptions: {
-            module: 'ES2015'
+            module: 'es2015',
+            target: 'es5',
           },
         },
       }),
