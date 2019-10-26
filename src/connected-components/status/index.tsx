@@ -115,7 +115,6 @@ class UploadInfo extends React.PureComponent<ComposedProps> {
       </DirtyBadge>
     )
 
-    const unpersisted = true
     const progress = ((successCount + failureCount) / totalCount) * 100
 
     return (
