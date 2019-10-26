@@ -1,0 +1,79 @@
+version: 2.1
+executors:
+  node-executor:
+    docker:
+      - image: circleci/node:10
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - install
+      - test:
+          requires:
+            - install
+      - lint:
+          requires:
+            - install
+      - deploy:
+          requires:
+            - lint
+            - test
+          filters:
+            branches:
+              only: master
+jobs:
+  install:
+    executor: node-executor
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
+      - run:
+          name: Install Dependencies
+          command: npm install
+      - save_cache:
+          paths:
+            - ./node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      - persist_to_workspace:
+          root: .
+          paths:
+            - node_modules
+  test:
+    executor: node-executor
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run tests
+          command: npm test
+  lint:
+    executor: node-executor
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run eslint
+          command: npm run lint
+  deploy:
+    executor: node-executor
+    working_directory: ~/repo
+    environment:
+      NODE_ENV: production
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Build
+          command: npm run build
+      - run:
+          name: Deploy
+          command: npm run deploy

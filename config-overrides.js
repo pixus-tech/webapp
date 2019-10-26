@@ -43,6 +43,8 @@ module.exports = {
       '^react-dnd-touch-backend$': 'react-dnd-touch-backend/dist/cjs',
       '^react-dnd-test-backend$': 'react-dnd-test-backend/dist/cjs',
       '^react-dnd-test-utils$': 'react-dnd-test-utils/dist/cjs',
+      '^(worker|raw)-loader!.+worker.*$': '<rootDir>/__mocks__/worker-mock.js',
+      '^workerize$': '<rootDir>/__mocks__/workerize-mock.js',
     })
     return config
   },

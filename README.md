@@ -1,5 +1,7 @@
 # pixus
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/07250d52-2061-45f8-96b0-0e604ba68ea0/deploy-status)](https://app.netlify.com/sites/pixus-webapp/deploys)
+
 ## Development
 
 In the project directory, you can run `npm install` to install the current
