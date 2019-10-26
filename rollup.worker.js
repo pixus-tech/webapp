@@ -1,6 +1,6 @@
-import node from 'rollup-plugin-node-resolve';
-import typescript from 'rollup-plugin-typescript2';
-import uglify from 'rollup-plugin-uglify';
+import node from 'rollup-plugin-node-resolve'
+import typescript from 'rollup-plugin-typescript2'
+import { uglify } from 'rollup-plugin-uglify'
 import analyze from 'rollup-plugin-analyzer'
 
 const scriptPrefix = process.env.SCRIPT_PREFIX
@@ -27,7 +27,7 @@ function config({plugins = [], output = {}}) {
     output: {
       ...output
     },
-  };
+  }
 }
 
 export default [
