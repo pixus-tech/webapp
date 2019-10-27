@@ -28,7 +28,9 @@ import NotificationWrapper from './notifications'
 
 const styles = (theme: Theme) =>
   createStyles({
-    list: {},
+    list: {
+      maxWidth: 368,
+    },
     message: {
       padding: theme.spacing(2),
       textAlign: 'center',
@@ -71,6 +73,7 @@ class Notifications extends React.PureComponent<ComposedProps> {
         Icon={
           <Badge
             color="secondary"
+            overlap="circle"
             badgeContent={notifications.length}
             max={9}
             invisible={!hasNotifications}

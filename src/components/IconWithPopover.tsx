@@ -14,6 +14,9 @@ import {
 
 const styles = (theme: Theme) =>
   createStyles({
+    button: {
+      margin: theme.spacing(0, 0.5),
+    },
     popover: {
       zIndex: theme.zIndex.tooltip,
     },
@@ -64,6 +67,7 @@ class IconWithPopover extends React.PureComponent<ComposedProps, IState> {
       <>
         <Tooltip title={tooltip}>
           <IconButton
+            className={classes.button}
             color="inherit"
             edge="end"
             aria-label="delete"

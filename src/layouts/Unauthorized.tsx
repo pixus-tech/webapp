@@ -1,5 +1,6 @@
 import React from 'react'
 import Container from '@material-ui/core/Container'
+import Grid from '@material-ui/core/Grid'
 import {
   createStyles,
   Theme,
@@ -7,7 +8,8 @@ import {
   WithStyles,
 } from '@material-ui/core/styles'
 
-import Header from 'connected-components/Header'
+import Header from 'components/Header'
+import WBM from 'components/ci/WBM'
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -30,7 +32,11 @@ type StyleProps = WithStyles<typeof styles>
 
 const UnauthorizedLayout: React.FC<StyleProps> = ({ children, classes }) => (
   <div className={classes.root}>
-    <Header />
+    <Header>
+    <Grid item xs />
+      <WBM />
+    <Grid item xs />
+    </Header>
     <Container component="main" maxWidth="xs">
       <div className={classes.paper}>{children}</div>
     </Container>

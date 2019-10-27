@@ -8,7 +8,7 @@ import {
 import Container from '@material-ui/core/Container'
 import Hidden from '@material-ui/core/Hidden'
 
-import Header from 'connected-components/Header'
+import ApplicationHeader from 'connected-components/ApplicationHeader'
 import Menu from 'connected-components/Menu'
 
 const DRAWER_WIDTH = 256
@@ -53,7 +53,7 @@ const AppLayout: React.SFC<StyleProps> = ({ children, classes }) => {
 
   return (
     <div className={classes.root}>
-      <Header onDrawerToggle={handleDrawerToggle} />
+      <ApplicationHeader onDrawerToggle={handleDrawerToggle} />
       <div className={classes.content}>
         <Container maxWidth="xl">
           <div className={classes.content}>

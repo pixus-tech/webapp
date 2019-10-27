@@ -6,6 +6,7 @@ import Notification, { NotificationType } from 'models/notification'
 export default { title: 'Notifications' }
 
 const albumInvite: Notification = {
+  _id: '1',
   addressee: 'addressee.id.blockstack',
   creator: 'sender.id.blockstack',
   createdAt: new Date().getTime(),
@@ -16,5 +17,7 @@ const albumInvite: Notification = {
 }
 
 export const albumInviteNotification = () => (
-  <NotificationWrapper notification={albumInvite} />
+  <ul>
+    <NotificationWrapper notification={albumInvite} />
+  </ul>
 )
