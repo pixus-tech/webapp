@@ -4,7 +4,7 @@ import uuid from 'uuid/v4'
 import * as cryptoWorker from './crypto'
 import * as dbWorker from './db'
 import * as aiWorker from './ai'
-import { readFileWorker } from './readFile'
+import * as fileWorker from './file'
 
 interface JobActions {
   resolve: (payload: any) => void
@@ -56,4 +56,4 @@ export function postJob<T>(worker: Worker, job: string, payload: object = {}) {
   })
 }
 
-export { aiWorker, cryptoWorker, dbWorker, readFileWorker }
+export { aiWorker, cryptoWorker, dbWorker, fileWorker }

@@ -1,3 +1,8 @@
+// Imported types
+import { FileReaderResponse } from './file'
+
+declare const self: DedicatedWorkerGlobalScope
+
 async function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -19,12 +24,7 @@ async function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
   })
 }
 
-interface FileReaderResponse {
-  arrayBuffer: ArrayBuffer
-  objectURL: string
-}
-
-export async function readFile(file: File): Promise<FileReaderResponse> {
+async function readFile(file: File): Promise<FileReaderResponse> {
   const arrayBuffer = await readFileAsArrayBuffer(file)
   const blob = new Blob([arrayBuffer], { type: file.type })
   const objectURL = URL.createObjectURL(blob)
@@ -34,3 +34,25 @@ export async function readFile(file: File): Promise<FileReaderResponse> {
     objectURL,
   }
 }
+
+self.addEventListener('message', event => {
+  const { id, job, file } = event.data
+
+  try {
+    if (job === 'readFile') {
+      readFile(file)
+        .then(result => {
+          self.postMessage({ id, result })
+        })
+        .catch(error => {
+          self.postMessage({ id, error: `${error}` })
+        })
+    } else {
+      throw 'unknown job'
+    }
+  } catch (error) {
+    self.postMessage({ id, error: `${error}` })
+  }
+})
+
+export default null

@@ -5,7 +5,7 @@ import { saveAs } from 'file-saver'
 import Image from 'models/image'
 import { FileHandle, FileHandleWithData } from 'models/fileHandle'
 import userSession from './userSession'
-import { readFileWorker, cryptoWorker } from 'workers/index'
+import { fileWorker, cryptoWorker } from 'workers/index'
 import BaseService from './baseService'
 import { Queue } from './dispatcher'
 import { currentUsername } from 'utils/blockstack'
@@ -216,7 +216,7 @@ class Files extends BaseService {
       resolve,
       reject,
     ) {
-      readFileWorker
+      fileWorker
         .readFile(fileHandle.file)
         .then(({ arrayBuffer, objectURL }) => {
           const fileHandleWithData: FileHandleWithData = {

@@ -47,7 +47,6 @@
     "typescript": "^3.6.4",
     "utility-types": "^3.8.0",
     "uuid": "^3.3.3",
-    "workerize": "^0.1.7",
     "yup": "^0.27.0"
   },
   "scripts": {
@@ -55,7 +54,7 @@
     "build": "react-app-rewired build",
     "build:worker-script": "rollup --config rollup.worker.js",
     "deploy": "netlify deploy --prod --dir=build --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID",
-    "test": "react-app-rewired test",
+    "test": "react-app-rewired test --env=jsdom",
     "eject": "react-scripts eject",
     "lint:fix": "eslint --fix './src/**/*.{ts,tsx}'",
     "lint": "eslint './src/**/*.{ts,tsx}'",
@@ -110,7 +109,6 @@
     "netlify-cli": "^2.19.4",
     "npm-check": "^5.9.0",
     "prettier": "^1.17.1",
-    "raw-loader": "^3.1.0",
     "react-app-rewired": "^2.1.4",
     "react-test-renderer": "^16.10.2",
     "rollup": "^1.25.2",
