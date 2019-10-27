@@ -19,11 +19,12 @@ import {
 import NotificationsIcon from '@material-ui/icons/Notifications'
 import NoNotificationsIcon from '@material-ui/icons/NotificationsNone'
 
-import UserListItem from 'components/UserListItem'
 import IconWithPopover from 'components/IconWithPopover'
 import Notification from 'models/notification'
 import { getNotifications } from 'store/notifications/actions'
 import { notificationsSelector } from 'store/notifications/selectors'
+
+import NotificationWrapper from './notifications'
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -82,10 +83,7 @@ class Notifications extends React.PureComponent<ComposedProps> {
           <List className={classes.list}>
             {_.map(notifications, (notification, index) => (
               <div key={`${index}-item`}>
-                <UserListItem
-                  message={notification.message}
-                  user={{ username: notification.creator }}
-                />
+                <NotificationWrapper notification={notification} />
                 {index !== notifications.length - 1 && (
                   <Divider
                     key={`${index}-divider`}
