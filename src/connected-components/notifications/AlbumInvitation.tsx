@@ -60,11 +60,7 @@ function AlbumInvitation({ notification }: ComposedProps) {
         <UserAvatar user={{ username: notification.creator }} />
       </ListItemAvatar>
       <ListItemText
-        primary={
-          <span>
-            Invite from {notification.creator}
-          </span>
-        }
+        primary={<span>Invite from {notification.creator}</span>}
         secondary={
           <>
             <Typography component="span" variant="body1">
