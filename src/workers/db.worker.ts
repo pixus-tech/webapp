@@ -28,7 +28,7 @@ class PixusDatabase extends Dexie {
     this.version(1).stores({
       albums: '_id,name,isOnRadiks,isDirty',
       images:
-        '_id,createdAt,userGroupId,meta.isFavorite,isOnRadiks,isDirty,isImageStored,isPreviewImageStored',
+        '_id,createdAt,userGroupId,meta.isFavorite,meta.isOnRadiks,meta.isDirty,meta.isImageStored,meta.isPreviewImageStored',
     })
 
     this.albums = this.table('albums')
@@ -64,6 +64,16 @@ async function findImages(
       return await database.images
         .where('createdAt')
         .above(latestUpload.createdAt - MILLISECONDS_PER_DAY)
+        .toArray()
+    }
+    case 'pending-uploads': {
+      return await database.images
+        .where('meta.isOnRadiks')
+        .equals(0)
+        .or('meta.isImageStored')
+        .equals(0)
+        .or('meta.isPreviewImageStored')
+        .equals(0)
         .toArray()
     }
     default: {

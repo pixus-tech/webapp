@@ -1,37 +1,22 @@
 import { IndexableBoolean } from 'utils/db'
+import { EXIFTags } from 'utils/exif'
 
-type EXIFTagsV0 = {}
+type AITagsV0 = {}
 
-interface EXIFTagsV1 {
-  Make?: string
-  Model?: string
-  DateTimeOriginal?: string
-  DateTimeDigitized?: string
-  DateTime?: string
-  SceneCaptureType?: string
-  Orientation?: string
-  GPSLatitude?: string
-  GPSLongitude?: string
-  GPSAltitude?: string
-}
-
-export enum EXIFIndexVersion {
-  V0 = 0,
-  V1 = 1,
-}
-
-type EXIFTags = EXIFTagsV0 | EXIFTagsV1
-
-export const CurrentEXIFIndexVersion = EXIFIndexVersion.V1
+interface AITagsV1 {}
 
 export enum AIIndexVersion {
   V0 = 0,
   V1 = 1,
 }
 
+type AITags = AITagsV0 | AITagsV1
+
+export const CurrentAIIndexVersion = AIIndexVersion.V1
+
 export default interface ImageMeta {
   aiIndexVersion: AIIndexVersion
-  exifIndexVersion: EXIFIndexVersion
+  aiTags: AITags
   exifTags: EXIFTags
   isDirty: IndexableBoolean
   isFavorite: IndexableBoolean
@@ -42,7 +27,7 @@ export default interface ImageMeta {
 
 export const defaultImageMeta: ImageMeta = {
   aiIndexVersion: AIIndexVersion.V0,
-  exifIndexVersion: EXIFIndexVersion.V0,
+  aiTags: {},
   exifTags: {},
   isDirty: 1,
   isFavorite: 0,

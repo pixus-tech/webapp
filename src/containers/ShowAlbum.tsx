@@ -27,7 +27,7 @@ import SharePanel from 'components/SharePanel'
 import Album from 'models/album'
 import Image, { ImageFilterName } from 'models/image'
 import { saveAlbum, setAlbumImageColumnCount } from 'store/albums/actions'
-import { getImages, uploadImagesToAlbum } from 'store/images/actions'
+import { getImages, addImagesToAlbum } from 'store/images/actions'
 import { albumImagesSelector } from 'store/images/selectors'
 import { keyForFilter } from 'store/images/types'
 import { showModal } from 'store/modal/actions'
@@ -75,7 +75,7 @@ const styles = (theme: Theme) =>
   })
 
 interface IDispatchProps {
-  dispatchUploadImagesToAlbum: typeof uploadImagesToAlbum
+  dispatchUploadImagesToAlbum: typeof addImagesToAlbum
   dispatchGetImages: (album: Album) => void
   dispatchSaveAlbum: typeof saveAlbum.request
   dispatchSetAlbumImageColumnCount: typeof setAlbumImageColumnCount.request
@@ -296,7 +296,7 @@ function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
       dispatch(getImages(albumFilter(album)))
     },
     dispatchUploadImagesToAlbum: albumImageFiles =>
-      dispatch(uploadImagesToAlbum(albumImageFiles)),
+      dispatch(addImagesToAlbum(albumImageFiles)),
     dispatchSaveAlbum: album => dispatch(saveAlbum.request(album)),
     dispatchSetAlbumImageColumnCount: payload =>
       dispatch(setAlbumImageColumnCount.request(payload)),

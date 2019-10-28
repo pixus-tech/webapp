@@ -4,10 +4,10 @@ import { compose } from 'recompose'
 import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
 
-import { loadSettings } from 'store/settings/actions'
+import { resumePendingUploads } from 'store/images/actions'
 
 interface IDispatchProps {
-  dispatchLoadSettings: typeof loadSettings.request
+  dispatchResumePendingUploads: () => void
 }
 
 interface IStateProps {
@@ -16,21 +16,21 @@ interface IStateProps {
 
 type ComposedProps = IDispatchProps & IStateProps
 
-class SettingsGate extends React.PureComponent<ComposedProps> {
+class ResumeGate extends React.PureComponent<ComposedProps> {
   componentDidMount() {
     if (this.props.isAuthenticated) {
-      this.loadSettings()
+      this.resumeOperations()
     }
   }
 
   componentDidUpdate(prevProps: ComposedProps) {
     if (!prevProps.isAuthenticated && this.props.isAuthenticated) {
-      this.loadSettings()
+      this.resumeOperations()
     }
   }
 
-  loadSettings = () => {
-    this.props.dispatchLoadSettings()
+  resumeOperations = () => {
+    this.props.dispatchResumePendingUploads()
   }
 
   render() {
@@ -46,7 +46,9 @@ function mapStateToProps(store: RootState): IStateProps {
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
-    dispatchLoadSettings: () => dispatch(loadSettings.request()),
+    dispatchResumePendingUploads: () => {
+      dispatch(resumePendingUploads())
+    },
   }
 }
 
@@ -55,4 +57,4 @@ export default compose<ComposedProps, {}>(
     mapStateToProps,
     mapDispatchToProps,
   ),
-)(SettingsGate)
+)(ResumeGate)

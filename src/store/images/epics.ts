@@ -105,13 +105,31 @@ export const getImagesFromCacheEpic: Epic<
     ),
   )
 
-export const uploadImagesToAlbumEpic: Epic<
+export const resumePendingUploadsEpic: Epic<
   RootAction,
   RootAction,
-  RootState
-> = (action$, _state$) =>
+  RootState,
+  Pick<RootService, 'images'>
+> = (action$, state$, { images }) =>
   action$.pipe(
-    filter(isActionOf(actions.uploadImagesToAlbum)),
+    filter(isActionOf(actions.resumePendingUploads)),
+    mergeMap(() =>
+      images
+        .getImagesFromCache({ name: 'pending-uploads' })
+        .pipe(
+          mergeMap(images =>
+            of(...images.map(image => actions.requestUploadImage(image))),
+          ),
+        ),
+    ),
+  )
+
+export const addImagesToAlbumEpic: Epic<RootAction, RootAction, RootState> = (
+  action$,
+  _state$,
+) =>
+  action$.pipe(
+    filter(isActionOf(actions.addImagesToAlbum)),
     mergeMap(action => {
       const { album } = action.payload
 
@@ -124,11 +142,71 @@ export const uploadImagesToAlbumEpic: Epic<
             type: imageFile.type,
           }
 
-          return actions.uploadImageToAlbum.request({ album, fileHandle })
+          return actions.addImageToAlbum.request({ album, fileHandle })
         },
       )
 
       return of(...resultActions)
+    }),
+  )
+
+export const addImageToAlbumEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'images'>
+> = (action$, state$, { images }) =>
+  action$.pipe(
+    filter(isActionOf(actions.addImageToAlbum.request)),
+    mergeMap(({ payload }) => {
+      const { album, fileHandle } = payload
+      return images.addImageToAlbum(album, fileHandle).pipe(
+        map(image => actions.addImageToAlbum.success({ album, image })),
+        takeUntil(
+          action$.pipe(
+            filter(isActionOf(actions.addImageToAlbum.cancel)),
+            filter(cancel => cancel.payload.fileHandle._id === fileHandle._id),
+          ),
+        ),
+        catchError(error =>
+          of(
+            actions.addImageToAlbum.failure({
+              error,
+              resource: { album, fileHandle },
+            }),
+          ),
+        ),
+      )
+    }),
+  )
+
+export const uploadImageAfterAddingItToAlbumEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'images'>
+> = (action$, state$, { images }) =>
+  action$.pipe(
+    filter(isActionOf(actions.addImageToAlbum.success)),
+    map(({ payload }) => actions.uploadImageToAlbum.request(payload)),
+  )
+
+export const requestUploadImageEpic: Epic<RootAction, RootAction, RootState> = (
+  action$,
+  state$,
+) =>
+  action$.pipe(
+    filter(isActionOf(actions.requestUploadImage)),
+    withLatestFrom(state$),
+    map(([action, state]) => {
+      const image = action.payload
+      const album = state.albums.data.get(image.userGroupId)
+
+      if (album === undefined) {
+        return actions.requestUploadImageFailure(image)
+      }
+
+      return actions.uploadImageToAlbum.request({ image, album })
     }),
   )
 
@@ -140,22 +218,42 @@ export const uploadImageToAlbumEpic: Epic<
 > = (action$, state$, { images }) =>
   action$.pipe(
     filter(isActionOf(actions.uploadImageToAlbum.request)),
-    mergeMap(action => {
-      const { album, fileHandle } = action.payload
-      return images.uploadImageToAlbum(album, fileHandle).pipe(
-        map(image => actions.uploadImageToAlbum.success({ album, image })),
+    filter(({ payload }) => images.shouldUpload(payload.image)),
+    mergeMap(({ payload }) => {
+      const { album, image } = payload
+      return images.uploadImageToAlbum(image, album).pipe(
+        map(image => actions.uploadImageToAlbum.success(payload)),
         takeUntil(
-          action$.pipe(filter(isActionOf(actions.uploadImageToAlbum.cancel))), // TODO: should respect filehandle id
+          action$.pipe(
+            filter(isActionOf(actions.uploadImageToAlbum.cancel)),
+            filter(cancel => cancel.payload._id === image._id),
+          ),
         ),
         catchError(error =>
           of(
             actions.uploadImageToAlbum.failure({
               error,
-              resource: { album, fileHandle },
+              resource: payload,
             }),
           ),
         ),
       )
+    }),
+  )
+
+export const propagateUploadSuccessEpic: Epic<
+  RootAction,
+  RootAction
+> = action$ =>
+  action$.pipe(
+    filter(isActionOf(actions.uploadImageToAlbum.success)),
+    map(({ payload: { image } }) => {
+      const updates = {
+        isOnRadiks: 1,
+        isImageStored: 1,
+        isPreviewImageStored: 1,
+      }
+      return actions.updateImageMeta.request({ image, updates })
     }),
   )
 
@@ -387,6 +485,7 @@ export const saveImageFileEpic: Epic<
     ignoreElements(),
   )
 
+/*
 export const getEXIFTagsAfterUploadEpic: Epic<
   RootAction,
   RootAction,
@@ -416,7 +515,7 @@ export const getEXIFTagsAfterDownloadEpic: Epic<
     map(({ payload }) => {
       const imageData: ArrayBuffer = new ArrayBuffer(0)
 
-      /* TODO: Use objecturl for exif scan
+      // TODO: Use objecturl for exif scan
       if (typeof payload.fileContent !== 'string') {
         imageData = payload.fileContent.buffer
       } else {
@@ -425,7 +524,6 @@ export const getEXIFTagsAfterDownloadEpic: Epic<
           resource: payload.image,
         })
       }
-      */
 
       return actions.updateImageEXIFTags.request({
         image: payload.image,
@@ -465,36 +563,42 @@ export const updateEXIFTagsEpic: Epic<
       )
     }),
   )
+*/
 
-export const toggleImageFavoriteEpic: Epic<
+export const toggleImageFavoriteEpic: Epic<RootAction, RootAction> = action$ =>
+  action$.pipe(
+    filter(isActionOf(actions.toggleImageFavorite)),
+    map(({ payload: image }) => {
+      const updates = { isFavorite: toggleBooleanNumber(image.meta.isFavorite) }
+      return actions.updateImageMeta.request({ image, updates })
+    }),
+  )
+
+export const updateImageMetaEpic: Epic<
   RootAction,
   RootAction,
   RootState,
   Pick<RootService, 'images'>
 > = (action$, state$, { images }) =>
   action$.pipe(
-    filter(isActionOf(actions.toggleImageFavorite.request)),
-    mergeMap(({ payload: image }) =>
-      images
-        .updateMeta(image, {
-          isFavorite: toggleBooleanNumber(image.meta.isFavorite),
-        })
-        .pipe(
-          map(actions.toggleImageFavorite.success),
-          takeUntil(
-            action$.pipe(
-              filter(isActionOf(actions.toggleImageFavorite.cancel)),
-              filter(cancel => cancel.payload._id === image._id),
-            ),
-          ),
-          catchError(error =>
-            of(
-              actions.toggleImageFavorite.failure({
-                error,
-                resource: image,
-              }),
-            ),
+    filter(isActionOf(actions.updateImageMeta.request)),
+    mergeMap(({ payload: { image, updates } }) =>
+      images.updateMeta(image, updates).pipe(
+        map(actions.updateImageMeta.success),
+        takeUntil(
+          action$.pipe(
+            filter(isActionOf(actions.updateImageMeta.cancel)),
+            filter(cancel => cancel.payload._id === image._id),
           ),
         ),
+        catchError(error =>
+          of(
+            actions.updateImageMeta.failure({
+              error,
+              resource: { image, updates },
+            }),
+          ),
+        ),
+      ),
     ),
   )

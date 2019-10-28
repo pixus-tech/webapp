@@ -10,6 +10,8 @@ import {
   withStyles,
   WithStyles,
 } from '@material-ui/core/styles'
+import Tooltip from '@material-ui/core/Tooltip'
+import UploadIcon from '@material-ui/icons/CloudUpload'
 
 import ImageActions from 'connected-components/ImageActions'
 import ImagePreviewGradient from 'components/ImagePreviewGradient'
@@ -21,7 +23,7 @@ import {
 
 const HIDE_GRADIENT_DELAY = 1000
 
-const styles = (_theme: Theme) =>
+const styles = (theme: Theme) =>
   createStyles({
     container: {
       height: '100%',
@@ -61,6 +63,22 @@ const styles = (_theme: Theme) =>
       backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.6) 20%, transparent 50%)`,
       '&:hover': {
         opacity: 1,
+      },
+    },
+    uploadIcon: {
+      width: 24,
+      height: 24,
+      bottom: theme.spacing(1) - 3,
+      position: 'absolute',
+      right: theme.spacing(1),
+      animation: `$opacity-pulsate 1250ms ${theme.transitions.easing.easeInOut} 200ms infinite alternate`,
+    },
+    '@keyframes opacity-pulsate': {
+      '0%': {
+        opacity: 1,
+      },
+      '100%': {
+        opacity: 0.62,
       },
     },
   })
@@ -181,6 +199,8 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
 
     const isImageLoaded = imageObjectURL !== undefined
     const isHorizontal = image.width > image.height
+    const isImageDataStored =
+      image.meta.isPreviewImageStored && image.meta.isImageStored
 
     const imageStyles = {
       height: isHorizontal ? '100%' : 'auto',
@@ -210,6 +230,12 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
 
         {showActions && (
           <ImageActions className={classes.actionPanel} image={image} />
+        )}
+
+        {!isImageDataStored && (
+          <Tooltip title="Upload is pending">
+            <UploadIcon className={classes.uploadIcon} />
+          </Tooltip>
         )}
       </div>
     )

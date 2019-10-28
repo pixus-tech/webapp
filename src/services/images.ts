@@ -11,7 +11,7 @@ import Image, {
 } from 'models/image'
 import ImageMeta, {
   defaultImageMeta,
-  CurrentEXIFIndexVersion,
+  CurrentAIIndexVersion,
 } from 'models/imageMeta'
 import { Uint8BitColor } from 'utils/colors'
 import ImageRecord, { ImageRecordFactory } from 'db/radiks/image'
@@ -20,9 +20,6 @@ import { Queue } from './dispatcher'
 import files from './files'
 import records from './records'
 import { currentUsername } from 'utils/blockstack'
-import { didProcessImage } from 'store/images/actions'
-
-import EXIF from 'exif-js'
 
 class Images extends BaseService {
   refreshImages = (albumId: string) =>
@@ -87,12 +84,59 @@ class Images extends BaseService {
     })
   }
 
-  shouldScanEXIFTags = (image: Image) =>
-    CurrentEXIFIndexVersion > image.meta.exifIndexVersion
+  shouldScanAITags = (image: Image) =>
+    CurrentAIIndexVersion > image.meta.aiIndexVersion
 
-  getEXIFTags = (imageData: ArrayBuffer) => EXIF.readFromBinaryFile(imageData)
+  updateAITags = (image: Image) => {
+    // TODO: get AI Tags
+    console.log('TODO')
+  }
 
-  uploadImageToAlbum = (album: Album, fileHandle: FileHandle) => {
+  shouldUpload = (image: Image) =>
+    !image.meta.isOnRadiks ||
+    !image.meta.isPreviewImageStored ||
+    !image.meta.isImageStored
+
+  uploadImageToAlbum = (image: Image, album: Album) =>
+    new Observable<Image>(subscriber => {
+      const self = this
+      Promise.all([
+        this.blobStore.getObjectData(imagePath(image)),
+        this.blobStore.getObjectData(imagePreviewPath(image)),
+      ])
+        .then(([imageData, previewData]) => {
+          forkJoin({
+            original: files.upload(
+              imagePath(image),
+              imageData,
+              album.publicKey,
+            ),
+            preview: files.upload(
+              imagePreviewPath(image),
+              previewData,
+              album.publicKey,
+            ),
+          }).subscribe({
+            next() {
+              self.save(image).subscribe({
+                next() {
+                  subscriber.next(image)
+                  subscriber.complete()
+                },
+                error(error) {
+                  subscriber.error(error)
+                },
+              })
+            },
+            error(error) {
+              subscriber.error(error)
+            },
+          })
+        })
+        .catch(error => subscriber.error(error))
+    })
+
+  addImageToAlbum = (album: Album, fileHandle: FileHandle) => {
     return new Observable<Image>(subscriber => {
       const self = this
       files.read(fileHandle).subscribe({
@@ -117,45 +161,25 @@ class Images extends BaseService {
                 userGroupId: album._id,
                 username: currentUsername(),
                 width: imageMetaData.width,
-                meta: defaultImageMeta,
+                meta: {
+                  ...defaultImageMeta,
+                  exifTags: fileHandleWithData.exifTags || {},
+                },
               }
 
-              self.dispatch(
-                didProcessImage({
-                  album,
-                  image,
-                  imageData: fileHandleWithData.payload,
-                  previewData: imageMetaData.previewImageData,
-                }),
+              self.blobStore.storeData(
+                imagePath(image),
+                fileHandleWithData.payload,
+                image.type,
               )
-
-              forkJoin({
-                original: files.upload(
-                  imagePath(image),
-                  fileHandleWithData.payload,
-                  album.publicKey,
-                ),
-                preview: files.upload(
-                  imagePreviewPath(image),
-                  imageMetaData.previewImageData,
-                  album.publicKey,
-                ),
-              }).subscribe({
-                next() {
-                  self.save(image).subscribe({
-                    next() {
-                      subscriber.next(image)
-                      subscriber.complete()
-                    },
-                    error(error) {
-                      subscriber.error(error)
-                    },
-                  })
-                },
-                error(error) {
-                  subscriber.error(error)
-                },
-              })
+              self.blobStore.storeData(
+                imagePreviewPath(image),
+                imageMetaData.previewImageData,
+                'image/jpeg',
+              )
+              self.db.images.add(image)
+              subscriber.next(image)
+              subscriber.complete()
             },
             error(error) {
               subscriber.error(error)

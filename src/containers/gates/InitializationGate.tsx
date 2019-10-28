@@ -4,17 +4,18 @@ import { PersistGate } from 'redux-persist/integration/react'
 import FullScreenLoader from 'components/FullScreenLoader'
 import storeConfiguration from 'store'
 
+import ResumeGate from './ResumeGate'
 import SettingsGate from './SettingsGate'
 
 const InitializationGate: React.SFC = ({ children }) => (
-  <SettingsGate>
-    <PersistGate
-      loading={<FullScreenLoader isLoading />}
-      persistor={storeConfiguration.persistor}
-    >
-      {children}
-    </PersistGate>
-  </SettingsGate>
+  <PersistGate
+    loading={<FullScreenLoader isLoading />}
+    persistor={storeConfiguration.persistor}
+  >
+    <SettingsGate>
+      <ResumeGate>{children}</ResumeGate>
+    </SettingsGate>
+  </PersistGate>
 )
 
 export default InitializationGate

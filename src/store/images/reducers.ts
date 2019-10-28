@@ -3,7 +3,6 @@ import { combineReducers } from 'redux'
 import { createReducer } from 'typesafe-actions'
 
 import Image from 'models/image'
-import { toggleBooleanNumber } from 'utils/db'
 
 import * as actions from './actions'
 import { keyForFilter } from './types'
@@ -31,16 +30,16 @@ const filterImagesLoaded = createReducer(
 
 const currentUploadIds = createReducer(initialState.currentUploadIds)
   .handleAction(actions.uploadImageToAlbum.request, (state, action) =>
-    state.push(action.payload.fileHandle._id),
+    state.push(action.payload.image._id),
   )
   .handleAction(actions.uploadImageToAlbum.cancel, (state, action) =>
-    state.filterNot(id => id === action.payload.fileHandle._id),
+    state.filterNot(id => id === action.payload._id),
   )
 
 const failedUploads = createReducer(initialState.failedUploads).handleAction(
   actions.uploadImageToAlbum.failure,
   (state, action) =>
-    state.set(action.payload.resource.fileHandle._id, action.payload.error),
+    state.set(action.payload.resource.image._id, action.payload.error),
 )
 
 const succeededUploadIds = createReducer(
@@ -53,19 +52,15 @@ const data = createReducer(initialState.data)
   .handleAction(actions.getImagesFromCache.success, (state, action) => {
     return Map(action.payload.images.map(image => [image._id, image]))
   })
-  .handleAction(
-    [actions.uploadImageToAlbum.success, actions.didProcessImage],
-    (state, action) => {
-      const image = action.payload.image
-      return state.set(image._id, image)
-    },
-  )
-  .handleAction(actions.toggleImageFavorite.request, (state, action) => {
-    const image = action.payload
-    const isFavorite = toggleBooleanNumber(image.meta.isFavorite)
+  .handleAction(actions.addImageToAlbum.success, (state, action) => {
+    const image = action.payload.image
+    return state.set(image._id, image)
+  })
+  .handleAction(actions.updateImageMeta.request, (state, action) => {
+    const { image, updates } = action.payload
     return state.set(image._id, {
       ...image,
-      meta: { ...image.meta, isFavorite },
+      meta: { ...image.meta, ...updates },
     })
   })
 
@@ -74,7 +69,7 @@ const filterImageIds = createReducer(initialState.filterImageIds)
     const imageIds = List<string>(payload.images.map(image => image._id))
     return state.set(keyForFilter(payload.filter), imageIds)
   })
-  .handleAction([actions.didProcessImage], (state, action) => {
+  .handleAction(actions.addImageToAlbum.success, (state, action) => {
     const albumId = action.payload.album._id
     const imageId = action.payload.image._id
     // TODO: Use the current filter
@@ -90,18 +85,12 @@ const filterImageIds = createReducer(initialState.filterImageIds)
     return state.set(key, imageIds.push(imageId))
   })
 
-const imageObjectURLMap = createReducer(initialState.imageObjectURLMap)
-  .handleAction(actions.downloadImage.success, (state, action) => {
-    const { image, objectURL } = action.payload
-    return state.set(image._id, objectURL)
-  })
-  // TODO: did process image should put image into idb
-  .handleAction(actions.didProcessImage, (state, action) => {
-    const { image, imageData } = action.payload
-    const blob = new Blob([imageData], { type: image.type })
-    const objectURL = URL.createObjectURL(blob)
-    return state.set(image._id, objectURL)
-  })
+const imageObjectURLMap = createReducer(
+  initialState.imageObjectURLMap,
+).handleAction(actions.downloadImage.success, (state, action) => {
+  const { image, objectURL } = action.payload
+  return state.set(image._id, objectURL)
+})
 
 const imageIsLoadingMap = createReducer(initialState.imageIsLoadingMap)
   .handleAction(actions.downloadImage.request, (state, action) => {
@@ -119,17 +108,10 @@ const imageIsLoadingMap = createReducer(initialState.imageIsLoadingMap)
 
 const previewImageObjectURLMap = createReducer(
   initialState.previewImageObjectURLMap,
-)
-  .handleAction(actions.downloadPreviewImage.success, (state, action) => {
-    const { image, objectURL } = action.payload
-    return state.set(image._id, objectURL)
-  })
-  .handleAction(actions.didProcessImage, (state, action) => {
-    const { image, previewData } = action.payload
-    const blob = new Blob([previewData], { type: image.type })
-    const objectURL = URL.createObjectURL(blob)
-    return state.set(image._id, objectURL)
-  })
+).handleAction(actions.downloadPreviewImage.success, (state, action) => {
+  const { image, objectURL } = action.payload
+  return state.set(image._id, objectURL)
+})
 
 const previewImageIsLoadingMap = createReducer(
   initialState.previewImageIsLoadingMap,

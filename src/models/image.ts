@@ -34,7 +34,11 @@ export default interface Image extends BaseModel {
   meta: ImageMeta
 }
 
-export type ImageFilterName = 'album' | 'favorites' | 'recent-uploads'
+export type ImageFilterName =
+  | 'album'
+  | 'favorites'
+  | 'recent-uploads'
+  | 'pending-uploads'
 export interface ImageFilterAttributes {
   name: ImageFilterName
   data?: any

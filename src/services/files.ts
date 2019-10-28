@@ -218,11 +218,12 @@ class Files extends BaseService {
     ) {
       fileWorker
         .readFile(fileHandle.file)
-        .then(({ arrayBuffer, objectURL }) => {
+        .then(({ arrayBuffer, exifTags, objectURL }) => {
           const fileHandleWithData: FileHandleWithData = {
             ...fileHandle,
-            payload: arrayBuffer,
+            exifTags,
             objectURL,
+            payload: arrayBuffer,
           }
 
           resolve(fileHandleWithData)

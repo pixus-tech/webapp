@@ -1,4 +1,5 @@
 import BaseModel from './'
+import { EXIFTags } from 'utils/exif'
 
 export interface FileHandle extends BaseModel {
   file: File
@@ -6,6 +7,7 @@ export interface FileHandle extends BaseModel {
 }
 
 export interface FileHandleWithData extends FileHandle {
+  exifTags?: EXIFTags
   objectURL: string
   payload: ArrayBuffer
 }

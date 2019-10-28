@@ -1,9 +1,14 @@
 import { API } from 'typings/types'
 import { createAsyncAction, createStandardAction } from 'typesafe-actions'
 import Album from 'models/album'
-import { FileHandle } from 'models/fileHandle'
 import Image from 'models/image'
-import { FilteredImages, ImageFilter } from './types'
+import {
+  AlbumImage,
+  AlbumFileHandle,
+  FilteredImages,
+  ImageMetaUpdates,
+  ImageFilter,
+} from './types'
 
 export const getImages = createStandardAction('IMAGES__GET_LIST')<ImageFilter>()
 
@@ -21,43 +26,43 @@ export const getImagesFromCache = createAsyncAction(
   'IMAGES__FROM_CACHE__CANCEL',
 )<ImageFilter, FilteredImages, API.ErrorResponse<ImageFilter>, ImageFilter>()
 
-export const uploadImagesToAlbum = createStandardAction(
-  'IMAGES__UPLOAD_IMAGES_TO_ALBUM',
+export const addImagesToAlbum = createStandardAction(
+  'IMAGES__ADD_IMAGES_TO_ALBUM',
 )<{
   album: Album
   imageFiles: File[]
 }>()
+
+export const addImageToAlbum = createAsyncAction(
+  'IMAGES__ADD_IMAGE_TO_ALBUM__REQUEST',
+  'IMAGES__ADD_IMAGE_TO_ALBUM__SUCCESS',
+  'IMAGES__ADD_IMAGE_TO_ALBUM__FAILURE',
+  'IMAGES__ADD_IMAGE_TO_ALBUM__CANCEL',
+)<
+  AlbumFileHandle,
+  AlbumImage,
+  API.ErrorResponse<AlbumFileHandle>,
+  AlbumFileHandle
+>()
+
+export const resumePendingUploads = createStandardAction(
+  'IMAGES__RESUME_PENDING_UPLOADS',
+)()
+
+export const requestUploadImage = createStandardAction(
+  'IMAGES__REQUEST_UPLOAD_IMAGE',
+)<Image>()
+
+export const requestUploadImageFailure = createStandardAction(
+  'IMAGES__REQUEST_UPLOAD_IMAGE__FAILURE',
+)<Image>()
 
 export const uploadImageToAlbum = createAsyncAction(
   'IMAGES__UPLOAD_IMAGE_TO_ALBUM__REQUEST',
   'IMAGES__UPLOAD_IMAGE_TO_ALBUM__SUCCESS',
   'IMAGES__UPLOAD_IMAGE_TO_ALBUM__FAILURE',
   'IMAGES__UPLOAD_IMAGE_TO_ALBUM__CANCEL',
-)<
-  {
-    album: Album
-    fileHandle: FileHandle
-  },
-  {
-    album: Album
-    image: Image
-  },
-  API.ErrorResponse<{
-    album: Album
-    fileHandle: FileHandle
-  }>,
-  {
-    album: Album
-    fileHandle: FileHandle
-  }
->()
-
-export const didProcessImage = createStandardAction('IMAGES__PROCESSED_IMAGE')<{
-  album: Album
-  image: Image
-  imageData: ArrayBuffer
-  previewData: ArrayBuffer
-}>()
+)<AlbumImage, AlbumImage, API.ErrorResponse<AlbumImage>, Image>()
 
 interface DownloadImageResult {
   image: Image
@@ -117,9 +122,18 @@ export const updateImageEXIFTags = createAsyncAction(
   'IMAGES__UPDATE_EXIF_TAGS__CANCEL',
 )<UpdateEXIFTagsData, Image, API.ErrorResponse<Image>, Image>()
 
-export const toggleImageFavorite = createAsyncAction(
-  'IMAGES__TOGGLE_FAVORITE__REQUEST',
-  'IMAGES__TOGGLE_FAVORITE__SUCCESS',
-  'IMAGES__TOGGLE_FAVORITE__FAILURE',
-  'IMAGES__TOGGLE_FAVORITE__CANCEL',
-)<Image, API.PutResponse<Image>, API.ErrorResponse<Image>, Image>()
+export const toggleImageFavorite = createStandardAction(
+  'IMAGES__TOGGLE_FAVORITE',
+)<Image>()
+
+export const updateImageMeta = createAsyncAction(
+  'IMAGES__UPDATE_META__REQUEST',
+  'IMAGES__UPDATE_META__SUCCESS',
+  'IMAGES__UPDATE_META__FAILURE',
+  'IMAGES__UPDATE_META__CANCEL',
+)<
+  ImageMetaUpdates,
+  API.PutResponse<Image>,
+  API.ErrorResponse<ImageMetaUpdates>,
+  Image
+>()

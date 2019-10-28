@@ -2,6 +2,7 @@ import node from 'rollup-plugin-node-resolve'
 import typescript from 'rollup-plugin-typescript2'
 import { uglify } from 'rollup-plugin-uglify'
 import analyze from 'rollup-plugin-analyzer'
+import commonjs from 'rollup-plugin-commonjs'
 
 const scriptPrefix = process.env.SCRIPT_PREFIX
 
@@ -21,6 +22,7 @@ function config({plugins = [], output = {}}) {
         },
       }),
       node(),
+      commonjs(),
       ...globalPlugins,
       ...plugins,
       analyze(),
@@ -28,6 +30,8 @@ function config({plugins = [], output = {}}) {
     output: {
       ...output
     },
+    context: 'self',
+    moduleContext: 'self',
   }
 }
 
@@ -37,6 +41,9 @@ export default [
       format: 'umd',
       name: scriptPrefix,
       file: `build/static/js/${scriptPrefix}.dev.js`,
+      globals: {
+        this: 'self',
+      },
     }
   }),
 ]

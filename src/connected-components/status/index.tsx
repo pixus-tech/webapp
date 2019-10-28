@@ -6,13 +6,13 @@ import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
 
 import Badge from '@material-ui/core/Badge'
-import Typography from '@material-ui/core/Typography'
-import LinearProgress from '@material-ui/core/LinearProgress'
+import Divider from '@material-ui/core/Divider'
+import Paper from '@material-ui/core/Paper'
 import {
   createStyles,
   Theme,
+  makeStyles,
   withStyles,
-  WithStyles,
 } from '@material-ui/core/styles'
 
 import CloudIcon from '@material-ui/icons/CloudQueue'
@@ -21,11 +21,15 @@ import UploadIcon from '@material-ui/icons/CloudUpload'
 import IconWithPopover from 'components/IconWithPopover'
 import colors from 'constants/colors'
 
-const styles = (theme: Theme) =>
+import Connectivity from './Connectivity'
+import StatusRow from './StatusRow'
+import Uploads from './Uploads'
+
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    body: {
-      padding: theme.spacing(2),
-      textAlign: 'center',
+    divider: {
+      backgroundColor: theme.palette.grey[300],
+      margin: theme.spacing(1, 0),
     },
     list: {
       outline: 'none',
@@ -33,7 +37,12 @@ const styles = (theme: Theme) =>
     menuButton: {
       marginLeft: -theme.spacing(1),
     },
-  })
+    paper: {
+      width: 368,
+      padding: theme.spacing(1),
+    },
+  }),
+)
 
 interface ListItem {
   id: string
@@ -51,10 +60,7 @@ interface IStateProps {
   succeededUploadIds: string[]
 }
 
-type ComposedProps = WithStyles<typeof styles> &
-  IProps &
-  IDispatchProps &
-  IStateProps
+type ComposedProps = IProps & IDispatchProps & IStateProps
 
 const DirtyBadge = withStyles((theme: Theme) =>
   createStyles({
@@ -88,56 +94,44 @@ const DirtyBadge = withStyles((theme: Theme) =>
   }),
 )(Badge)
 
-class UploadInfo extends React.PureComponent<ComposedProps> {
-  render() {
-    const {
-      classes,
-      currentUploadIds,
-      failedUploads,
-      succeededUploadIds,
-    } = this.props
+export function PureStatus({
+  currentUploadIds,
+  failedUploads,
+  succeededUploadIds,
+}: ComposedProps) {
+  const classes = useStyles()
 
-    const totalCount = currentUploadIds.length
-    const successCount = succeededUploadIds.length
-    const failureCount = _.size(failedUploads)
+  const totalCount = currentUploadIds.length
+  const successCount = succeededUploadIds.length
+  const failureCount = _.size(failedUploads)
+  const finishedCount = successCount + failureCount
+  const areUploadsPending = totalCount > finishedCount
 
-    const Icon = totalCount === 0 ? CloudIcon : UploadIcon
-    const icon = (
-      <DirtyBadge
-        overlap="circle"
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-        variant="dot"
-      >
-        <Icon />
-      </DirtyBadge>
-    )
+  const Icon = areUploadsPending ? UploadIcon : CloudIcon
+  const icon = (
+    <DirtyBadge
+      overlap="circle"
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      variant="dot"
+    >
+      <Icon />
+    </DirtyBadge>
+  )
 
-    const progress = ((successCount + failureCount) / totalCount) * 100
-
-    return (
-      <IconWithPopover id="uploads-info-popover" tooltip="Uploads" Icon={icon}>
-        <div>
-          <LinearProgress
-            color="secondary"
-            variant="determinate"
-            value={progress}
-          />
-          <Typography
-            className={classes.body}
-            color="inherit"
-            variant="body1"
-            component="p"
-          >
-            Processing and uploading file{' '}
-            {Math.max(1, successCount + failureCount)} of {totalCount}.
-          </Typography>
-        </div>
-      </IconWithPopover>
-    )
-  }
+  return (
+    <IconWithPopover id="uploads-info-popover" tooltip="Uploads" Icon={icon}>
+      <Paper className={classes.paper}>
+        <StatusRow title="Uploads">
+          <Uploads finishedCount={finishedCount} totalCount={totalCount} />
+        </StatusRow>
+        <Divider className={classes.divider} />
+        <Connectivity />
+      </Paper>
+    </IconWithPopover>
+  )
 }
 
 function mapStateToProps(state: RootState): IStateProps {
@@ -157,5 +151,4 @@ export default compose<ComposedProps, IProps>(
     mapStateToProps,
     mapDispatchToProps,
   ),
-  withStyles(styles),
-)(UploadInfo)
+)(PureStatus)

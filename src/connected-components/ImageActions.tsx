@@ -154,7 +154,7 @@ function mapDispatchToProps(
       dispatch(saveImage.request(image))
     },
     dispatchToggleFavorite: () => {
-      dispatch(toggleImageFavorite.request(image))
+      dispatch(toggleImageFavorite(image))
     },
     requestImageDeletion: () => {
       dispatch(
