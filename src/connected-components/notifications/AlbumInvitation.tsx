@@ -17,6 +17,9 @@ import { NotificationProps } from './'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    root: {
+      padding: theme.spacing(0.5, 2),
+    },
     actions: {
       display: 'flex',
       justifyContent: 'flex-end',
@@ -52,14 +55,14 @@ function AlbumInvitation({ notification }: ComposedProps) {
   const classes = useStyles()
 
   return (
-    <ListItem component="li" alignItems="flex-start">
+    <ListItem className={classes.root} component="li" alignItems="flex-start">
       <ListItemAvatar>
         <UserAvatar user={{ username: notification.creator }} />
       </ListItemAvatar>
       <ListItemText
         primary={
           <span>
-            Invitation from <b>{notification.creator}</b>:
+            Invite from {notification.creator}
           </span>
         }
         secondary={

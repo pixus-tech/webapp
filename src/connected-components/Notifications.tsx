@@ -28,8 +28,13 @@ import NotificationWrapper from './notifications'
 
 const styles = (theme: Theme) =>
   createStyles({
+    divider: {
+      backgroundColor: theme.palette.grey[300],
+      margin: theme.spacing(0, 2),
+    },
     list: {
       maxWidth: 368,
+      padding: 0,
     },
     message: {
       padding: theme.spacing(2),
@@ -90,7 +95,7 @@ class Notifications extends React.PureComponent<ComposedProps> {
                 {index !== notifications.length - 1 && (
                   <Divider
                     key={`${index}-divider`}
-                    variant="inset"
+                    className={classes.divider}
                     component="li"
                   />
                 )}
