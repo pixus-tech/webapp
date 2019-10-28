@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer'
 import { API } from 'typings/types'
 import { createAsyncAction, createStandardAction } from 'typesafe-actions'
 import Album from 'models/album'
@@ -62,7 +61,7 @@ export const didProcessImage = createStandardAction('IMAGES__PROCESSED_IMAGE')<{
 
 interface DownloadImageResult {
   image: Image
-  fileContent: Buffer | string
+  objectURL: string
 }
 
 export const requestDownloadPreviewImage = createStandardAction(

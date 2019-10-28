@@ -1,3 +1,5 @@
+import { IndexableBoolean } from 'utils/db'
+
 type EXIFTagsV0 = {}
 
 interface EXIFTagsV1 {
@@ -28,15 +30,23 @@ export enum AIIndexVersion {
 }
 
 export default interface ImageMeta {
-  exifTags: EXIFTags
-  exifIndexVersion: EXIFIndexVersion
   aiIndexVersion: AIIndexVersion
-  isFavorite: number // Using a number because booleans are not indexable by indexeddb
+  exifIndexVersion: EXIFIndexVersion
+  exifTags: EXIFTags
+  isDirty: IndexableBoolean
+  isFavorite: IndexableBoolean
+  isImageStored: IndexableBoolean
+  isOnRadiks: IndexableBoolean
+  isPreviewImageStored: IndexableBoolean
 }
 
 export const defaultImageMeta: ImageMeta = {
-  exifTags: {},
-  exifIndexVersion: EXIFIndexVersion.V0,
   aiIndexVersion: AIIndexVersion.V0,
+  exifIndexVersion: EXIFIndexVersion.V0,
+  exifTags: {},
+  isDirty: 1,
   isFavorite: 0,
+  isImageStored: 0,
+  isOnRadiks: 0,
+  isPreviewImageStored: 0,
 }

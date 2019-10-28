@@ -92,16 +92,10 @@ const filterImageIds = createReducer(initialState.filterImageIds)
 
 const imageObjectURLMap = createReducer(initialState.imageObjectURLMap)
   .handleAction(actions.downloadImage.success, (state, action) => {
-    const { image, fileContent } = action.payload
-    let blob: string | Blob
-    if (typeof fileContent === 'string') {
-      blob = fileContent
-    } else {
-      blob = new Blob([fileContent], { type: image.type })
-    }
-    const objectURL = URL.createObjectURL(blob)
+    const { image, objectURL } = action.payload
     return state.set(image._id, objectURL)
   })
+  // TODO: did process image should put image into idb
   .handleAction(actions.didProcessImage, (state, action) => {
     const { image, imageData } = action.payload
     const blob = new Blob([imageData], { type: image.type })
@@ -127,14 +121,7 @@ const previewImageObjectURLMap = createReducer(
   initialState.previewImageObjectURLMap,
 )
   .handleAction(actions.downloadPreviewImage.success, (state, action) => {
-    const { image, fileContent } = action.payload
-    let blob: string | Blob
-    if (typeof fileContent === 'string') {
-      blob = fileContent
-    } else {
-      blob = new Blob([fileContent], { type: image.type })
-    }
-    const objectURL = URL.createObjectURL(blob)
+    const { image, objectURL } = action.payload
     return state.set(image._id, objectURL)
   })
   .handleAction(actions.didProcessImage, (state, action) => {

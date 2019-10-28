@@ -26,8 +26,9 @@ class PixusDatabase extends Dexie {
     super('pixus-database')
 
     this.version(1).stores({
-      albums: '_id,name',
-      images: '_id,createdAt,userGroupId,meta.isFavorite',
+      albums: '_id,name,isOnRadiks,isDirty',
+      images:
+        '_id,createdAt,userGroupId,meta.isFavorite,isOnRadiks,isDirty,isImageStored,isPreviewImageStored',
     })
 
     this.albums = this.table('albums')

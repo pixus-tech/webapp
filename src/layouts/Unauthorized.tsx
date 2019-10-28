@@ -33,9 +33,9 @@ type StyleProps = WithStyles<typeof styles>
 const UnauthorizedLayout: React.FC<StyleProps> = ({ children, classes }) => (
   <div className={classes.root}>
     <Header>
-    <Grid item xs />
+      <Grid item xs />
       <WBM />
-    <Grid item xs />
+      <Grid item xs />
     </Header>
     <Container component="main" maxWidth="xs">
       <div className={classes.paper}>{children}</div>

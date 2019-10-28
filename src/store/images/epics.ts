@@ -22,7 +22,6 @@ import uuid from 'uuid/v4'
 
 import * as actions from './actions'
 import { FileHandle } from 'models/fileHandle'
-import { imagePreviewPath, imagePath } from 'models/image'
 import { toggleBooleanNumber } from 'utils/db'
 
 const albumMissingError = Error('Album of image was not present.')
@@ -206,8 +205,8 @@ export const downloadPreviewImageEpic: Epic<
   RootAction,
   RootAction,
   RootState,
-  Pick<RootService, 'files'>
-> = (action$, state$, { files }) =>
+  Pick<RootService, 'images'>
+> = (action$, state$, { images }) =>
   action$.pipe(
     filter(isActionOf(actions.downloadPreviewImage.request)),
     withLatestFrom(state$),
@@ -225,28 +224,26 @@ export const downloadPreviewImageEpic: Epic<
         )
       }
 
-      return files
-        .download(imagePreviewPath(image), image.username, album.privateKey)
-        .pipe(
-          map(fileContent =>
-            actions.downloadPreviewImage.success({ image, fileContent }),
+      return images.download(image, album, 'preview').pipe(
+        map(objectURL =>
+          actions.downloadPreviewImage.success({ image, objectURL }),
+        ),
+        takeUntil(
+          action$.pipe(
+            filter(isActionOf(actions.downloadPreviewImage.cancel)),
+            filter(cancel => cancel.payload._id === image._id),
           ),
-          takeUntil(
-            action$.pipe(
-              filter(isActionOf(actions.downloadPreviewImage.cancel)),
-              filter(cancel => cancel.payload._id === image._id),
-            ),
+        ),
+        catchError(error =>
+          of(
+            actions.downloadPreviewImage.failure({
+              error,
+              resource: image,
+              showToast: true,
+            }),
           ),
-          catchError(error =>
-            of(
-              actions.downloadPreviewImage.failure({
-                error,
-                resource: image,
-                showToast: true,
-              }),
-            ),
-          ),
-        )
+        ),
+      )
     }),
   )
 
@@ -272,8 +269,8 @@ export const downloadImageEpic: Epic<
   RootAction,
   RootAction,
   RootState,
-  Pick<RootService, 'files'>
-> = (action$, state$, { files }) =>
+  Pick<RootService, 'images'>
+> = (action$, state$, { images }) =>
   action$.pipe(
     filter(isActionOf(actions.downloadImage.request)),
     withLatestFrom(state$),
@@ -291,28 +288,24 @@ export const downloadImageEpic: Epic<
         )
       }
 
-      return files
-        .download(imagePath(image), image.username, album.privateKey)
-        .pipe(
-          map(fileContent =>
-            actions.downloadImage.success({ image, fileContent }),
+      return images.download(image, album, 'full').pipe(
+        map(objectURL => actions.downloadImage.success({ image, objectURL })),
+        takeUntil(
+          action$.pipe(
+            filter(isActionOf(actions.downloadImage.cancel)),
+            filter(cancel => cancel.payload._id === image._id),
           ),
-          takeUntil(
-            action$.pipe(
-              filter(isActionOf(actions.downloadImage.cancel)),
-              filter(cancel => cancel.payload._id === image._id),
-            ),
+        ),
+        catchError(error =>
+          of(
+            actions.downloadImage.failure({
+              error,
+              resource: image,
+              showToast: true,
+            }),
           ),
-          catchError(error =>
-            of(
-              actions.downloadImage.failure({
-                error,
-                resource: image,
-                showToast: true,
-              }),
-            ),
-          ),
-        )
+        ),
+      )
     }),
   )
 
@@ -421,8 +414,9 @@ export const getEXIFTagsAfterDownloadEpic: Epic<
     filter(isActionOf(actions.downloadImage.success)),
     filter(({ payload }) => images.shouldScanEXIFTags(payload.image)),
     map(({ payload }) => {
-      let imageData: ArrayBuffer
+      const imageData: ArrayBuffer = new ArrayBuffer(0)
 
+      /* TODO: Use objecturl for exif scan
       if (typeof payload.fileContent !== 'string') {
         imageData = payload.fileContent.buffer
       } else {
@@ -431,6 +425,7 @@ export const getEXIFTagsAfterDownloadEpic: Epic<
           resource: payload.image,
         })
       }
+      */
 
       return actions.updateImageEXIFTags.request({
         image: payload.image,

@@ -1,9 +1,10 @@
 import _ from 'lodash'
 import uuid from 'uuid/v4'
 
+import * as aiWorker from './ai'
+import * as blobWorker from './blob'
 import * as cryptoWorker from './crypto'
 import * as dbWorker from './db'
-import * as aiWorker from './ai'
 import * as fileWorker from './file'
 
 interface JobActions {
@@ -56,4 +57,4 @@ export function postJob<T>(worker: Worker, job: string, payload: object = {}) {
   })
 }
 
-export { aiWorker, cryptoWorker, dbWorker, fileWorker }
+export { aiWorker, blobWorker, cryptoWorker, dbWorker, fileWorker }

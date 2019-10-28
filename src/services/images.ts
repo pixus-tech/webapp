@@ -273,6 +273,38 @@ class Images extends BaseService {
           .catch(reject)
       },
     )
+
+  download = (image: Image, album: Album, version: 'full' | 'preview') =>
+    new Observable<string>(subscriber => {
+      const self = this
+      const path =
+        version === 'full' ? imagePath(image) : imagePreviewPath(image)
+      const type = version === 'full' ? image.type : 'image/jpeg'
+      self.blobStore
+        .getObjectURL(path)
+        .then(objectURL => {
+          subscriber.next(objectURL)
+          subscriber.complete()
+        })
+        .catch(() => {
+          files.download(path, image.username, album.privateKey).subscribe({
+            next(data) {
+              self.blobStore
+                .storeData(path, data.buffer, type)
+                .then(objectURL => {
+                  subscriber.next(objectURL)
+                  subscriber.complete()
+                })
+                .catch(error => {
+                  subscriber.error(error)
+                })
+            },
+            error(error) {
+              subscriber.error(error)
+            },
+          })
+        })
+    })
 }
 
 const images = new Images()
