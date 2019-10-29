@@ -26,6 +26,8 @@ import { notificationsSelector } from 'store/notifications/selectors'
 
 import NotificationWrapper from './notifications'
 
+const REFRESH_DELAY = 120 * 1000
+
 const styles = (theme: Theme) =>
   createStyles({
     divider: {
@@ -58,12 +60,21 @@ type ComposedProps = WithStyles<typeof styles> &
   IStateProps
 
 class Notifications extends React.PureComponent<ComposedProps> {
-  componentDidMount() {
-    const { notifications, dispatchGetNotifications } = this.props
+  private refreshInterval?: ReturnType<typeof setInterval>
 
-    if (notifications.length === 0) {
-      dispatchGetNotifications()
+  componentDidMount() {
+    this.getNotifications()
+    this.refreshInterval = setInterval(this.getNotifications, REFRESH_DELAY)
+  }
+
+  componentWillUnmount() {
+    if (this.refreshInterval !== undefined) {
+      clearInterval(this.refreshInterval)
     }
+  }
+
+  getNotifications = () => {
+    this.props.dispatchGetNotifications()
   }
 
   render() {
