@@ -47,13 +47,6 @@ export function postJob<T>(worker: Worker, job: string, payload: object = {}) {
     const id = uuid()
     jobs[id] = { resolve, reject }
     worker.postMessage({ id, job, ...payload })
-    // TODO: Proper job abortion
-    setTimeout(function() {
-      const { reject } = jobs[id] || {}
-      if (reject) {
-        reject(Error('job took too long'))
-      }
-    }, 300000)
   })
 }
 

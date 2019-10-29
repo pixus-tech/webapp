@@ -29,6 +29,7 @@
     "react-dnd-html5-backend": "^9.4.0",
     "react-dom": "^16.10.2",
     "react-dropzone": "^10.1.10",
+    "react-hot-keys": "^2.2.0",
     "react-intl": "^3.3.2",
     "react-redux": "^7.0.3",
     "react-router-dom": "^5.1.2",

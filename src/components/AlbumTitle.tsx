@@ -1,4 +1,5 @@
 import React from 'react'
+import Hotkeys from 'react-hot-keys'
 import { compose } from 'recompose'
 
 import { Formik, FormikProps, Field, FieldProps } from 'formik'
@@ -13,25 +14,43 @@ import {
 } from '@material-ui/core/styles'
 
 import SaveIcon from '@material-ui/icons/Save'
+import EditIcon from '@material-ui/icons/Edit'
 
 import Album, { validationSchema } from 'models/album'
 
 const styles = (theme: Theme) =>
   createStyles({
-    form: {
+    editButton: {
+      minWidth: 0,
+      color: 'inherit',
+    },
+    root: {
       display: 'flex',
       width: '100%', // Fix IE 11 issue.
       marginTop: theme.spacing(1),
     },
     textField: {
+      color: 'inherit',
+    },
+    input: {
       ...theme.typography.h5,
       color: 'inherit',
+      padding: '1px 0 0',
+    },
+    underline: {
+      '&:after': {
+        borderBottom: `2px solid ${theme.palette.common.white}`,
+      },
+      '&:before': {
+        borderBottom: `1px solid ${theme.palette.common.white}`,
+      },
     },
     saveIcon: {
       marginLeft: theme.spacing(1),
     },
-    submit: {
-      marginLeft: theme.spacing(1),
+    saveButton: {
+      minWidth: 0,
+      color: 'inherit',
     },
   })
 
@@ -83,73 +102,81 @@ class AlbumTitle extends React.Component<ComposedProps, IState> {
 
     if (isEditing) {
       return (
-        <Formik
-          initialValues={{ name: album.name }}
-          validationSchema={validationSchema}
-          onSubmit={({ name }, actions) => {
-            if (name !== undefined) {
-              this.save(name)
-            }
-            actions.setSubmitting(false)
-          }}
-        >
-          {({
-            handleSubmit,
-            isSubmitting,
-            isValid,
-          }: FormikProps<Partial<Album>>) => (
-            <form className={classes.form} onSubmit={handleSubmit}>
-              <Field name="name">
-                {({ field, form }: FieldProps) => {
-                  const errorMessage =
-                    form.touched[field.name] && form.errors[field.name]
-                      ? form.errors[field.name]
-                      : undefined
-                  return (
-                    <TextField
-                      {...field}
-                      autoFocus
-                      InputProps={{
-                        className: classes.textField,
-                      }}
-                      error={!!errorMessage}
-                      helperText={errorMessage}
-                      id="name"
-                      label={null}
-                      margin="none"
-                      name="name"
-                      required
-                      type="text"
-                      variant="standard"
-                    />
-                  )
-                }}
-              </Field>
-              <Button
-                className={classes.submit}
-                color="secondary"
-                disabled={isSubmitting || !isValid}
-                type="submit"
-                variant="contained"
-              >
-                Save
-                <SaveIcon className={classes.saveIcon} />
-              </Button>
-            </form>
-          )}
-        </Formik>
+        <Hotkeys filter={() => true} keyName="esc" onKeyUp={this.endEditing}>
+          <Formik
+            initialValues={{ name: album.name }}
+            validationSchema={validationSchema}
+            onSubmit={({ name }, actions) => {
+              if (name !== undefined) {
+                this.save(name)
+              }
+              actions.setSubmitting(false)
+            }}
+          >
+            {({
+              handleSubmit,
+              isSubmitting,
+              isValid,
+            }: FormikProps<Partial<Album>>) => (
+              <form className={classes.root} onSubmit={handleSubmit}>
+                <Field name="name">
+                  {({ field, form }: FieldProps) => {
+                    const errorMessage =
+                      form.touched[field.name] && form.errors[field.name]
+                        ? form.errors[field.name]
+                        : undefined
+                    return (
+                      <TextField
+                        {...field}
+                        autoFocus
+                        InputProps={{
+                          className: classes.textField,
+                          classes: {
+                            input: classes.input,
+                            underline: classes.underline,
+                          },
+                        }}
+                        error={!!errorMessage}
+                        helperText={errorMessage}
+                        id="name"
+                        label={null}
+                        margin="none"
+                        name="name"
+                        required
+                        type="text"
+                        variant="standard"
+                      />
+                    )
+                  }}
+                </Field>
+                <Button
+                  className={classes.saveButton}
+                  disabled={isSubmitting || !isValid}
+                  type="submit"
+                >
+                  <SaveIcon className={classes.saveIcon} />
+                </Button>
+              </form>
+            )}
+          </Formik>
+        </Hotkeys>
       )
     }
 
     return (
-      <Typography
-        color="inherit"
-        variant="h5"
-        component="h1"
-        onClick={this.beginEditing}
-      >
-        {album.name}
-      </Typography>
+      <div className={classes.root}>
+        <Typography
+          color="inherit"
+          variant="h5"
+          component="h1"
+          onClick={this.beginEditing}
+        >
+          {album.name}
+        </Typography>
+        <Button className={classes.editButton} onClick={this.beginEditing}>
+          <EditIcon />
+        </Button>
+      </div>
     )
   }
 }
