@@ -29,6 +29,7 @@ const styles = (theme: Theme) =>
   createStyles({
     container: {
       padding: theme.spacing(2),
+      textAlign: 'justify',
     },
     headline: {},
     h2: {
@@ -86,7 +87,7 @@ const Settings: React.FC<ComposedProps> = ({
           {({ handleSubmit, isValid }: FormikProps<SettingsSchema>) => (
             <form onSubmit={handleSubmit}>
               <Grid container alignItems="flex-start" spacing={1}>
-                <Grid item xs={6}>
+                <Grid item lg={8}>
                   <Grid item xs={12}>
                     <Typography
                       component="h2"
@@ -96,10 +97,8 @@ const Settings: React.FC<ComposedProps> = ({
                       Analytics
                     </Typography>
                     <Typography component="p" variant="body1">
-                      Pixus uses unintrusive analytics tool called simple
-                      analytics. It does not track you and only allows us to
-                      keep a high level overview of how much pixus is being
-                      used.
+                      Pixus uses an unintrusive analytics tool that does not track you. It does not even set cookies.
+                      The resulting aggregate data is without any PII and helps to get a high level understanding of how pixus is being used.
                     </Typography>
                     <Field name="optOutAnalytics">
                       {({ field }: FieldProps) => (
@@ -107,7 +106,7 @@ const Settings: React.FC<ComposedProps> = ({
                           control={
                             <Checkbox {...field} checked={field.value} />
                           }
-                          label="Disable analytics"
+                          label="Disable anonymous analytics"
                         />
                       )}
                     </Field>
