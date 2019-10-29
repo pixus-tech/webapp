@@ -18,6 +18,7 @@ import {
 } from 'typesafe-actions'
 
 import * as actions from './actions'
+import Analytics from 'utils/analytics'
 
 export const saveSettingsEpic: Epic<
   RootAction,
@@ -27,6 +28,7 @@ export const saveSettingsEpic: Epic<
 > = (action$, state$, { settings }) =>
   action$.pipe(
     filter(isActionOf(actions.saveSettings.request)),
+    tap(() => Analytics.track('saveSettings')),
     mergeMap(action =>
       settings.save(action.payload).pipe(
         map(settings => actions.saveSettings.success(settings)),

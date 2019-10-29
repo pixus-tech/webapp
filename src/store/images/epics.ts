@@ -23,6 +23,7 @@ import uuid from 'uuid/v4'
 import * as actions from './actions'
 import { FileHandle } from 'models/fileHandle'
 import { toggleBooleanNumber } from 'utils/db'
+import Analytics from 'utils/analytics'
 
 const albumMissingError = Error('Album of image was not present.')
 
@@ -130,6 +131,9 @@ export const addImagesToAlbumEpic: Epic<RootAction, RootAction, RootState> = (
 ) =>
   action$.pipe(
     filter(isActionOf(actions.addImagesToAlbum)),
+    tap(action =>
+      Analytics.track('uploadImages', action.payload.imageFiles.length),
+    ),
     mergeMap(action => {
       const { album } = action.payload
 
@@ -265,6 +269,7 @@ export const deleteImageEpic: Epic<
 > = (action$, state$, { images }) =>
   action$.pipe(
     filter(isActionOf(actions.deleteImage.request)),
+    tap(() => Analytics.track('deleteImage')),
     mergeMap(action =>
       images.delete(action.payload).pipe(
         map(_image => actions.deleteImage.success(action.payload)),
@@ -413,6 +418,7 @@ export const saveImageEpic: Epic<RootAction, RootAction, RootState> = (
 ) =>
   action$.pipe(
     filter(isActionOf(actions.saveImage.request)),
+    tap(() => Analytics.track('saveImage')),
     withLatestFrom(state$),
     mergeMap(([action, state]) => {
       const image = action.payload

@@ -20,6 +20,7 @@ import {
 import * as actions from './actions'
 import { redirect, buildAlbumRoute } from 'utils/routes'
 import positionBeforeIndex from 'utils/listIndex'
+import Analytics from 'utils/analytics'
 
 export const getAlbumsEpic: Epic<RootAction, RootAction> = action$ =>
   action$.pipe(
@@ -92,6 +93,13 @@ export const addAlbumEpic: Epic<
 > = (action$, state$, { albums }) =>
   action$.pipe(
     filter(isActionOf(actions.addAlbum.request)),
+    tap(action => {
+      if (action.payload.isDirectory) {
+        Analytics.track('createDirectory')
+      } else {
+        Analytics.track('createAlbum')
+      }
+    }),
     mergeMap(action =>
       albums.addAlbum(action.payload.isDirectory).pipe(
         mergeMap(response => of(actions.addAlbum.success(response))),
@@ -169,6 +177,7 @@ export const setAlbumPositionEpic: Epic<
 > = (action$, state$, { albums }) =>
   action$.pipe(
     filter(isActionOf(actions.setAlbumPosition.request)),
+    tap(() => Analytics.track('arrangeAlbum')),
     mergeMap(({ payload: { album, parentId, index } }) =>
       albums.updateMeta(album, { index, parentId }).pipe(
         map(actions.setAlbumPosition.success),
@@ -195,6 +204,7 @@ export const setAlbumImageColumnCountEpic: Epic<
 > = (action$, state$, { albums }) =>
   action$.pipe(
     filter(isActionOf(actions.setAlbumImageColumnCount.request)),
+    tap(() => Analytics.track('setImageColumnCount')),
     mergeMap(({ payload: { album, numberOfImageColumns } }) =>
       albums.updateMeta(album, { numberOfImageColumns }).pipe(
         map(actions.setAlbumImageColumnCount.success),

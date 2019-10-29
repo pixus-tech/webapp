@@ -4,8 +4,8 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { RootState } from 'typesafe-actions'
 
+import Analytics from 'utils/analytics'
 const ANALYTICS_SCRIPT_TAG_ID = 'analytics-script'
-declare const fathom: any
 
 interface IProps {
   children: JSX.Element
@@ -56,12 +56,7 @@ class AnalyticsGate extends React.PureComponent<ComposedProps> {
         )
       } else {
         ReactDOM.render(<></>, scriptRef)
-        try {
-          // kind of a hack to "disable" fathom if it was already loaded
-          fathom('set', 'siteId', null)
-        } catch {
-          // nothing to do, fathom was not initialized
-        }
+        Analytics.disable()
       }
     }
   }

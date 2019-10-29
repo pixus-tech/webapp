@@ -6,6 +6,7 @@ import {
   map,
   mergeMap,
   takeUntil,
+  tap,
   withLatestFrom,
 } from 'rxjs/operators'
 import {
@@ -18,6 +19,7 @@ import {
 import * as actions from './actions'
 import { hideModal } from 'store/modal/actions'
 import User from 'models/user'
+import Analytics from 'utils/analytics'
 
 export const findUserEpic: Epic<
   RootAction,
@@ -104,6 +106,7 @@ export const inviteUsersEpic: Epic<
 > = (action$, state$, { users }) =>
   action$.pipe(
     filter(isActionOf(actions.inviteUsers.request)),
+    tap(() => Analytics.track('shareAlbum')),
     mergeMap(action =>
       users
         .inviteUsersToAlbum(
