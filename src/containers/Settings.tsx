@@ -97,8 +97,10 @@ const Settings: React.FC<ComposedProps> = ({
                       Analytics
                     </Typography>
                     <Typography component="p" variant="body1">
-                      Pixus uses an unintrusive analytics tool that does not track you. It does not even set cookies.
-                      The resulting aggregate data is without any PII and helps to get a high level understanding of how pixus is being used.
+                      Pixus uses an unintrusive analytics tool that does not
+                      track you. It does not even set cookies. The resulting
+                      aggregate data is without any PII and helps to get a high
+                      level understanding of how pixus is being used.
                     </Typography>
                     <Field name="optOutAnalytics">
                       {({ field }: FieldProps) => (
