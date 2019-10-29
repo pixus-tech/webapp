@@ -32,3 +32,27 @@ export const getNotificationsEpic: Epic<
       ),
     ),
   )
+
+export const setNotificationRead: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'notifications'>
+> = (action$, state$, { notifications }) =>
+  action$.pipe(
+    filter(isActionOf(actions.setNotificationRead.request)),
+    mergeMap(({ payload }) =>
+      notifications.setNotificationRead(payload).pipe(
+        map(actions.setNotificationRead.success),
+        takeUntil(
+          action$.pipe(
+            filter(isActionOf(actions.setNotificationRead.cancel)),
+            filter(cancel => cancel.payload._id === payload._id),
+          ),
+        ),
+        catchError(error =>
+          of(actions.setNotificationRead.failure({ error, resource: payload })),
+        ),
+      ),
+    ),
+  )

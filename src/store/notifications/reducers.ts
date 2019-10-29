@@ -11,16 +11,19 @@ export const initialState = {
   order: List<string>(),
 }
 
-const data = createReducer(initialState.data).handleAction(
-  actions.getNotifications.success,
-  (state, action) =>
+const data = createReducer(initialState.data)
+  .handleAction(actions.getNotifications.success, (state, action) =>
     Map(
       action.payload.notifications.map(notification => [
         notification._id,
         notification,
       ]),
     ),
-)
+  )
+  .handleAction(actions.setNotificationRead.request, (state, action) => {
+    const notification = action.payload
+    return state.set(notification._id, { ...notification, isRead: true })
+  })
 
 const order = createReducer(initialState.order).handleAction(
   actions.getNotifications.success,

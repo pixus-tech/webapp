@@ -186,10 +186,8 @@ export const addImageToAlbumEpic: Epic<
 
 export const uploadImageAfterAddingItToAlbumEpic: Epic<
   RootAction,
-  RootAction,
-  RootState,
-  Pick<RootService, 'images'>
-> = (action$, state$, { images }) =>
+  RootAction
+> = action$ =>
   action$.pipe(
     filter(isActionOf(actions.addImageToAlbum.success)),
     map(({ payload }) => actions.uploadImageToAlbum.request(payload)),
@@ -226,7 +224,7 @@ export const uploadImageToAlbumEpic: Epic<
     mergeMap(({ payload }) => {
       const { album, image } = payload
       return images.uploadImageToAlbum(image, album).pipe(
-        map(image => actions.uploadImageToAlbum.success(payload)),
+        map(() => actions.uploadImageToAlbum.success(payload)),
         takeUntil(
           action$.pipe(
             filter(isActionOf(actions.uploadImageToAlbum.cancel)),

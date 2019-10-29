@@ -7,7 +7,10 @@ import { RootAction, RootState } from 'typesafe-actions'
 
 import Badge from '@material-ui/core/Badge'
 import Divider from '@material-ui/core/Divider'
+import IconButton from '@material-ui/core/IconButton'
 import List from '@material-ui/core/List'
+import Paper from '@material-ui/core/Paper'
+import Tooltip from '@material-ui/core/Tooltip'
 import Typography from '@material-ui/core/Typography'
 import {
   createStyles,
@@ -15,6 +18,7 @@ import {
   withStyles,
   WithStyles,
 } from '@material-ui/core/styles'
+import RefreshIcon from '@material-ui/icons/Autorenew'
 
 import NotificationsIcon from '@material-ui/icons/Notifications'
 import NoNotificationsIcon from '@material-ui/icons/NotificationsNone'
@@ -35,12 +39,15 @@ const styles = (theme: Theme) =>
       margin: theme.spacing(0, 2),
     },
     list: {
-      maxWidth: 368,
       padding: 0,
     },
     message: {
       padding: theme.spacing(2),
       textAlign: 'center',
+    },
+    paper: {
+      width: 368,
+      padding: theme.spacing(1),
     },
   })
 
@@ -98,31 +105,43 @@ class Notifications extends React.PureComponent<ComposedProps> {
           </Badge>
         }
       >
-        {hasNotifications ? (
-          <List className={classes.list}>
-            {_.map(notifications, (notification, index) => (
-              <div key={`${index}-item`}>
-                <NotificationWrapper notification={notification} />
-                {index !== notifications.length - 1 && (
-                  <Divider
-                    key={`${index}-divider`}
-                    className={classes.divider}
-                    component="li"
-                  />
-                )}
-              </div>
-            ))}
-          </List>
-        ) : (
-          <Typography
-            className={classes.message}
-            color="inherit"
-            variant="body1"
-            component="p"
-          >
-            No unread notifications.
+        <Paper className={classes.paper}>
+          <Typography color="inherit" variant="h6" component="h6">
+            Notifications
+            <Tooltip title="Refresh notifications">
+              <IconButton onClick={this.getNotifications}>
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip>
           </Typography>
-        )}
+          <div>
+            {hasNotifications ? (
+              <List className={classes.list}>
+                {_.map(notifications, (notification, index) => (
+                  <div key={`${index}-item`}>
+                    <NotificationWrapper notification={notification} />
+                    {index !== notifications.length - 1 && (
+                      <Divider
+                        key={`${index}-divider`}
+                        className={classes.divider}
+                        component="li"
+                      />
+                    )}
+                  </div>
+                ))}
+              </List>
+            ) : (
+              <Typography
+                className={classes.message}
+                color="inherit"
+                variant="body1"
+                component="p"
+              >
+                No unread notifications.
+              </Typography>
+            )}
+          </div>
+        </Paper>
       </IconWithPopover>
     )
   }

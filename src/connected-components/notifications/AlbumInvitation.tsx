@@ -13,6 +13,8 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import UserAvatar from 'components/UserAvatar'
 import colors from 'constants/colors'
 
+import { acceptInvitation, declineInvitation } from 'store/sharing/actions'
+
 import { NotificationProps } from './'
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -45,13 +47,20 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 )
 
-interface IDispatchProps {}
+interface IDispatchProps {
+  dispatchAcceptInvitation: () => void
+  dispatchDeclineInvitation: () => void
+}
 
 interface IStateProps {}
 
 type ComposedProps = NotificationProps & IDispatchProps & IStateProps
 
-function AlbumInvitation({ notification }: ComposedProps) {
+function AlbumInvitation({
+  dispatchAcceptInvitation,
+  dispatchDeclineInvitation,
+  notification,
+}: ComposedProps) {
   const classes = useStyles()
 
   return (
@@ -69,7 +78,7 @@ function AlbumInvitation({ notification }: ComposedProps) {
             <span className={classes.actions}>
               <Button
                 className={classes.decline}
-                onClick={() => {}}
+                onClick={dispatchDeclineInvitation}
                 variant="outlined"
                 size="small"
               >
@@ -77,7 +86,7 @@ function AlbumInvitation({ notification }: ComposedProps) {
               </Button>
               <Button
                 className={classes.accept}
-                onClick={() => {}}
+                onClick={dispatchAcceptInvitation}
                 variant="outlined"
                 size="small"
               >
@@ -91,7 +100,7 @@ function AlbumInvitation({ notification }: ComposedProps) {
   )
 }
 
-function mapStateToProps(state: RootState): IStateProps {
+function mapStateToProps(_state: RootState): IStateProps {
   return {}
 }
 
@@ -99,7 +108,14 @@ function mapDispatchToProps(
   dispatch: Dispatch<RootAction>,
   props: ComposedProps,
 ): IDispatchProps {
-  return {}
+  return {
+    dispatchAcceptInvitation: () => {
+      dispatch(acceptInvitation.request(props.notification))
+    },
+    dispatchDeclineInvitation: () => {
+      dispatch(declineInvitation.request(props.notification))
+    },
+  }
 }
 
 export default compose<ComposedProps, NotificationProps>(

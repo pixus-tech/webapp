@@ -21,17 +21,21 @@ interface IDispatchProps {
 
 type ComposedProps = IStateProps & IDispatchProps
 
-class AuthVerifier extends React.Component<ComposedProps> {
+class AuthVerifier extends React.PureComponent<ComposedProps> {
   componentDidMount() {
-    this.login()
+    this.login().catch(() => {
+      redirect(routes.signInFailure)
+    })
   }
+
+  isOnVerifyPage = () => document.location.pathname === '/verify-authentication'
 
   async login() {
     if (userSession.isUserSignedIn()) {
       const userData = userSession.loadUserData()
       await RadiksUser.createWithCurrentUser()
       await GroupMembership.cacheKeys()
-      this.setUserData(userData, { redirect: false })
+      this.setUserData(userData, { redirect: this.isOnVerifyPage() })
     } else if (userSession.isSignInPending()) {
       const userData = await userSession.handlePendingSignIn()
       const radiksUser = await RadiksUser.createWithCurrentUser()
@@ -67,7 +71,7 @@ function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
 }
 
 export default compose<ComposedProps, {}>(
-  connect<IStateProps, IDispatchProps, undefined, RootState>(
+  connect(
     mapStateToProps,
     mapDispatchToProps,
   ),

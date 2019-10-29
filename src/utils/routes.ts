@@ -5,6 +5,7 @@ import history from 'utils/history'
 const routes = {
   applicationRoot: '/app',
   authVerify: '/verify-authentication',
+  signInFailure: '/sign-in-failed',
   login: '/login',
   albumsOverview: '/app/albums',
   albums: '/app/albums/:albumId',

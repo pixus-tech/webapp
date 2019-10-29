@@ -99,7 +99,7 @@ class Connectivity extends React.PureComponent<ComposedProps> {
     const title = (
       <>
         Connectivity
-        <Tooltip title="Click to refresh connectivity status">
+        <Tooltip title="Refresh connectivity status">
           <IconButton
             className={classes.refreshButton}
             onClick={dispatchProbeConnectivity}

@@ -52,6 +52,9 @@ const data = createReducer(initialState.data)
   .handleAction(actions.getImagesFromCache.success, (state, action) => {
     return Map(action.payload.images.map(image => [image._id, image]))
   })
+  .handleAction(actions.deleteImage.request, (state, action) =>
+    state.delete(action.payload._id),
+  )
   .handleAction(actions.addImageToAlbum.success, (state, action) => {
     const image = action.payload.image
     return state.set(image._id, image)

@@ -59,7 +59,11 @@ class Notifications extends BaseService {
 
   setNotificationRead = (notification: Notification) => {
     const notificationRecord = NotificationRecordFactory.build(notification)
-    notificationRecord.update({ isRead: true })
+    notificationRecord.update({
+      isRead: true,
+      signingKeyId: 'personal',
+      publicKey: '',
+    })
 
     return new Observable<{ resource: Notification }>(subscriber => {
       records.save(notificationRecord).subscribe({

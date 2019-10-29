@@ -8,6 +8,7 @@ import {
   takeUntil,
   tap,
   withLatestFrom,
+  ignoreElements,
 } from 'rxjs/operators'
 import {
   isActionOf,
@@ -18,8 +19,10 @@ import {
 
 import * as actions from './actions'
 import { hideModal } from 'store/modal/actions'
+import { setNotificationRead } from 'store/notifications/actions'
 import User from 'models/user'
 import Analytics from 'utils/analytics'
+import { redirect, buildAlbumRoute } from 'utils/routes'
 
 export const findUserEpic: Epic<
   RootAction,
@@ -138,4 +141,61 @@ export const inviteUsersEpic: Epic<
           ),
         ),
     ),
+  )
+
+export const acceptInvitationEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'users'>
+> = (action$, state$, { users }) =>
+  action$.pipe(
+    filter(isActionOf(actions.acceptInvitation.request)),
+    mergeMap(({ payload }) => {
+      const invitationId = payload.targetId
+
+      if (invitationId === undefined) {
+        return of(
+          actions.acceptInvitation.failure({
+            error: Error('InvitationId was not found in notification.'),
+            resource: payload,
+          }),
+        )
+      }
+
+      return users.acceptInvitation(invitationId).pipe(
+        mergeMap(album =>
+          of(
+            actions.acceptInvitation.success(album),
+            setNotificationRead.request(payload),
+          ),
+        ),
+        takeUntil(
+          action$.pipe(
+            filter(isActionOf(actions.acceptInvitation.cancel)),
+            filter(cancel => cancel.payload._id === payload._id),
+          ),
+        ),
+        catchError(error =>
+          of(actions.acceptInvitation.failure({ error, resource: payload })),
+        ),
+      )
+    }),
+  )
+
+export const redirectToAlbumEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState
+> = action$ =>
+  action$.pipe(
+    filter(isActionOf(actions.acceptInvitation.success)),
+    tap(action => redirect(buildAlbumRoute(action.payload))),
+    ignoreElements(),
+  )
+
+export const declineInvitationEpic: Epic<RootAction, RootAction> = action$ =>
+  action$.pipe(
+    filter(isActionOf(actions.declineInvitation.request)),
+    map(({ payload }) => setNotificationRead.request(payload)),
   )

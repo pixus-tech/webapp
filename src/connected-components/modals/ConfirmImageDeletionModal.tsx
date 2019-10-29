@@ -73,7 +73,10 @@ function ConfirmImageDeletionModal({
         <Grid item>
           <Button
             className={classes.deleteButton}
-            onClick={dispatchDeleteImage}
+            onClick={() => {
+              dispatchDeleteImage()
+              dispatchHideModal()
+            }}
             startIcon={<DeleteIcon />}
             variant="contained"
           >

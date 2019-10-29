@@ -122,4 +122,12 @@ export async function acceptInvitation(invitationId: string) {
   albumRecord.privateKey = albumRecord.encryptionPrivateKey()
   albumRecord.update({ users: [...albumRecord.attrs.users, username] })
   await albumRecord.save()
+  return albumRecord
+}
+
+export async function declineInvitation(invitationId: string) {
+  const invitation = (await GroupInvitation.findById(
+    invitationId,
+  )) as GroupInvitation
+  return await invitation.destroy()
 }

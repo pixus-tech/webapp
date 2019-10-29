@@ -12,6 +12,8 @@ import {
 } from '@material-ui/core/styles'
 
 import PrivateRoute from 'components/auth/PrivateRoute'
+import SigningIn from 'components/auth/SigningIn'
+import SignInFailure from 'components/auth/SignInFailure'
 import AuthVerifier from 'containers/AuthVerifier'
 import Albums from 'containers/Albums'
 import SmartAlbums from 'containers/SmartAlbums'
@@ -68,8 +70,12 @@ class App extends React.PureComponent<ComposedProps> {
             <ModalRoot />
             <ToastRoot />
             <Switch>
-              /* TODO: Loading animation */
-              <Route component={undefined} exact path={routes.authVerify} />
+              <Route component={SigningIn} exact path={routes.authVerify} />
+              <Route
+                component={SignInFailure}
+                exact
+                path={routes.signInFailure}
+              />
               <PrivateRoute
                 isAuthenticated={auth.isAuthenticated}
                 loginPath={routes.login}

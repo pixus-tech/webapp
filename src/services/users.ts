@@ -3,11 +3,16 @@ import { lookupProfile } from 'blockstack'
 import { forkJoin, Observable } from 'rxjs'
 import { ajax } from 'rxjs/ajax'
 
-import Album from 'models/album'
+import Album, { parseAlbumRecord } from 'models/album'
+import { defaultAlbumMeta } from 'models/albumMeta'
 import { AlbumRecordFactory } from 'db/radiks/album'
 import User, { parseProfile } from 'models/user'
 import { NotificationType } from 'models/notification'
-import { acceptInvitation, inviteUserToGroup } from 'utils/blockstack'
+import {
+  acceptInvitation,
+  declineInvitation,
+  inviteUserToGroup,
+} from 'utils/blockstack'
 import { BlockstackCore } from 'typings/blockstack'
 
 import notifications from './notifications'
@@ -74,11 +79,26 @@ class Users extends BaseService {
   }
 
   acceptInvitation = (invitationId: string) =>
-    this.dispatcher.performAsync<undefined>(
+    this.dispatcher.performAsync<Album>(
       Queue.RecordOperation,
       (resolve, reject) =>
         acceptInvitation(invitationId)
-          .then(() => resolve(undefined))
+          .then(albumRecord => {
+            const album: Album = {
+              ...parseAlbumRecord(albumRecord),
+              meta: defaultAlbumMeta,
+            }
+            resolve(album)
+          })
+          .catch(reject),
+    )
+
+  declineInvitation = (invitationId: string) =>
+    this.dispatcher.performAsync<boolean>(
+      Queue.RecordOperation,
+      (resolve, reject) =>
+        declineInvitation(invitationId)
+          .then(resolve)
           .catch(reject),
     )
 

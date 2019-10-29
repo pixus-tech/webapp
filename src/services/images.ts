@@ -62,6 +62,7 @@ class Images extends BaseService {
     const imageRecord = ImageRecordFactory.build(image)
 
     return new Observable<Image>(subscriber => {
+      this.db.images.destroy(image)
       records.delete(imageRecord).subscribe({
         next() {
           forkJoin({
@@ -87,7 +88,7 @@ class Images extends BaseService {
   shouldScanAITags = (image: Image) =>
     CurrentAIIndexVersion > image.meta.aiIndexVersion
 
-  updateAITags = (image: Image) => {
+  updateAITags = (_image: Image) => {
     // TODO: get AI Tags
     console.log('TODO')
   }

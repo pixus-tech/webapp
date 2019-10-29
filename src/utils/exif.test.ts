@@ -1,20 +1,16 @@
-import {
-  rotation,
-  latitude,
-  longitude,
-} from './exif'
+import { rotation, latitude, longitude } from './exif'
 
 describe('latitude', () => {
   it('handles invalidly parsed values', () => {
     const invalidTags = {
-      GPSLatitude: 'null'
+      GPSLatitude: 'null',
     }
     expect(latitude(invalidTags as any)).toEqual(0)
   })
 
   it('handles a plain number', () => {
     const gpsTags = {
-      GPSLatitude: 10.58
+      GPSLatitude: 10.58,
     }
     expect(latitude(gpsTags as any)).toEqual(10.58)
   })
@@ -37,14 +33,14 @@ describe('latitude', () => {
 describe('longitude', () => {
   it('handles invalidly parsed values', () => {
     const invalidTags = {
-      GPSLongitude: 'null'
+      GPSLongitude: 'null',
     }
     expect(longitude(invalidTags as any)).toEqual(0)
   })
 
   it('handles a plain number', () => {
     const gpsTags = {
-      GPSLongitude: 10.58
+      GPSLongitude: 10.58,
     }
     expect(longitude(gpsTags as any)).toEqual(10.58)
   })
@@ -60,7 +56,7 @@ describe('longitude', () => {
 describe('image rotation', () => {
   it('handles invalidly parsed values', () => {
     const invalidTags = {
-      Orientation: 'null'
+      Orientation: 'null',
     }
     expect(rotation(invalidTags as any)).toEqual(0)
   })

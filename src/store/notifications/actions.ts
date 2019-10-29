@@ -16,3 +16,15 @@ export const getNotifications = createAsyncAction(
   API.ErrorResponse<undefined>,
   undefined
 >()
+
+export const setNotificationRead = createAsyncAction(
+  'NOTIFICATIONS__SET_READ__REQUEST',
+  'NOTIFICATIONS__SET_READ__SUCCESS',
+  'NOTIFICATIONS__SET_READ__FAILURE',
+  'NOTIFICATIONS__SET_READ__CANCEL',
+)<
+  Notification,
+  API.PutResponse<Notification>,
+  API.ErrorResponse<Notification>,
+  Notification
+>()

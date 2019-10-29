@@ -58,7 +58,7 @@ function gpsCoordinateToDecimal(gpsCoordinate: any): number {
     const degrees = gpsCoordinate[0]
     const minutes = degrees < 0 ? -gpsCoordinate[1] : gpsCoordinate[1]
     const seconds = degrees < 0 ? -gpsCoordinate[2] : gpsCoordinate[2]
-    return _.round(degrees + (minutes / 60) + (seconds / 3600), 9)
+    return _.round(degrees + minutes / 60 + seconds / 3600, 9)
   } catch {
     return 0
   }

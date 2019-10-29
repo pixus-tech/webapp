@@ -5,12 +5,17 @@ import { createReducer } from 'typesafe-actions'
 import Album from 'models/album'
 
 import * as actions from './actions'
+import { acceptInvitation } from 'store/sharing/actions'
 
 export const initialState = {
   data: Map<string, Album>(),
 }
 
 const data = createReducer(initialState.data)
+  .handleAction(acceptInvitation.success, (state, action) => {
+    const album = action.payload
+    return state.set(album._id, album)
+  })
   .handleAction(actions.addAlbum.success, (state, action) => {
     // TODO: should really use the request here
     const album = action.payload.resource
