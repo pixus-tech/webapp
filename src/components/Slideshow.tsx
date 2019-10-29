@@ -175,7 +175,7 @@ class Slideshow extends React.PureComponent<ComposedProps, IState> {
             })
           },
         },
-        zoom: true,
+        zoom: false, // TODO: enable zoom when it is able to integrate with exif rotations
       })
     })
   }

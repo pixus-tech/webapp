@@ -14,6 +14,7 @@ import {
 import LazyPreviewImage from './LazyPreviewImage'
 import Image from 'models/image'
 import { requestDownloadImage, downloadImage } from 'store/images/actions'
+import { rotation } from 'utils/exif'
 
 const HIDE_PREVIEW_DELAY = 1000
 
@@ -153,6 +154,7 @@ class LazyImage extends React.PureComponent<ComposedProps, IState> {
       height: isHorizontal ? 'auto' : '100%',
       opacity: isImageLoaded ? 1 : 0,
       width: isHorizontal ? '100%' : 'auto',
+      transform: `rotate(${rotation(image.meta.exifTags)}deg)`,
     }
 
     if (!shouldRenderPreview && isImageLoaded) {

@@ -20,6 +20,7 @@ import {
   downloadPreviewImage,
   requestDownloadPreviewImage,
 } from 'store/images/actions'
+import { rotation } from 'utils/exif'
 
 const HIDE_GRADIENT_DELAY = 1000
 
@@ -206,6 +207,7 @@ class LazyPreviewImage extends React.PureComponent<ComposedProps, IState> {
       height: isHorizontal ? '100%' : 'auto',
       opacity: isImageLoaded ? 1 : 0,
       width: isHorizontal ? 'auto' : '100%',
+      transform: `rotate(${rotation(image.meta.exifTags)}deg)`,
     }
 
     return (
