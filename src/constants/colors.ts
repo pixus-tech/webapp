@@ -30,7 +30,7 @@ const colors = {
     dark: '#c0c0c0',
   },
   black: {
-    light: '#434345',
+    light: '#303031',
     main: '#1c1c1e',
     dark: '#000000',
   },
