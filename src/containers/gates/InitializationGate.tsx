@@ -4,6 +4,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 import FullScreenLoader from 'components/FullScreenLoader'
 import storeConfiguration from 'store'
 
+import AnalyticsGate from './AnalyticsGate'
 import ResumeGate from './ResumeGate'
 import SettingsGate from './SettingsGate'
 
@@ -13,7 +14,9 @@ const InitializationGate: React.SFC = ({ children }) => (
     persistor={storeConfiguration.persistor}
   >
     <SettingsGate>
-      <ResumeGate>{children}</ResumeGate>
+      <AnalyticsGate>
+        <ResumeGate>{children}</ResumeGate>
+      </AnalyticsGate>
     </SettingsGate>
   </PersistGate>
 )
