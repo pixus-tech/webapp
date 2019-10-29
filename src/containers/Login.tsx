@@ -15,7 +15,7 @@ import Illustration from 'components/illustrations'
 const styles = (theme: Theme) =>
   createStyles({
     illustration: {
-      marginTop: theme.spacing(2),
+      margin: `${theme.spacing(4)}px auto`,
       width: 256,
     },
     root: {
