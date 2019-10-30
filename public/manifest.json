@@ -5,17 +5,17 @@
   "start_url": "https://pixus.local:3000",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "https://pixus.local:3000/favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "app-icon-192.png",
+      "src": "https://pixus.local:3000/app-icon-192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "app-icon-512.png",
+      "src": "https://pixus.local:3000/app-icon-512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
