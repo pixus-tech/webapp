@@ -24,7 +24,7 @@ import * as serviceWorker from './serviceWorker'
 import storeConfiguration from './store'
 
 if (process.env.NODE_ENV === 'production') {
-  Sentry.init({ dsn: process.env.SENTRY_DSN })
+  Sentry.init({ dsn: process.env.REACT_APP_SENTRY_DSN })
 }
 
 const Root = () => (
