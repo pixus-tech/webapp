@@ -97,13 +97,7 @@ class ShowSmartAlbum extends React.Component<ComposedProps, IState> {
   }
 
   render() {
-    const {
-      classes,
-      images,
-      isLoadingImages,
-      match,
-      numberOfImages,
-    } = this.props
+    const { images, isLoadingImages, match, numberOfImages } = this.props
     const { numberOfImageColumns } = this.state
     const { filterName } = match.params
 

@@ -62,11 +62,10 @@ export const saveDatabaseEpic: Epic<
     ),
   )
 
-export const resetDatabaseEpic: Epic<
-  RootAction,
-  RootAction,
-  RootState
-> = (action$, state$) =>
+export const resetDatabaseEpic: Epic<RootAction, RootAction, RootState> = (
+  action$,
+  state$,
+) =>
   action$.pipe(
     filter(isActionOf(actions.resetDatabase.request)),
     mergeMap(() =>
