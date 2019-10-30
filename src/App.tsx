@@ -16,7 +16,6 @@ import SigningIn from 'components/auth/SigningIn'
 import SignInFailure from 'components/auth/SignInFailure'
 import AuthVerifier from 'containers/AuthVerifier'
 import Albums from 'containers/Albums'
-import SmartAlbums from 'containers/SmartAlbums'
 import Settings from 'containers/Settings'
 import ModalRoot from 'connected-components/ModalRoot'
 import ToastRoot from 'connected-components/ToastRoot'
@@ -70,12 +69,6 @@ class App extends React.PureComponent<ComposedProps> {
             <ModalRoot />
             <ToastRoot />
             <Switch>
-              <Route component={SigningIn} exact path={routes.authVerify} />
-              <Route
-                component={SignInFailure}
-                exact
-                path={routes.signInFailure}
-              />
               <PrivateRoute
                 isAuthenticated={auth.isAuthenticated}
                 loginPath={routes.login}
@@ -99,11 +92,6 @@ class App extends React.PureComponent<ComposedProps> {
                         path={routes.albumsOverview}
                       />
                       <Route
-                        component={SmartAlbums}
-                        exact
-                        path={routes.smartAlbumsOverview}
-                      />
-                      <Route
                         component={Settings}
                         exact
                         path={routes.settings}
@@ -119,6 +107,16 @@ class App extends React.PureComponent<ComposedProps> {
                       {auth.isAuthenticated && (
                         <Redirect to={{ pathname: routes.applicationRoot }} />
                       )}
+                      <Route
+                        component={SigningIn}
+                        exact
+                        path={routes.authVerify}
+                      />
+                      <Route
+                        component={SignInFailure}
+                        exact
+                        path={routes.signInFailure}
+                      />
                       <Route component={Login} path={routes.login} />
                       <Redirect to={{ pathname: routes.login }} />
                     </Switch>

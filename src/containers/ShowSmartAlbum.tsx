@@ -7,7 +7,6 @@ import { compose } from 'recompose'
 import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
 
-import Typography from '@material-ui/core/Typography'
 import {
   createStyles,
   Theme,
@@ -23,32 +22,22 @@ import { getImages } from 'store/images/actions'
 import { filteredImagesSelector } from 'store/images/selectors'
 import { keyForFilter } from 'store/images/types'
 import { ShowSmartAlbumURLParameters } from 'utils/routes'
-import Illustration from 'components/illustrations'
 
-const styles = (theme: Theme) =>
-  createStyles({
-    autosizeContainer: {
-      height: '100%',
-      outline: 0,
-      overflow: 'hidden',
-      width: '100%',
-    },
-    messageContainer: {
-      alignItems: 'center',
-      display: 'flex',
-      flexFlow: 'column',
-      justifyContent: 'center',
-      height: '100%',
-    },
-    messageIllustration: {
-      [theme.breakpoints.up('sm')]: {
-        marginTop: theme.spacing(1),
-      },
-      height: 320,
-      maxWidth: 320,
-      width: '100%',
-    },
-  })
+import EmptyFavorites from 'connected-components/blank-slates/EmptyFavorites'
+import EmptyRecentUploads from 'connected-components/blank-slates/EmptyRecentUploads'
+
+function blankSlate(filterName: ImageFilterName) {
+  switch (filterName) {
+    case 'favorites':
+      return EmptyFavorites
+    case 'recent-uploads':
+      return EmptyRecentUploads
+    default:
+      return EmptyFavorites
+  }
+}
+
+const styles = (_theme: Theme) => createStyles({})
 
 interface IDispatchProps {
   dispatchGetImages: () => void
@@ -95,11 +84,12 @@ class ShowSmartAlbum extends React.Component<ComposedProps, IState> {
   }
 
   shouldComponentUpdate(nextProps: ComposedProps, nextState: IState) {
-    const { match, numberOfImages } = this.props
+    const { isLoadingImages, match, numberOfImages } = this.props
     const { numberOfImageColumns } = this.state
     const { filterName } = match.params
 
     return (
+      isLoadingImages !== nextProps.isLoadingImages ||
       numberOfImages !== nextProps.numberOfImages ||
       filterName !== nextProps.match.params.filterName ||
       numberOfImageColumns !== nextState.numberOfImageColumns
@@ -141,6 +131,8 @@ class ShowSmartAlbum extends React.Component<ComposedProps, IState> {
       )
     }
 
+    const BlankSlate = blankSlate(filterName)
+
     return (
       <AlbumView
         actions={[]}
@@ -151,17 +143,7 @@ class ShowSmartAlbum extends React.Component<ComposedProps, IState> {
         title={albumName}
       >
         {numberOfImages === 0 ? (
-          <div className={classes.messageContainer}>
-            <Typography align="center" variant="h6" component="h2">
-              There are no images to show.
-              <br />
-              Click here or drop images to add some.
-            </Typography>
-            <Illustration
-              className={classes.messageIllustration}
-              type="emptyList"
-            />
-          </div>
+          <BlankSlate />
         ) : (
           <ImageGrid
             columnCount={numberOfImageColumns}

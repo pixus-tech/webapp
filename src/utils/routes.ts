@@ -9,7 +9,6 @@ const routes = {
   login: '/login',
   albumsOverview: '/app/albums',
   albums: '/app/albums/:albumId',
-  smartAlbumsOverview: '/app/smart-albums',
   smartAlbums: '/app/smart-albums/:filterName',
   settings: '/app/settings',
 } as const

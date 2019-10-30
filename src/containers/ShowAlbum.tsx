@@ -11,7 +11,6 @@ import { RootAction, RootState } from 'typesafe-actions'
 
 import Button from '@material-ui/core/Button'
 import Tooltip from '@material-ui/core/Tooltip'
-import Typography from '@material-ui/core/Typography'
 import {
   createStyles,
   Theme,
@@ -33,8 +32,9 @@ import { keyForFilter } from 'store/images/types'
 import { showModal } from 'store/modal/actions'
 import { ModalType } from 'store/modal/types'
 import { ShowAlbumURLParameters } from 'utils/routes'
-import Illustration from 'components/illustrations'
 import { AVATAR_SIZE } from 'components/UserAvatar'
+import EmptyAlbum from 'connected-components/blank-slates/EmptyAlbum'
+import { preventClickThrough } from 'utils/ui'
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -42,21 +42,6 @@ const styles = (theme: Theme) =>
       height: '100%',
       outline: 0,
       overflow: 'hidden',
-      width: '100%',
-    },
-    messageContainer: {
-      alignItems: 'center',
-      display: 'flex',
-      flexFlow: 'column',
-      justifyContent: 'center',
-      height: '100%',
-    },
-    messageIllustration: {
-      [theme.breakpoints.up('sm')]: {
-        marginTop: theme.spacing(1),
-      },
-      height: 320,
-      maxWidth: 320,
       width: '100%',
     },
     uploadButton: {
@@ -164,7 +149,8 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
 
   debouncedSetImageColumnCount = _.debounce(this.setImageColumnCount, 1000)
 
-  presentInviteUserModal = () => {
+  presentInviteUserModal = (e: React.MouseEvent<HTMLElement>) => {
+    preventClickThrough(e)
     const { album, dispatchShowModal } = this.props
 
     if (album !== undefined) {
@@ -233,17 +219,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
             <div className={classes.autosizeContainer} {...getRootProps()}>
               <input {...getInputProps()} />
               {numberOfImages === 0 ? (
-                <div className={classes.messageContainer}>
-                  <Typography align="center" variant="h6" component="h2">
-                    There are no images to show.
-                    <br />
-                    Click here or drop images to add some.
-                  </Typography>
-                  <Illustration
-                    className={classes.messageIllustration}
-                    type="emptyList"
-                  />
-                </div>
+                <EmptyAlbum inviteUsers={this.presentInviteUserModal} />
               ) : (
                 <ImageGrid
                   columnCount={numberOfImageColumns}

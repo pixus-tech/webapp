@@ -1,7 +1,6 @@
 import React from 'react'
 
 import AppBar from '@material-ui/core/AppBar'
-import CircularProgress from '@material-ui/core/CircularProgress'
 import Grid from '@material-ui/core/Grid'
 import Hidden from '@material-ui/core/Hidden'
 import Slider from '@material-ui/core/Slider'
@@ -9,7 +8,7 @@ import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
-import Illustration from 'components/illustrations'
+import LoadingList from 'connected-components/blank-slates/LoadingList'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -26,24 +25,6 @@ const useStyles = makeStyles((theme: Theme) =>
       background: theme.palette.primary.main,
       flex: 1,
       padding: theme.spacing(1, 0.5, 0),
-    },
-    messageContainer: {
-      alignItems: 'center',
-      display: 'flex',
-      flexFlow: 'column',
-      justifyContent: 'center',
-      height: '100%',
-    },
-    messageIllustration: {
-      [theme.breakpoints.up('sm')]: {
-        marginTop: theme.spacing(1),
-      },
-      height: 320,
-      maxWidth: 320,
-      width: '100%',
-    },
-    progress: {
-      marginRight: theme.spacing(2),
     },
     slider: {
       width: 100,
@@ -82,20 +63,7 @@ function AlbumView({
   if (isLoading) {
     return (
       <div className={classes.container}>
-        <div className={classes.messageContainer}>
-          <Typography align="center" variant="h6" component="h2">
-            <CircularProgress
-              color="secondary"
-              size={18}
-              className={classes.progress}
-            />
-            Loading&nbsp;{title}...
-          </Typography>
-          <Illustration
-            className={classes.messageIllustration}
-            type="loading"
-          />
-        </div>
+        <LoadingList />
       </div>
     )
   }

@@ -12,7 +12,7 @@ import User from 'models/user'
 
 export interface IProps {
   className?: string
-  onAddUser: () => void
+  onAddUser: (e: React.MouseEvent<HTMLElement>) => void
   users: User[]
 }
 

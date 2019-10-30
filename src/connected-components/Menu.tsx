@@ -67,6 +67,9 @@ const styles = (theme: Theme) =>
       fontSize: 20,
       marginRight: theme.spacing(1),
     },
+    noLink: {
+      cursor: 'default',
+    },
   })
 
 interface IDispatchProps {
@@ -125,12 +128,7 @@ class Menu extends React.Component<ComposedProps> {
         <List disablePadding>
           <ListItem
             button
-            className={cx(classes.categoryHeader, {
-              [classes.categoryHeaderActive]:
-                location.pathname === routes.smartAlbumsOverview,
-            })}
-            component={NavLink}
-            to={routes.smartAlbumsOverview}
+            className={cx(classes.categoryHeader, classes.noLink)}
           >
             <ListItemText
               classes={{

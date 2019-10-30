@@ -7,16 +7,13 @@ import {
   WithStyles,
 } from '@material-ui/core/styles'
 
-import Typography from '@material-ui/core/Typography'
-
+import BlankSlate from 'connected-components/blank-slates/BlankSlate'
 import LoginForm from 'components/login/LoginForm'
-import Illustration from 'components/illustrations'
 
 const styles = (theme: Theme) =>
   createStyles({
-    illustration: {
-      margin: `${theme.spacing(4)}px auto`,
-      width: 256,
+    blankSlate: {
+      marginBottom: theme.spacing(8),
     },
     root: {
       color: theme.palette.primary.contrastText,
@@ -29,10 +26,11 @@ type ComposedProps = StyleProps
 
 const Login: React.FC<ComposedProps> = ({ classes }) => (
   <div className={classes.root}>
-    <Typography align="center" component="h1" variant="h4">
-      You are signed out.
-    </Typography>
-    <Illustration className={classes.illustration} type="signIn" />
+    <BlankSlate
+      className={classes.blankSlate}
+      headline="You are signed out."
+      type="signIn"
+    />
     <LoginForm />
   </div>
 )

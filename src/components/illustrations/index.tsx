@@ -9,16 +9,22 @@ import { ReactComponent as SignIn } from './assets/pluto-sign-in.svg'
 import { ReactComponent as SigningIn } from './assets/pluto-sign-up.svg'
 import { ReactComponent as SignInFailure } from './assets/pluto-fatal-error.svg'
 import { ReactComponent as Loading } from './assets/pluto-waiting.svg'
+import { ReactComponent as UnderConstruction } from './assets/pluto-page-under-construction.svg'
+import { ReactComponent as ComingSoon } from './assets/pluto-coming-soon.svg'
 import colors from 'constants/colors'
 
 const illustrations = {
+  comingSoon: ComingSoon,
   emptyList: EmptyList,
+  loading: Loading,
   noConnection: NoConnection,
   signIn: SignIn,
-  signingIn: SigningIn,
   signInFailure: SignInFailure,
-  loading: Loading,
+  signingIn: SigningIn,
+  underConstruction: UnderConstruction,
 }
+
+export type IllustrationType = keyof typeof illustrations
 
 const useStyles = makeStyles((_theme: Theme) =>
   createStyles({
@@ -54,7 +60,7 @@ const useStyles = makeStyles((_theme: Theme) =>
 
 interface IProps {
   className?: string
-  type: keyof typeof illustrations
+  type: IllustrationType
 }
 
 function Illustration({ className, type }: IProps) {
