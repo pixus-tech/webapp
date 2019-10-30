@@ -71,7 +71,7 @@ class App extends React.PureComponent<ComposedProps> {
               <PrivateRoute
                 isAuthenticated={auth.isAuthenticated}
                 loginPath={routes.login}
-                path={routes.applicationRoot}
+                path={routes.appNamespace}
                 render={_props => (
                   <AppLayout>
                     <Switch>
