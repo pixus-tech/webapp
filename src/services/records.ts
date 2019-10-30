@@ -9,13 +9,18 @@ class Records extends BaseService {
       reject,
     ) {
       record
-        .destroy()
-        .then(isDestroyed => {
-          if (isDestroyed) {
-            resolve(record)
-          } else {
-            reject(Error('Could not be destroyed.'))
-          }
+        .save()
+        .then(() => {
+          record
+            .destroy()
+            .then(isDestroyed => {
+              if (isDestroyed) {
+                resolve(record)
+              } else {
+                reject(Error('Could not be destroyed.'))
+              }
+            })
+            .catch(reject)
         })
         .catch(reject)
     })

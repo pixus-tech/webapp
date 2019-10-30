@@ -5,15 +5,17 @@ import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
 
 import { resumePendingUploads } from 'store/images/actions'
-import { saveDatabase } from 'store/database/actions'
+import { loadDatabase, saveDatabase } from 'store/database/actions'
 
 interface IDispatchProps {
+  dispatchLoadDatabase: () => void
   dispatchResumePendingUploads: () => void
   dispatchSaveDatabase: () => void
 }
 
 interface IStateProps {
   isAuthenticated: boolean
+  isDBInitialized: boolean
   dirtyDBRecordCount: number
 }
 
@@ -24,8 +26,12 @@ class ResumeGate extends React.PureComponent<ComposedProps> {
     if (this.props.isAuthenticated) {
       this.resumeOperations()
 
-      if (this.props.dirtyDBRecordCount > 0) {
-        this.props.dispatchSaveDatabase()
+      if (this.props.isDBInitialized) {
+        if (this.props.dirtyDBRecordCount > 0) {
+          this.props.dispatchSaveDatabase()
+        }
+      } else {
+        this.props.dispatchLoadDatabase()
       }
     }
   }
@@ -48,12 +54,16 @@ class ResumeGate extends React.PureComponent<ComposedProps> {
 function mapStateToProps(store: RootState): IStateProps {
   return {
     isAuthenticated: store.auth.isAuthenticated,
+    isDBInitialized: store.database.isInitialized,
     dirtyDBRecordCount: store.database.dirtyCount,
   }
 }
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
+    dispatchLoadDatabase: () => {
+      dispatch(loadDatabase.request())
+    },
     dispatchResumePendingUploads: () => {
       dispatch(resumePendingUploads())
     },

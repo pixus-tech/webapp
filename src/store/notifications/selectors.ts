@@ -13,6 +13,6 @@ export const notificationsSelector = (state: RootState): List<Notification> => {
   return (notificationIds
     .map(notificationId => data.get(notificationId))
     .filterNot(i => typeof i === 'undefined') as List<Notification>).filterNot(
-    notification => notification.isRead,
+    notification => notification.meta.isRead > 0,
   )
 }

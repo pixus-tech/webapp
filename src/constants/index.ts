@@ -1,4 +1,5 @@
 export const CONNECTIVITY_FILE_PATH = 'connectivity.json'
+export const NOTIFICATIONS_FILE_PATH = 'notifications.json'
 export const SETTINGS_FILE_PATH = 'settings.json'
 export const ALBUMS_FILE_PATH = 'albums.json'
 export const IMAGES_FILE_PATH = 'images.json'

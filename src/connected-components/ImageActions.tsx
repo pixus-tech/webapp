@@ -24,6 +24,7 @@ import EmptyStarIcon from '@material-ui/icons/StarBorder'
 import { saveImage, toggleImageFavorite } from 'store/images/actions'
 import { showModal } from 'store/modal/actions'
 import { ModalType } from 'store/modal/types'
+import { currentUsername } from 'utils/blockstack'
 import { preventClickThrough } from 'utils/ui'
 
 const styles = (theme: Theme) =>
@@ -100,16 +101,18 @@ class ImageActions extends React.PureComponent<ComposedProps> {
 
     return (
       <div className={cx(classes.container, className)}>
-        <Tooltip title="Permanently delete file">
-          <IconButton
-            className={classes.button}
-            color="secondary"
-            onClick={this.requestImageDeletion}
-            aria-label="delete"
-          >
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
+        {image.username === currentUsername() && (
+          <Tooltip title="Permanently delete file">
+            <IconButton
+              className={classes.button}
+              color="secondary"
+              onClick={this.requestImageDeletion}
+              aria-label="delete"
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        )}
         <Tooltip title="Download decrypted file to your computer">
           <IconButton
             className={classes.button}

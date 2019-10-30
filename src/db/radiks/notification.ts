@@ -13,10 +13,6 @@ export default class NotificationRecord extends BaseRecord {
       decrypted: true,
     },
     creator: String,
-    isRead: {
-      type: Boolean,
-      decrypted: true,
-    },
     message: String,
     targetId: String,
     type: Number,
@@ -41,7 +37,6 @@ export class NotificationRecordFactory {
       _id: _.get(notification, '_id', uuid()),
       addressee: notification.addressee,
       creator: notification.creator,
-      isRead: notification.isRead,
       message: notification.message,
       targetId: notification.targetId,
       type: notification.type,

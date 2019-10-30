@@ -54,7 +54,7 @@ const styles = (theme: Theme) =>
 interface IProps {}
 
 interface IDispatchProps {
-  dispatchGetNotifications: typeof getNotifications.request
+  dispatchGetNotifications: () => void
 }
 
 interface IStateProps {
@@ -157,7 +157,15 @@ function mapStateToProps(state: RootState): IStateProps {
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
-    dispatchGetNotifications: () => dispatch(getNotifications.request()),
+    dispatchGetNotifications: () => {
+      dispatch(
+        getNotifications({
+          page: 0,
+          perPage: 1000,
+          filter: { name: 'unread' },
+        }),
+      )
+    },
   }
 }
 

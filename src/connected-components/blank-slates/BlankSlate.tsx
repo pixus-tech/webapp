@@ -50,7 +50,7 @@ function BlankSlate({ children, className, headline, type }: IProps) {
       <Typography
         align="center"
         variant="body1"
-        component="p"
+        component="div"
         className={classes.text}
       >
         {children}

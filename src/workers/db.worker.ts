@@ -7,6 +7,8 @@ import AlbumMeta from 'models/albumMeta'
 import BaseModel from 'models'
 import Image, { ImageFilterName } from 'models/image'
 import ImageMeta from 'models/imageMeta'
+import Notification, { NotificationFilterName } from 'models/notification'
+import NotificationMeta from 'models/notificationMeta'
 
 declare const db: typeof DB
 declare const self: DedicatedWorkerGlobalScope
@@ -14,6 +16,7 @@ declare const self: DedicatedWorkerGlobalScope
 self.importScripts('/static/js/db.dev.js')
 
 const { Dexie } = db
+const DATABASE_NAME = 'pixus-database'
 const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000
 
 type Query = { [keyPath: string]: IndexableType }
@@ -24,18 +27,21 @@ interface ModelWithMeta extends BaseModel {
 class PixusDatabase extends Dexie {
   public albums: DexieNamespace.Table<Album, string>
   public images: DexieNamespace.Table<Image, string>
+  public notifications: DexieNamespace.Table<Notification, string>
 
   public constructor() {
-    super('pixus-database')
+    super(DATABASE_NAME)
 
     this.version(1).stores({
       albums: '_id,name,isOnRadiks,isDirty',
       images:
         '_id,createdAt,userGroupId,meta.isFavorite,meta.isOnRadiks,meta.isDirty,meta.isImageStored,meta.isPreviewImageStored',
+      notifications: '_id,meta.isRead',
     })
 
     this.albums = this.table('albums')
     this.images = this.table('images')
+    this.notifications = this.table('notifications')
   }
 }
 
@@ -85,9 +91,23 @@ async function findImages(
   }
 }
 
+async function findNotifications(
+  filterName: NotificationFilterName,
+  _filterData?: any,
+): Promise<Notification[]> {
+  switch (filterName) {
+    case 'unread': {
+      return await database.notifications.where({ 'meta.isRead': 0 }).toArray()
+    }
+    default: {
+      return Promise.resolve([])
+    }
+  }
+}
+
 function upsertableModel<T extends ModelWithMeta>(
   model: T,
-  defaultMeta: AlbumMeta | ImageMeta,
+  defaultMeta: AlbumMeta | ImageMeta | NotificationMeta,
 ) {
   return { ...model, meta: { ...defaultMeta, ...(model.meta || {}) } }
 }
@@ -95,7 +115,7 @@ function upsertableModel<T extends ModelWithMeta>(
 function upsert<T extends ModelWithMeta>(
   table: DexieNamespace.Table<T, string>,
   model: T,
-  defaultMeta: AlbumMeta | ImageMeta,
+  defaultMeta: AlbumMeta | ImageMeta | NotificationMeta,
 ) {
   return new Promise((resolve, reject) => {
     table
@@ -129,6 +149,7 @@ function upsert<T extends ModelWithMeta>(
 
 const upsertAlbum = upsert.bind(null, database.albums)
 const upsertImage = upsert.bind(null, database.images)
+const upsertNotification = upsert.bind(null, database.notifications)
 
 function defaultResponse(id: string, promise: Promise<any>) {
   return promise
@@ -218,6 +239,35 @@ self.addEventListener('message', event => {
           ),
         ),
       )
+    } else if (job.endsWith('notifications.serialize')) {
+      resultResponse(id, database.notifications.toArray().then(JSON.stringify))
+    } else if (job.endsWith('notifications.deserialize')) {
+      defaultResponse(
+        id,
+        database.transaction('rw', database.notifications, async () => {
+          const notifications = JSON.parse(payload)
+          await database.notifications.clear()
+          await database.notifications.bulkAdd(notifications)
+        }),
+      )
+    } else if (job.endsWith('notifications.where')) {
+      resultResponse(id, findNotifications(payload.name, payload.data))
+    } else if (job.endsWith('notifications.update')) {
+      defaultResponse(
+        id,
+        upsertNotification(payload.notification, payload.defaultMeta),
+      )
+    } else if (job.endsWith('notifications.updateAll')) {
+      defaultResponse(
+        id,
+        Promise.all(
+          payload.notifications.map((notification: Notification) =>
+            upsertNotification(notification, payload.defaultMeta),
+          ),
+        ),
+      )
+    } else if (job === 'wipe') {
+      defaultResponse(id, database.delete())
     } else {
       throw 'unknown job'
     }

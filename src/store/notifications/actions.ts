@@ -1,20 +1,35 @@
 import { API } from 'typings/types'
-import { createAsyncAction } from 'typesafe-actions'
+import { createAsyncAction, createStandardAction } from 'typesafe-actions'
 
 import Notification from 'models/notification'
+import { FilteredNotifications, NotificationFilter } from './types'
 
-export const getNotifications = createAsyncAction(
-  'NOTIFICATIONS__LIST__REQUEST',
-  'NOTIFICATIONS__LIST__SUCCESS',
-  'NOTIFICATIONS__LIST__FAILURE',
-  'NOTIFICATIONS__LIST__CANCEL',
+export const getNotifications = createStandardAction('NOTIFICATIONS__GET_LIST')<
+  NotificationFilter
+>()
+
+export const refreshNotificationsCache = createAsyncAction(
+  'NOTIFICATIONS__REFRESH_CACHE__REQUEST',
+  'NOTIFICATIONS__REFRESH_CACHE__SUCCESS',
+  'NOTIFICATIONS__REFRESH_CACHE__FAILURE',
+  'NOTIFICATIONS__REFRESH_CACHE__CANCEL',
 )<
-  undefined,
-  API.ShowResponse<{
-    notifications: Notification[]
-  }>,
-  API.ErrorResponse<undefined>,
-  undefined
+  NotificationFilter,
+  NotificationFilter,
+  API.ErrorResponse<NotificationFilter>,
+  NotificationFilter
+>()
+
+export const getNotificationsFromCache = createAsyncAction(
+  'NOTIFICATIONS__FROM_CACHE__REQUEST',
+  'NOTIFICATIONS__FROM_CACHE__SUCCESS',
+  'NOTIFICATIONS__FROM_CACHE__FAILURE',
+  'NOTIFICATIONS__FROM_CACHE__CANCEL',
+)<
+  NotificationFilter,
+  FilteredNotifications,
+  API.ErrorResponse<NotificationFilter>,
+  NotificationFilter
 >()
 
 export const setNotificationRead = createAsyncAction(
@@ -22,9 +37,4 @@ export const setNotificationRead = createAsyncAction(
   'NOTIFICATIONS__SET_READ__SUCCESS',
   'NOTIFICATIONS__SET_READ__FAILURE',
   'NOTIFICATIONS__SET_READ__CANCEL',
-)<
-  Notification,
-  API.PutResponse<Notification>,
-  API.ErrorResponse<Notification>,
-  Notification
->()
+)<Notification, Notification, API.ErrorResponse<Notification>, Notification>()

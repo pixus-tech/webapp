@@ -2,6 +2,7 @@ import * as _ from 'lodash'
 import * as Yup from 'yup'
 
 import BaseModel, { UnsavedModel, parseAttribute } from './'
+import NotificationMeta from './notificationMeta'
 import NotificationRecord from 'db/radiks/notification'
 
 export enum NotificationType {
@@ -15,13 +16,24 @@ export default interface Notification extends BaseModel {
   addressee: string
   creator: string
   createdAt?: number
-  isRead: boolean
   message?: string
   targetId?: string
   type: NotificationType
+
+  // Fields that are stored separately from radiks
+  meta: NotificationMeta
 }
 
 export type UnsavedNotification = UnsavedModel<Notification>
+export interface RemoteNotification extends Omit<Notification, 'meta'> {
+  meta: Partial<NotificationMeta>
+}
+
+export type NotificationFilterName = 'unread'
+export interface NotificationFilterAttributes {
+  name: NotificationFilterName
+  data?: any
+}
 
 function parseNotificationType(type: any) {
   if (type === 1) {
@@ -41,14 +53,14 @@ function parseNotificationType(type: any) {
 
 export function parseNotificationRecord(
   record: NotificationRecord,
-): Notification {
+): RemoteNotification {
   return {
     _id: record._id,
     addressee: record.attrs.addressee,
     creator: parseAttribute(record.attrs.creator),
     createdAt: record.attrs.createdAt,
-    isRead: record.attrs.isRead,
     message: parseAttribute(record.attrs.message),
+    meta: {},
     targetId: record.attrs.targetId,
     type: parseNotificationType(record.attrs.type),
   }
@@ -56,7 +68,7 @@ export function parseNotificationRecord(
 
 export function parseNotificationRecords(
   records: NotificationRecord[],
-): Notification[] {
+): RemoteNotification[] {
   return _.map(records, parseNotificationRecord)
 }
 

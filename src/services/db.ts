@@ -1,9 +1,17 @@
 import _ from 'lodash'
-import { Observable, forkJoin } from 'rxjs'
+import { Observable, forkJoin, from } from 'rxjs'
 
-import { ALBUMS_FILE_PATH, IMAGES_FILE_PATH } from 'constants/index'
+import {
+  ALBUMS_FILE_PATH,
+  IMAGES_FILE_PATH,
+  NOTIFICATIONS_FILE_PATH,
+} from 'constants/index'
 import Album from 'models/album'
 import Image, { ImageFilterAttributes, RemoteImage } from 'models/image'
+import Notification, {
+  NotificationFilterAttributes,
+  RemoteNotification,
+} from 'models/notification'
 import { dbWorker } from 'workers'
 
 import { setDirty, saveDatabase } from 'store/database/actions'
@@ -64,6 +72,31 @@ class DB extends BaseService {
     },
   }
 
+  notifications = {
+    where: function(filter: NotificationFilterAttributes) {
+      return dbWorker.filteredNotifications(filter)
+    },
+    update: (notification: Partial<Notification>) => {
+      this.setDirty(1)
+      return dbWorker.updateNotification(notification)
+    },
+    updateAll: (
+      notifications: Partial<Notification>[] | RemoteNotification[],
+    ) => {
+      this.setDirty(notifications.length)
+      return dbWorker.updateNotifications(notifications)
+    },
+    save: () => {
+      return this.save(dbWorker.serializeNotifications, NOTIFICATIONS_FILE_PATH)
+    },
+    load: () => {
+      return this.load(
+        dbWorker.deserializeNotifications,
+        NOTIFICATIONS_FILE_PATH,
+      )
+    },
+  }
+
   private setDirty(count: number) {
     this.dispatch(setDirty(count))
     this.debouncedDispatchSaveAll()
@@ -118,13 +151,17 @@ class DB extends BaseService {
     forkJoin({
       albums: this.albums.save(),
       images: this.images.save(),
+      notifications: this.notifications.save(),
     })
 
   loadAll = () =>
     forkJoin({
       albums: this.albums.load(),
       images: this.images.load(),
+      notifications: this.notifications.load(),
     })
+
+  wipe = () => from(dbWorker.wipe())
 }
 
 export default new DB()

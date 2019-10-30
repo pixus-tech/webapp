@@ -9,6 +9,7 @@ import '@formatjs/intl-relativetimeformat/dist/locale-data/en'
 import '@formatjs/intl-relativetimeformat/dist/locale-data/zh'
 
 import * as Sentry from '@sentry/browser'
+import { config } from 'blockstack'
 
 import CssBaseline from '@material-ui/core/CssBaseline'
 import { MuiThemeProvider } from '@material-ui/core/styles'
@@ -25,6 +26,7 @@ import storeConfiguration from './store'
 
 if (process.env.NODE_ENV === 'production') {
   Sentry.init({ dsn: process.env.REACT_APP_SENTRY_DSN })
+  config.logLevel = 'info'
 }
 
 const Root = () => (

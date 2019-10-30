@@ -22,6 +22,14 @@ const styles = (theme: Theme) =>
       position: 'relative',
       width: '100%',
     },
+    container: {
+      [theme.breakpoints.down('sm')]: {
+        padding: theme.spacing(0, 2),
+      },
+      [theme.breakpoints.down('xs')]: {
+        padding: theme.spacing(0, 1),
+      },
+    },
     content: {
       display: 'flex',
       flex: 1,
@@ -55,7 +63,7 @@ const AppLayout: React.SFC<StyleProps> = ({ children, classes }) => {
     <div className={classes.root}>
       <ApplicationHeader onDrawerToggle={handleDrawerToggle} />
       <div className={classes.content}>
-        <Container maxWidth="xl">
+        <Container maxWidth="xl" className={classes.container}>
           <div className={classes.content}>
             <nav className={classes.drawer}>
               <Hidden mdUp implementation="js">

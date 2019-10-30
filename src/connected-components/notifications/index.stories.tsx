@@ -8,10 +8,10 @@ export default { title: 'Notifications' }
 const albumInvite: Notification = {
   _id: '1',
   addressee: 'addressee.id.blockstack',
-  creator: 'sender.id.blockstack',
   createdAt: new Date().getTime(),
-  isRead: false,
+  creator: 'sender.id.blockstack',
   message: 'Do you want to collaborate on this album?',
+  meta: { isRead: 0 },
   targetId: 'an-albums-id',
   type: NotificationType.AlbumInvite,
 }

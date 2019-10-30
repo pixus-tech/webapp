@@ -15,6 +15,7 @@ import { Formik, FormikProps, Field, FieldProps } from 'formik'
 import Button from '@material-ui/core/Button'
 import Checkbox from '@material-ui/core/Checkbox'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import Divider from '@material-ui/core/Divider'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Grid from '@material-ui/core/Grid'
 import InputAdornment from '@material-ui/core/InputAdornment'
@@ -23,13 +24,21 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 
 import SettingsSchema, { validationSchema } from 'models/settings'
+import { resetDatabase } from 'store/database/actions'
 import { saveSettings } from 'store/settings/actions'
 
 const styles = (theme: Theme) =>
   createStyles({
     container: {
+      [theme.breakpoints.down('sm')]: {
+        padding: theme.spacing(2, 0),
+      },
       padding: theme.spacing(2),
       textAlign: 'justify',
+    },
+    divider: {
+      backgroundColor: theme.palette.grey[300],
+      margin: theme.spacing(3, 0),
     },
     headline: {},
     h2: {
@@ -44,8 +53,21 @@ const styles = (theme: Theme) =>
     submit: {
       marginTop: theme.spacing(3),
     },
-    textField: {},
+    dangerButton: {
+      marginTop: theme.spacing(3),
+      color: theme.palette.error.contrastText,
+      backgroundColor: theme.palette.error.main,
+      '&:hover': {
+        backgroundColor: theme.palette.error.dark,
+      },
+    },
+    textField: {
+      minWidth: 290,
+    },
     paper: {
+      [theme.breakpoints.down('sm')]: {
+        padding: theme.spacing(2),
+      },
       backgroundColor: theme.palette.common.white,
       color: theme.palette.primary.main,
       padding: theme.spacing(4),
@@ -53,20 +75,24 @@ const styles = (theme: Theme) =>
   })
 
 interface IDispatchProps {
-  dispatchSaveSettings: typeof saveSettings.request
+  dispatchResetDatabase: () => void
+  dispatchSaveSettings: (settings: SettingsSchema) => void
 }
 
 interface IStateProps {
   settings: SettingsSchema
   isLoading: boolean
+  isResettingDatabase: boolean
 }
 
 type ComposedProps = IDispatchProps & IStateProps & WithStyles<typeof styles>
 
 const Settings: React.FC<ComposedProps> = ({
   classes,
+  dispatchResetDatabase,
   dispatchSaveSettings,
   isLoading,
+  isResettingDatabase,
   settings,
 }) => {
   return (
@@ -342,6 +368,47 @@ const Settings: React.FC<ComposedProps> = ({
             </form>
           )}
         </Formik>
+
+        <Divider className={classes.divider} />
+
+        <Grid container alignItems="flex-start" spacing={1}>
+          <Grid item lg={8}>
+            <Grid item xs={12}>
+              <Typography
+                className={classes.headline}
+                component="h2"
+                variant="h5"
+              >
+                Danger Zone
+              </Typography>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography component="h3" variant="h6" className={classes.h3}>
+                Reset browser cache
+              </Typography>
+
+              <Typography component="p" variant="body1">
+                Pixus uses a browser internal database for caching the meta data
+                that is stored in your Gaia storage. You can reset that local
+                cache and restore it from what is stored remotely.
+              </Typography>
+
+              <Button
+                variant="contained"
+                color="secondary"
+                className={classes.dangerButton}
+                disabled={isResettingDatabase}
+                onClick={dispatchResetDatabase}
+              >
+                Reset browser cache
+                {isResettingDatabase && (
+                  <CircularProgress size={16} className={classes.progress} />
+                )}
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
       </Paper>
     </div>
   )
@@ -350,14 +417,19 @@ const Settings: React.FC<ComposedProps> = ({
 function mapStateToProps(store: RootState): IStateProps {
   return {
     isLoading: store.settings.isLoading,
+    isResettingDatabase: store.database.isResetting,
     settings: store.settings.data,
   }
 }
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
-    dispatchSaveSettings: (settings: SettingsSchema) =>
-      dispatch(saveSettings.request(settings)),
+    dispatchResetDatabase: () => {
+      dispatch(resetDatabase.request())
+    },
+    dispatchSaveSettings: settings => {
+      dispatch(saveSettings.request(settings))
+    },
   }
 }
 

@@ -12,7 +12,7 @@ export const initialState = {
 }
 
 const data = createReducer(initialState.data)
-  .handleAction(actions.getNotifications.success, (state, action) =>
+  .handleAction(actions.getNotificationsFromCache.success, (state, action) =>
     Map(
       action.payload.notifications.map(notification => [
         notification._id,
@@ -22,11 +22,17 @@ const data = createReducer(initialState.data)
   )
   .handleAction(actions.setNotificationRead.request, (state, action) => {
     const notification = action.payload
-    return state.set(notification._id, { ...notification, isRead: true })
+    return state.set(notification._id, {
+      ...notification,
+      meta: {
+        ...notification.meta,
+        isRead: 1,
+      },
+    })
   })
 
 const order = createReducer(initialState.order).handleAction(
-  actions.getNotifications.success,
+  actions.getNotificationsFromCache.success,
   (state, action) =>
     List(action.payload.notifications)
       .sortBy(n => n.createdAt)

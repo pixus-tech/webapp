@@ -7,9 +7,20 @@ import Album from 'models/album'
 import { defaultAlbumMeta } from 'models/albumMeta'
 import Image, { ImageFilterAttributes, RemoteImage } from 'models/image'
 import { defaultImageMeta } from 'models/imageMeta'
+import Notification, {
+  NotificationFilterAttributes,
+  RemoteNotification,
+} from 'models/notification'
+import { defaultNotificationMeta } from 'models/notificationMeta'
 
 const dbWorker = new DBWorker()
 registerWorker(dbWorker)
+
+// --- Global
+
+export function wipe() {
+  return postJob<boolean>(dbWorker, 'wipe')
+}
 
 // --- Albums
 
@@ -72,5 +83,35 @@ export function updateImage(image: Partial<Image>) {
 export function updateImages(images: Partial<Image>[] | RemoteImage[]) {
   return postJob<boolean>(dbWorker, 'images.updateAll', {
     payload: { images, defaultMeta: defaultImageMeta },
+  })
+}
+
+// --- Notifications
+
+export function serializeNotifications() {
+  return postJob<string>(dbWorker, 'notifications.serialize')
+}
+
+export function deserializeNotifications(payload: string | Buffer) {
+  return postJob<boolean>(dbWorker, 'notifications.deserialize', { payload })
+}
+
+export function filteredNotifications(filter: NotificationFilterAttributes) {
+  return postJob<Notification[]>(dbWorker, 'notifications.where', {
+    payload: filter,
+  })
+}
+
+export function updateNotification(notification: Partial<Notification>) {
+  return postJob<boolean>(dbWorker, 'notifications.update', {
+    payload: { notification, defaultMeta: defaultNotificationMeta },
+  })
+}
+
+export function updateNotifications(
+  notifications: Partial<Notification>[] | RemoteNotification[],
+) {
+  return postJob<boolean>(dbWorker, 'notifications.updateAll', {
+    payload: { notifications, defaultMeta: defaultNotificationMeta },
   })
 }
