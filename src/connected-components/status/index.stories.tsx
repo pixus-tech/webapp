@@ -6,55 +6,60 @@ export default { title: 'Status' }
 
 export const noPendingUploads = () => (
   <PureStatus
-    currentUploadIds={[]}
+    currentUploads={{}}
     dirtyDBRecordCount={0}
+    dispatchResumePendingUploads={console.log}
     dispatchSaveDatabase={console.log}
     failedUploads={{}}
     isSavingDB={false}
-    succeededUploadIds={[]}
+    succeededUploads={{}}
   />
 )
 
 export const pendingUploads = () => (
   <PureStatus
-    currentUploadIds={['1', '2']}
+    currentUploads={{ 1: true, 2: true }}
     dirtyDBRecordCount={0}
+    dispatchResumePendingUploads={console.log}
     dispatchSaveDatabase={console.log}
     failedUploads={{}}
     isSavingDB={false}
-    succeededUploadIds={['1']}
+    succeededUploads={{ 1: true }}
   />
 )
 
 export const finishedUploads = () => (
   <PureStatus
-    currentUploadIds={['1']}
+    currentUploads={{ 1: true }}
     dirtyDBRecordCount={0}
+    dispatchResumePendingUploads={console.log}
     dispatchSaveDatabase={console.log}
     failedUploads={{}}
     isSavingDB={false}
-    succeededUploadIds={['1']}
+    succeededUploads={{ 1: true }}
   />
 )
 
 export const dbIsDirty = () => (
   <PureStatus
-    currentUploadIds={[]}
+    currentUploads={{}}
     dirtyDBRecordCount={3}
+    dispatchResumePendingUploads={console.log}
     dispatchSaveDatabase={console.log}
     failedUploads={{}}
     isSavingDB={false}
-    succeededUploadIds={[]}
+    succeededUploads={{}}
   />
 )
 
 export const dbIsSaving = () => (
   <PureStatus
-    currentUploadIds={[]}
+    currentUploads={{}}
     dirtyDBRecordCount={3}
+    dispatchResumePendingUploads={console.log}
     dispatchSaveDatabase={console.log}
     failedUploads={{}}
     isSavingDB={true}
-    succeededUploadIds={[]}
+    succeededUploads={{}}
   />
 )

@@ -3,7 +3,7 @@ import { Observable, forkJoin } from 'rxjs'
 
 import { ALBUMS_FILE_PATH, IMAGES_FILE_PATH } from 'constants/index'
 import Album from 'models/album'
-import Image, { ImageFilterAttributes } from 'models/image'
+import Image, { ImageFilterAttributes, RemoteImage } from 'models/image'
 import { dbWorker } from 'workers'
 
 import { setDirty, saveDatabase } from 'store/database/actions'
@@ -52,7 +52,7 @@ class DB extends BaseService {
       this.setDirty(1)
       return dbWorker.updateImage(image)
     },
-    updateAll: (images: Partial<Image>[]) => {
+    updateAll: (images: Partial<Image>[] | RemoteImage[]) => {
       this.setDirty(images.length)
       return dbWorker.updateImages(images)
     },

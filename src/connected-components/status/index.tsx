@@ -21,6 +21,7 @@ import UploadIcon from '@material-ui/icons/CloudUpload'
 import IconWithPopover from 'components/IconWithPopover'
 import colors from 'constants/colors'
 import { saveDatabase } from 'store/database/actions'
+import { resumePendingUploads } from 'store/images/actions'
 
 import Database from './Database'
 import Connectivity from './Connectivity'
@@ -55,15 +56,16 @@ interface ListItem {
 interface IProps {}
 
 interface IDispatchProps {
+  dispatchResumePendingUploads: () => void
   dispatchSaveDatabase: () => void
 }
 
 interface IStateProps {
-  currentUploadIds: string[]
+  currentUploads: { [id: string]: boolean }
   dirtyDBRecordCount: number
-  failedUploads: { [key: string]: Error }
+  failedUploads: { [id: string]: Error }
   isSavingDB: boolean
-  succeededUploadIds: string[]
+  succeededUploads: { [id: string]: boolean }
 }
 
 type ComposedProps = IProps & IDispatchProps & IStateProps
@@ -101,24 +103,25 @@ const DirtyBadge = withStyles((theme: Theme) =>
 )(Badge)
 
 export function PureStatus({
-  currentUploadIds,
+  currentUploads,
   dirtyDBRecordCount,
+  dispatchResumePendingUploads,
   dispatchSaveDatabase,
   failedUploads,
   isSavingDB,
-  succeededUploadIds,
+  succeededUploads,
 }: ComposedProps) {
   const classes = useStyles()
 
-  const totalCount = currentUploadIds.length
-  const successCount = succeededUploadIds.length
+  const totalCount = _.size(currentUploads)
+  const successCount = _.size(succeededUploads)
   const failureCount = _.size(failedUploads)
   const finishedCount = successCount + failureCount
   const areUploadsPending = totalCount > finishedCount
 
   const Icon = areUploadsPending ? UploadIcon : CloudIcon
   const icon =
-    dirtyDBRecordCount > 0 ? (
+    dirtyDBRecordCount > 0 || failureCount > 0 ? (
       <DirtyBadge
         overlap="circle"
         anchorOrigin={{
@@ -144,7 +147,12 @@ export function PureStatus({
           />
           <Divider className={classes.divider} />
           <StatusRow title="Uploads">
-            <Uploads finishedCount={finishedCount} totalCount={totalCount} />
+            <Uploads
+              failureCount={failureCount}
+              finishedCount={finishedCount}
+              totalCount={totalCount}
+              retry={dispatchResumePendingUploads}
+            />
           </StatusRow>
           <Divider className={classes.divider} />
           <Connectivity />
@@ -156,16 +164,19 @@ export function PureStatus({
 
 function mapStateToProps(state: RootState): IStateProps {
   return {
-    currentUploadIds: state.images.currentUploadIds.toArray(),
+    currentUploads: state.images.currentUploads.toObject(),
     dirtyDBRecordCount: state.database.dirtyCount,
     failedUploads: state.images.failedUploads.toObject(),
     isSavingDB: state.database.isSaving,
-    succeededUploadIds: state.images.succeededUploadIds.toArray(),
+    succeededUploads: state.images.succeededUploads.toObject(),
   }
 }
 
 function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
+    dispatchResumePendingUploads: () => {
+      dispatch(resumePendingUploads())
+    },
     dispatchSaveDatabase: () => {
       dispatch(saveDatabase.request())
     },

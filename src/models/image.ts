@@ -45,7 +45,9 @@ export interface ImageFilterAttributes {
 }
 
 export type UnsavedImage = UnsavedModel<Image>
-export type RemoteImage = Omit<Image, 'meta'>
+export interface RemoteImage extends Omit<Image, 'meta'> {
+  meta: Partial<ImageMeta>
+}
 
 export function imagePath(image: Image) {
   return `images/${image._id}-${image.name}`
@@ -55,14 +57,35 @@ export function imagePreviewPath(image: Image) {
   return `thumbnails/${image._id}-${image.name}`
 }
 
-export function parseImageRecord(record: ImageRecord): RemoteImage {
+type ImageOrigin = 'radiks' | 'local'
+interface ImageParseOptions {
+  origin: ImageOrigin
+}
+
+const defaultImageParseOptions: ImageParseOptions = {
+  origin: 'local',
+}
+
+export function parseImageRecord(
+  record: ImageRecord,
+  options: ImageParseOptions = defaultImageParseOptions,
+): RemoteImage {
   const decodedColors = decodeColors(record.attrs.previewColors)
   const createdAt = record.attrs.createdAt || new Date().getTime()
+  let meta: Partial<ImageMeta> = {}
+  if (options.origin === 'radiks') {
+    meta = {
+      isOnRadiks: 1,
+      isImageStored: 1,
+      isPreviewImageStored: 1,
+    }
+  }
 
   return {
     _id: record._id,
     createdAt,
     height: record.attrs.height,
+    meta,
     name: record.attrs.name,
     previewColors: {
       bl: decodedColors[0],
@@ -78,6 +101,9 @@ export function parseImageRecord(record: ImageRecord): RemoteImage {
   }
 }
 
-export function parseImageRecords(records: ImageRecord[]): RemoteImage[] {
-  return _.map(records, parseImageRecord)
+export function parseImageRecords(
+  records: ImageRecord[],
+  options: ImageParseOptions = defaultImageParseOptions,
+): RemoteImage[] {
+  return _.map(records, r => parseImageRecord(r, options))
 }

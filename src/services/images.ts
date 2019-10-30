@@ -31,7 +31,7 @@ class Images extends BaseService {
           userGroupId: albumId,
         })
           .then((imageRecords: ImageRecord[]) => {
-            const images = parseImageRecords(imageRecords)
+            const images = parseImageRecords(imageRecords, { origin: 'radiks' })
             db.images
               .updateAll(images)
               .then(() => {
@@ -56,7 +56,6 @@ class Images extends BaseService {
 
   save = (image: Image) => {
     const imageRecord = ImageRecordFactory.build(image)
-    db.images.update(image)
     return records.save(imageRecord)
   }
 

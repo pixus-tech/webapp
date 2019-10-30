@@ -17,6 +17,9 @@ const { Dexie } = db
 const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000
 
 type Query = { [keyPath: string]: IndexableType }
+interface ModelWithMeta extends BaseModel {
+  meta: any
+}
 
 class PixusDatabase extends Dexie {
   public albums: DexieNamespace.Table<Album, string>
@@ -82,23 +85,42 @@ async function findImages(
   }
 }
 
-function upsert<T extends BaseModel>(
+function upsertableModel<T extends ModelWithMeta>(
+  model: T,
+  defaultMeta: AlbumMeta | ImageMeta,
+) {
+  return { ...model, meta: { ...defaultMeta, ...(model.meta || {}) } }
+}
+
+function upsert<T extends ModelWithMeta>(
   table: DexieNamespace.Table<T, string>,
   model: T,
   defaultMeta: AlbumMeta | ImageMeta,
 ) {
   return new Promise((resolve, reject) => {
     table
-      .update(model._id, model)
-      .then(updates => {
-        if (updates === 0) {
-          // Add the model if it could not be updated
+      .where({ _id: model._id })
+      .first()
+      .then(currentModel => {
+        if (currentModel === undefined) {
           table
-            .add({ meta: defaultMeta, ...model })
+            .add(upsertableModel(model, defaultMeta))
             .then(resolve)
             .catch(reject)
         } else {
-          resolve()
+          table
+            .update(
+              model._id,
+              upsertableModel(model, { ...defaultMeta, ...currentModel.meta }),
+            )
+            .then(updates => {
+              if (updates === 0) {
+                reject('model could not be updated')
+              } else {
+                resolve()
+              }
+            })
+            .catch(reject)
         }
       })
       .catch(reject)

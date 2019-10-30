@@ -5,7 +5,7 @@ import { registerWorker, postJob } from './'
 import { Buffer } from 'buffer'
 import Album from 'models/album'
 import { defaultAlbumMeta } from 'models/albumMeta'
-import Image, { ImageFilterAttributes } from 'models/image'
+import Image, { ImageFilterAttributes, RemoteImage } from 'models/image'
 import { defaultImageMeta } from 'models/imageMeta'
 
 const dbWorker = new DBWorker()
@@ -69,7 +69,7 @@ export function updateImage(image: Partial<Image>) {
   })
 }
 
-export function updateImages(images: Partial<Image>[]) {
+export function updateImages(images: Partial<Image>[] | RemoteImage[]) {
   return postJob<boolean>(dbWorker, 'images.updateAll', {
     payload: { images, defaultMeta: defaultImageMeta },
   })

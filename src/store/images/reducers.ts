@@ -10,14 +10,14 @@ import { keyForFilter } from './types'
 export const initialState = {
   filterImagesLoaded: Map<Map<string, any>, boolean>(),
   filterImageIds: Map<Map<string, any>, List<string>>(),
-  currentUploadIds: List<string>(),
+  currentUploads: Map<string, boolean>(),
   data: Map<string, Image>(),
   failedUploads: Map<string, Error>(),
   imageIsLoadingMap: Map<string, boolean>(),
   imageObjectURLMap: Map<string, string>(),
   previewImageIsLoadingMap: Map<string, boolean>(),
   previewImageObjectURLMap: Map<string, string>(),
-  succeededUploadIds: List<string>(),
+  succeededUploads: Map<string, boolean>(),
 }
 
 const filterImagesLoaded = createReducer(
@@ -28,24 +28,24 @@ const filterImagesLoaded = createReducer(
   return state.set(key, true)
 })
 
-const currentUploadIds = createReducer(initialState.currentUploadIds)
+const currentUploads = createReducer(initialState.currentUploads)
   .handleAction(actions.uploadImageToAlbum.request, (state, action) =>
-    state.push(action.payload.image._id),
+    state.set(action.payload.image._id, true),
   )
   .handleAction(actions.uploadImageToAlbum.cancel, (state, action) =>
-    state.filterNot(id => id === action.payload._id),
+    state.delete(action.payload._id),
   )
 
-const failedUploads = createReducer(initialState.failedUploads).handleAction(
-  actions.uploadImageToAlbum.failure,
-  (state, action) =>
+const failedUploads = createReducer(initialState.failedUploads)
+  .handleAction(actions.uploadImageToAlbum.failure, (state, action) =>
     state.set(action.payload.resource.image._id, action.payload.error),
-)
+  )
+  .handleAction(actions.resumePendingUploads, (_state, _action) => Map())
 
-const succeededUploadIds = createReducer(
-  initialState.succeededUploadIds,
+const succeededUploads = createReducer(
+  initialState.succeededUploads,
 ).handleAction(actions.uploadImageToAlbum.success, (state, action) =>
-  state.push(action.payload.image._id),
+  state.set(action.payload.image._id, true),
 )
 
 const data = createReducer(initialState.data)
@@ -134,7 +134,7 @@ const previewImageIsLoadingMap = createReducer(
 
 export default combineReducers({
   filterImagesLoaded,
-  currentUploadIds,
+  currentUploads,
   data,
   failedUploads,
   filterImageIds,
@@ -142,5 +142,5 @@ export default combineReducers({
   imageObjectURLMap,
   previewImageIsLoadingMap,
   previewImageObjectURLMap,
-  succeededUploadIds,
+  succeededUploads,
 })
