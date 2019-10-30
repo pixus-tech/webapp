@@ -22,6 +22,7 @@ import { Provider } from 'react-redux'
 
 import App from './App'
 import * as serviceWorker from './serviceWorker'
+import serviceWorkerConfig from './serviceWorkerConfig'
 import storeConfiguration from './store'
 
 if (process.env.NODE_ENV === 'production') {
@@ -42,4 +43,4 @@ const Root = () => (
 
 ReactDOM.render(<Root />, document.getElementById('root'))
 
-serviceWorker.register()
+serviceWorker.register(serviceWorkerConfig)
