@@ -3,7 +3,7 @@ import { ImageFilterName } from 'models/image'
 import history from 'utils/history'
 
 const routes = {
-  applicationRoot: buildSmartAlbumRoute('favorites'),
+  applicationRoot: '/app/smart-albums/favorites',
   authVerify: '/verify-authentication',
   signInFailure: '/sign-in-failed',
   login: '/login',
