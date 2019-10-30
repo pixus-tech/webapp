@@ -42,6 +42,9 @@ const useStyles = makeStyles((theme: Theme) =>
       maxWidth: 320,
       width: '100%',
     },
+    progress: {
+      marginRight: theme.spacing(2),
+    },
     slider: {
       width: 100,
     },
@@ -81,9 +84,12 @@ function AlbumView({
       <div className={classes.container}>
         <div className={classes.messageContainer}>
           <Typography align="center" variant="h6" component="h2">
-            <CircularProgress color="secondary" size={18} />
-            &nbsp;
-            {title} is being loaded...
+            <CircularProgress
+              color="secondary"
+              size={18}
+              className={classes.progress}
+            />
+            Loading&nbsp;{title}...
           </Typography>
           <Illustration
             className={classes.messageIllustration}

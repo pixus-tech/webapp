@@ -9,6 +9,7 @@ import AlbumMeta, { defaultAlbumMeta } from 'models/albumMeta'
 import { createUserGroup, currentUser, currentUsername } from 'utils/blockstack'
 
 import BaseService from './baseService'
+import db from './db'
 import { Queue } from './dispatcher'
 import records from './records'
 import {
@@ -40,7 +41,7 @@ class Albums extends BaseService {
               ...parseAlbumRecord(albumRecord),
               meta: unsavedAlbum.meta,
             }
-            this.db.albums.add(album)
+            db.albums.add(album)
             resolve({ resource: album })
           })
           .catch(reject)
@@ -54,7 +55,7 @@ class Albums extends BaseService {
         AlbumRecord.fetchList<AlbumRecord>({ users: currentUsername() })
           .then(albumRecords => {
             const albums = parseAlbumRecords(albumRecords)
-            this.db.albums
+            db.albums
               .updateAll(albums)
               .then(() => {
                 resolve(undefined)
@@ -69,7 +70,7 @@ class Albums extends BaseService {
     this.dispatcher.performAsync<Album[]>(
       Queue.RecordOperation,
       (resolve, reject) => {
-        this.db.albums
+        db.albums
           .all()
           .then(resolve)
           .catch(reject)
@@ -80,7 +81,7 @@ class Albums extends BaseService {
     const albumRecord = AlbumRecordFactory.build(album)
     // TODO: The db update should be returned here because it is more likely to succeed
     // the album should then have a flag dirty and sync to radiks if the client is online
-    this.db.albums.update(album)
+    db.albums.update(album)
     return records.save(albumRecord)
   }
 
@@ -92,7 +93,7 @@ class Albums extends BaseService {
         // TODO: The db update should be returned here because it is more likely to succeed
         // the album should then have a flag dirty and sync to radiks if the client is online
         const updatedAlbum = { ...album, ...updates }
-        this.db.albums.update(updatedAlbum)
+        db.albums.update(updatedAlbum)
         albumRecord.update(updates)
         records.save(albumRecord).subscribe({
           next() {
@@ -114,7 +115,7 @@ class Albums extends BaseService {
           ...album,
           meta: updatedMeta,
         }
-        this.db.albums
+        db.albums
           .update(updatedAlbum)
           .then(() => {
             resolve({ resource: updatedAlbum })

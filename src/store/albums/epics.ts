@@ -224,16 +224,3 @@ export const setAlbumImageColumnCountEpic: Epic<
       ),
     ),
   )
-
-// TODO: Fix when db is saved remotely and when it is loaded
-export const persistAlbumMetaEpic: Epic<
-  RootAction,
-  RootAction,
-  RootState,
-  Pick<RootService, 'db' | 'files'>
-> = (action$, state$, { db, files }) =>
-  action$.pipe(
-    filter(isActionOf(actions.setAlbumPosition.success)),
-    tap(() => db.albums.save(files.upload)),
-    ignoreElements(),
-  )

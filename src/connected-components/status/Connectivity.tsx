@@ -40,8 +40,6 @@ const styles = (theme: Theme) =>
       backgroundColor: colors.red.main,
       border: `1px solid ${colors.red.dark}`,
     },
-    refreshButton: {},
-    refreshIcon: {},
   })
 
 interface IProps {}
@@ -100,11 +98,8 @@ class Connectivity extends React.PureComponent<ComposedProps> {
       <>
         Connectivity
         <Tooltip title="Refresh connectivity status">
-          <IconButton
-            className={classes.refreshButton}
-            onClick={dispatchProbeConnectivity}
-          >
-            <RefreshIcon className={classes.refreshIcon} />
+          <IconButton onClick={dispatchProbeConnectivity}>
+            <RefreshIcon />
           </IconButton>
         </Tooltip>
       </>

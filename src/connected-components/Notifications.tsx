@@ -105,43 +105,45 @@ class Notifications extends React.PureComponent<ComposedProps> {
           </Badge>
         }
       >
-        <Paper className={classes.paper}>
-          <Typography color="inherit" variant="h6" component="h6">
-            Notifications
-            <Tooltip title="Refresh notifications">
-              <IconButton onClick={this.getNotifications}>
-                <RefreshIcon />
-              </IconButton>
-            </Tooltip>
-          </Typography>
-          <div>
-            {hasNotifications ? (
-              <List className={classes.list}>
-                {_.map(notifications, (notification, index) => (
-                  <div key={`${index}-item`}>
-                    <NotificationWrapper notification={notification} />
-                    {index !== notifications.length - 1 && (
-                      <Divider
-                        key={`${index}-divider`}
-                        className={classes.divider}
-                        component="li"
-                      />
-                    )}
-                  </div>
-                ))}
-              </List>
-            ) : (
-              <Typography
-                className={classes.message}
-                color="inherit"
-                variant="body1"
-                component="p"
-              >
-                No unread notifications.
-              </Typography>
-            )}
-          </div>
-        </Paper>
+        {() => (
+          <Paper className={classes.paper}>
+            <Typography color="inherit" variant="h6" component="h6">
+              Notifications
+              <Tooltip title="Refresh notifications">
+                <IconButton onClick={this.getNotifications}>
+                  <RefreshIcon />
+                </IconButton>
+              </Tooltip>
+            </Typography>
+            <div>
+              {hasNotifications ? (
+                <List className={classes.list}>
+                  {_.map(notifications, (notification, index) => (
+                    <div key={`${index}-item`}>
+                      <NotificationWrapper notification={notification} />
+                      {index !== notifications.length - 1 && (
+                        <Divider
+                          key={`${index}-divider`}
+                          className={classes.divider}
+                          component="li"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </List>
+              ) : (
+                <Typography
+                  className={classes.message}
+                  color="inherit"
+                  variant="body1"
+                  component="p"
+                >
+                  No unread notifications.
+                </Typography>
+              )}
+            </div>
+          </Paper>
+        )}
       </IconWithPopover>
     )
   }

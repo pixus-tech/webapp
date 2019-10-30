@@ -96,14 +96,20 @@ function ApplicationHeader({
               tooltip={user.username}
               Icon={<UserAvatar user={user} />}
             >
-              <MenuList>
-                <MenuItem>
-                  <Link to={routes.settings} className={classes.link}>
-                    Settings
-                  </Link>
-                </MenuItem>
-                <MenuItem onClick={dispatchLogout}>Logout</MenuItem>
-              </MenuList>
+              {({ close }) => (
+                <MenuList>
+                  <MenuItem>
+                    <Link
+                      to={routes.settings}
+                      onClick={close}
+                      className={classes.link}
+                    >
+                      Settings
+                    </Link>
+                  </MenuItem>
+                  <MenuItem onClick={dispatchLogout}>Logout</MenuItem>
+                </MenuList>
+              )}
             </IconWithPopover>
           </Grid>
         </>

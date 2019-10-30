@@ -16,6 +16,7 @@ import ImageMeta, {
 import { Uint8BitColor } from 'utils/colors'
 import ImageRecord, { ImageRecordFactory } from 'db/radiks/image'
 import BaseService from './baseService'
+import db from './db'
 import { Queue } from './dispatcher'
 import files from './files'
 import records from './records'
@@ -31,7 +32,7 @@ class Images extends BaseService {
         })
           .then((imageRecords: ImageRecord[]) => {
             const images = parseImageRecords(imageRecords)
-            this.db.images
+            db.images
               .updateAll(images)
               .then(() => {
                 resolve(undefined)
@@ -46,7 +47,7 @@ class Images extends BaseService {
     this.dispatcher.performAsync<Image[]>(
       Queue.RecordOperation,
       (resolve, reject) => {
-        this.db.images
+        db.images
           .where(filter)
           .then(resolve)
           .catch(reject)
@@ -55,6 +56,7 @@ class Images extends BaseService {
 
   save = (image: Image) => {
     const imageRecord = ImageRecordFactory.build(image)
+    db.images.update(image)
     return records.save(imageRecord)
   }
 
@@ -62,7 +64,7 @@ class Images extends BaseService {
     const imageRecord = ImageRecordFactory.build(image)
 
     return new Observable<Image>(subscriber => {
-      this.db.images.destroy(image)
+      db.images.destroy(image)
       records.delete(imageRecord).subscribe({
         next() {
           forkJoin({
@@ -178,7 +180,7 @@ class Images extends BaseService {
                 imageMetaData.previewImageData,
                 'image/jpeg',
               )
-              self.db.images.add(image)
+              db.images.add(image)
               subscriber.next(image)
               subscriber.complete()
             },
@@ -290,7 +292,7 @@ class Images extends BaseService {
           ...image,
           meta: updatedMeta,
         }
-        this.db.images
+        db.images
           .update(updatedImage)
           .then(() => {
             resolve({ resource: updatedImage })

@@ -117,7 +117,7 @@ class ShowSmartAlbum extends React.Component<ComposedProps, IState> {
     const { numberOfImageColumns } = this.state
     const { filterName } = match.params
 
-    let albumName = 'The album is loading.'
+    let albumName = 'the album'
     switch (filterName) {
       case 'favorites':
         albumName = 'Favorites'

@@ -1,6 +1,7 @@
 import * as albumsActions from './albums/actions'
 import * as authActions from './auth/actions'
 import * as connectivityActions from './connectivity/actions'
+import * as databaseActions from './database/actions'
 import * as i18nActions from './i18n/actions'
 import * as imagesActions from './images/actions'
 import * as modalActions from './modal/actions'
@@ -13,6 +14,7 @@ const rootAction = {
   ...albumsActions,
   ...authActions,
   ...connectivityActions,
+  ...databaseActions,
   ...i18nActions,
   ...imagesActions,
   ...modalActions,

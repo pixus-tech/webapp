@@ -20,7 +20,9 @@ import UploadIcon from '@material-ui/icons/CloudUpload'
 
 import IconWithPopover from 'components/IconWithPopover'
 import colors from 'constants/colors'
+import { saveDatabase } from 'store/database/actions'
 
+import Database from './Database'
 import Connectivity from './Connectivity'
 import StatusRow from './StatusRow'
 import Uploads from './Uploads'
@@ -52,11 +54,15 @@ interface ListItem {
 
 interface IProps {}
 
-interface IDispatchProps {}
+interface IDispatchProps {
+  dispatchSaveDatabase: () => void
+}
 
 interface IStateProps {
   currentUploadIds: string[]
+  dirtyDBRecordCount: number
   failedUploads: { [key: string]: Error }
+  isSavingDB: boolean
   succeededUploadIds: string[]
 }
 
@@ -96,7 +102,10 @@ const DirtyBadge = withStyles((theme: Theme) =>
 
 export function PureStatus({
   currentUploadIds,
+  dirtyDBRecordCount,
+  dispatchSaveDatabase,
   failedUploads,
+  isSavingDB,
   succeededUploadIds,
 }: ComposedProps) {
   const classes = useStyles()
@@ -108,28 +117,39 @@ export function PureStatus({
   const areUploadsPending = totalCount > finishedCount
 
   const Icon = areUploadsPending ? UploadIcon : CloudIcon
-  const icon = (
-    <DirtyBadge
-      overlap="circle"
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-      variant="dot"
-    >
+  const icon =
+    dirtyDBRecordCount > 0 ? (
+      <DirtyBadge
+        overlap="circle"
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        variant="dot"
+      >
+        <Icon />
+      </DirtyBadge>
+    ) : (
       <Icon />
-    </DirtyBadge>
-  )
+    )
 
   return (
     <IconWithPopover id="uploads-info-popover" tooltip="Uploads" Icon={icon}>
-      <Paper className={classes.paper}>
-        <StatusRow title="Uploads">
-          <Uploads finishedCount={finishedCount} totalCount={totalCount} />
-        </StatusRow>
-        <Divider className={classes.divider} />
-        <Connectivity />
-      </Paper>
+      {() => (
+        <Paper className={classes.paper}>
+          <Database
+            dirtyCount={dirtyDBRecordCount}
+            saveDatabase={dispatchSaveDatabase}
+            isSaving={isSavingDB}
+          />
+          <Divider className={classes.divider} />
+          <StatusRow title="Uploads">
+            <Uploads finishedCount={finishedCount} totalCount={totalCount} />
+          </StatusRow>
+          <Divider className={classes.divider} />
+          <Connectivity />
+        </Paper>
+      )}
     </IconWithPopover>
   )
 }
@@ -137,17 +157,23 @@ export function PureStatus({
 function mapStateToProps(state: RootState): IStateProps {
   return {
     currentUploadIds: state.images.currentUploadIds.toArray(),
+    dirtyDBRecordCount: state.database.dirtyCount,
     failedUploads: state.images.failedUploads.toObject(),
+    isSavingDB: state.database.isSaving,
     succeededUploadIds: state.images.succeededUploadIds.toArray(),
   }
 }
 
-function mapDispatchToProps(_dispatch: Dispatch<RootAction>): IDispatchProps {
-  return {}
+function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
+  return {
+    dispatchSaveDatabase: () => {
+      dispatch(saveDatabase.request())
+    },
+  }
 }
 
 export default compose<ComposedProps, IProps>(
-  connect<IStateProps, IDispatchProps, undefined, RootState>(
+  connect(
     mapStateToProps,
     mapDispatchToProps,
   ),

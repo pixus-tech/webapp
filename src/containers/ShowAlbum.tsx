@@ -184,9 +184,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
     const { numberOfImageColumns } = this.state
 
     if (!album || isLoadingImages) {
-      const title = album
-        ? `"${album.name}" is loading`
-        : 'The album is loading'
+      const title = album ? album.name : 'the album'
       return (
         <AlbumView
           actions={[]}

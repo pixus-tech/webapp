@@ -22,10 +22,15 @@ const styles = (theme: Theme) =>
     },
   })
 
+interface ChildProps {
+  close: () => void
+}
+
 interface IProps {
   id: string
   tooltip: string
   Icon: React.ReactNode
+  children: (props: ChildProps) => JSX.Element
 }
 
 interface IState {
@@ -92,7 +97,7 @@ class IconWithPopover extends React.PureComponent<ComposedProps, IState> {
             horizontal: 'center',
           }}
         >
-          <Paper>{children}</Paper>
+          <Paper>{children({ close: this.closePopover })}</Paper>
         </Popover>
       </>
     )

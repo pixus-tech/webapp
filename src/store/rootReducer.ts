@@ -5,6 +5,9 @@ import auth, { initialState as initialAuthState } from './auth/reducers'
 import connectivity, {
   initialState as initialConnectivityState,
 } from './connectivity/reducers'
+import database, {
+  initialState as initialDatabaseState,
+} from './database/reducers'
 import i18n, { initialState as initialI18nState } from './i18n/reducers'
 import images, { initialState as initialImagesState } from './images/reducers'
 import modal, { initialState as initialModalState } from './modal/reducers'
@@ -23,6 +26,7 @@ const rootReducer = combineReducers({
   albums,
   auth,
   connectivity,
+  database,
   i18n,
   images,
   modal,
@@ -36,6 +40,7 @@ export const initialState = {
   albums: initialAlbumsState,
   auth: initialAuthState,
   connectivity: initialConnectivityState,
+  database: initialDatabaseState,
   i18n: initialI18nState,
   images: initialImagesState,
   modal: initialModalState,

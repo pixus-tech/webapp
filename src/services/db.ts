@@ -1,115 +1,129 @@
-import { Observable } from 'rxjs'
+import _ from 'lodash'
+import { Observable, forkJoin } from 'rxjs'
 
 import { ALBUMS_FILE_PATH, IMAGES_FILE_PATH } from 'constants/index'
 import Album from 'models/album'
 import Image, { ImageFilterAttributes } from 'models/image'
 import { dbWorker } from 'workers'
 
-type UploadFunction = (
-  path: string,
-  payload: ArrayBuffer | string,
-  publicKey?: string,
-) => Observable<string>
-type DownloadFunction = (
-  path: string,
-  username?: string,
-  privateKey?: string,
-) => Observable<string | Buffer>
+import { setDirty, saveDatabase } from 'store/database/actions'
+import { SAVE_DATABASE_DEBOUNCE_DURATION } from 'constants/index'
+import BaseService from './baseService'
+import files from './files'
 
-class DB {
+class DB extends BaseService {
   albums = {
-    add: function(album: Album) {
+    add: (album: Album) => {
+      this.setDirty(1)
       return dbWorker.addAlbum(album)
     },
     all: function() {
       return dbWorker.allAlbums()
     },
-    update: function(album: Partial<Album>) {
+    update: (album: Partial<Album>) => {
+      this.setDirty(1)
       return dbWorker.updateAlbum(album)
     },
-    updateAll: function(albums: Partial<Album>[]) {
+    updateAll: (albums: Partial<Album>[]) => {
+      this.setDirty(albums.length)
       return dbWorker.updateAlbums(albums)
     },
-    save: (upload: UploadFunction) => {
-      return this.save(
-        dbWorker.serializeAlbums,
-        upload.bind(undefined, ALBUMS_FILE_PATH),
-      )
+    save: () => {
+      return this.save(dbWorker.serializeAlbums, ALBUMS_FILE_PATH)
     },
-    load: (download: DownloadFunction) => {
-      return this.load(
-        dbWorker.deserializeAlbums,
-        download.bind(undefined, ALBUMS_FILE_PATH),
-      )
+    load: () => {
+      return this.load(dbWorker.deserializeAlbums, ALBUMS_FILE_PATH)
     },
   }
 
   images = {
-    add: function(image: Image) {
+    add: (image: Image) => {
+      this.setDirty(1)
       return dbWorker.addImage(image)
     },
-    destroy: function(image: Image) {
+    destroy: (image: Image) => {
+      this.setDirty(1)
       return dbWorker.destroyImage(image)
     },
     where: function(filter: ImageFilterAttributes) {
       return dbWorker.filteredImages(filter)
     },
-    update: function(image: Partial<Image>) {
+    update: (image: Partial<Image>) => {
+      this.setDirty(1)
       return dbWorker.updateImage(image)
     },
-    updateAll: function(images: Partial<Image>[]) {
+    updateAll: (images: Partial<Image>[]) => {
+      this.setDirty(images.length)
       return dbWorker.updateImages(images)
     },
-    save: (upload: UploadFunction) => {
-      return this.save(
-        dbWorker.serializeImages,
-        upload.bind(undefined, IMAGES_FILE_PATH),
-      )
+    save: () => {
+      return this.save(dbWorker.serializeImages, IMAGES_FILE_PATH)
     },
-    load: (download: DownloadFunction) => {
-      return this.load(
-        dbWorker.deserializeImages,
-        download.bind(undefined, IMAGES_FILE_PATH),
-      )
+    load: () => {
+      return this.load(dbWorker.deserializeImages, IMAGES_FILE_PATH)
     },
   }
 
-  save = (
-    serialize: () => Promise<string>,
-    upload: (payload: string) => Observable<string>,
-  ) =>
-    new Promise<undefined>((resolve, reject) => {
+  private setDirty(count: number) {
+    this.dispatch(setDirty(count))
+    this.debouncedDispatchSaveAll()
+  }
+
+  private save = (serialize: () => Promise<string>, path: string) =>
+    new Observable<boolean>(subscriber => {
       serialize()
         .then(json => {
-          upload(json).subscribe({
+          files.upload(path, json).subscribe({
             next() {
-              resolve()
+              subscriber.next(true)
+              subscriber.complete()
             },
             error(error) {
-              reject(error)
+              subscriber.error(error)
             },
           })
         })
-        .catch(reject)
+        .catch(subscriber.error)
     })
 
-  load = (
+  private load = (
     deserialize: (json: string | Buffer) => Promise<boolean>,
-    download: () => Observable<string | Buffer>,
+    path: string,
   ) =>
-    new Promise<boolean>((resolve, reject) => {
-      download().subscribe({
+    new Observable<boolean>(subscriber => {
+      files.download(path).subscribe({
         next(content) {
           deserialize(
             typeof content === 'string' ? content : content.toString(),
           )
-            .then(resolve)
-            .catch(reject)
+            .then(success => {
+              subscriber.next(success)
+              subscriber.complete()
+            })
+            .catch(subscriber.error)
         },
         error(error) {
-          reject(error)
+          subscriber.error(error)
         },
       })
+    })
+
+  private dispatchSaveAll = () => this.dispatch(saveDatabase.request())
+  private debouncedDispatchSaveAll = _.debounce(
+    this.dispatchSaveAll,
+    SAVE_DATABASE_DEBOUNCE_DURATION,
+  )
+
+  saveAll = () =>
+    forkJoin({
+      albums: this.albums.save(),
+      images: this.images.save(),
+    })
+
+  loadAll = () =>
+    forkJoin({
+      albums: this.albums.load(),
+      images: this.images.load(),
     })
 }
 

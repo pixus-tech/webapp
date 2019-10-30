@@ -30,7 +30,7 @@ const persistConfig = {
   key: 'root',
   storage: localForage,
   transforms: [immutableTransform()],
-  whitelist: ['auth', 'i18n', 'settings'],
+  whitelist: ['auth', 'i18n', 'settings', 'database'],
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
@@ -45,5 +45,6 @@ const persistor = persistStore(store)
 epicMiddleware.run(rootEpic)
 
 services.images.connect(store)
+services.db.connect(store)
 
 export default { persistor, store }
