@@ -17,14 +17,9 @@ const data = createReducer(initialState.data)
     return state.set(album._id, album)
   })
   .handleAction(actions.addAlbum.success, (state, action) => {
-    // TODO: should really use the request here
-    const album = action.payload.resource
+    const album = action.payload
     return state.set(album._id, album)
   })
-  /* .handleAction(addAlbum.failure, (state, action) => { // TODO: should be in again
-   *   const album = action.payload.resource
-   *   return state.remove(album._id)
-   * }) */
   .handleAction(actions.getAlbumsFromCache.success, (state, action) => {
     return Map(action.payload.map(album => [album._id, album]))
   })
@@ -39,9 +34,10 @@ const data = createReducer(initialState.data)
       },
     })
   })
-  .handleAction(actions.saveAlbum.request, (state, action) =>
-    state.set(action.payload._id, action.payload),
-  )
+  .handleAction(actions.updateAlbum.request, (state, action) => {
+    const { album, updates } = action.payload
+    return state.set(album._id, { ...album, ...updates })
+  })
 
 export default combineReducers({
   data,

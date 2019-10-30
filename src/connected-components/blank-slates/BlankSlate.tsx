@@ -15,7 +15,6 @@ const useStyles = makeStyles((theme: Theme) =>
       alignItems: 'center',
       display: 'flex',
       flexFlow: 'column',
-      height: '100%',
       marginTop: theme.spacing(16),
     },
     text: {

@@ -102,7 +102,7 @@ export const addAlbumEpic: Epic<
     }),
     mergeMap(action =>
       albums.addAlbum(action.payload.isDirectory).pipe(
-        mergeMap(response => of(actions.addAlbum.success(response))),
+        map(actions.addAlbum.success),
         takeUntil(action$.pipe(filter(isActionOf(actions.addAlbum.cancel)))),
         catchError(error =>
           of(actions.addAlbum.failure({ error, resource: undefined })),
@@ -111,31 +111,81 @@ export const addAlbumEpic: Epic<
     ),
   )
 
-export const redirectToAlbumEpic: Epic<
-  RootAction,
-  RootAction,
-  RootState
-> = action$ =>
+export const redirectToAlbumEpic: Epic<RootAction, RootAction> = action$ =>
   action$.pipe(
     filter(isActionOf(actions.addAlbum.success)),
-    tap(action => redirect(buildAlbumRoute(action.payload.resource))),
+    tap(action => redirect(buildAlbumRoute(action.payload))),
     ignoreElements(),
   )
 
-export const saveAlbumEpic: Epic<
+export const updateAlbumEpic: Epic<
   RootAction,
   RootAction,
   RootState,
   Pick<RootService, 'albums'>
 > = (action$, state$, { albums }) =>
   action$.pipe(
-    filter(isActionOf(actions.saveAlbum.request)),
-    mergeMap(action =>
-      albums.save(action.payload).pipe(
-        mergeMap(() => of(actions.saveAlbum.success(action.payload))),
-        takeUntil(action$.pipe(filter(isActionOf(actions.saveAlbum.cancel)))), // TODO: respect cancel id
+    filter(isActionOf(actions.updateAlbum.request)),
+    mergeMap(({ payload: { album, updates } }) =>
+      albums.update(album, updates).pipe(
+        map(actions.updateAlbum.success),
+        takeUntil(
+          action$.pipe(
+            filter(isActionOf(actions.updateAlbum.cancel)),
+            filter(cancel => cancel.payload._id === album._id),
+          ),
+        ),
         catchError(error =>
-          of(actions.saveAlbum.failure({ error, resource: action.payload })),
+          of(
+            actions.updateAlbum.failure({
+              error,
+              resource: { album, updates },
+            }),
+          ),
+        ),
+      ),
+    ),
+  )
+
+export const uploadAlbumAfterUpdateEpic: Epic<
+  RootAction,
+  RootAction
+> = action$ =>
+  action$.pipe(
+    filter(isActionOf(actions.updateAlbum.success)),
+    map(({ payload: album }) => actions.uploadAlbum.request(album)),
+  )
+
+export const uploadAlbumAfterAddEpic: Epic<RootAction, RootAction> = action$ =>
+  action$.pipe(
+    filter(isActionOf(actions.addAlbum.success)),
+    map(({ payload: album }) => actions.uploadAlbum.request(album)),
+  )
+
+export const uploadAlbumEpic: Epic<
+  RootAction,
+  RootAction,
+  RootState,
+  Pick<RootService, 'albums'>
+> = (action$, state$, { albums }) =>
+  action$.pipe(
+    filter(isActionOf(actions.uploadAlbum.request)),
+    mergeMap(({ payload: album }) =>
+      albums.saveToRadiks(album).pipe(
+        map(() => actions.uploadAlbum.success(album)),
+        takeUntil(
+          action$.pipe(
+            filter(isActionOf(actions.uploadAlbum.cancel)),
+            filter(cancel => cancel.payload._id === album._id),
+          ),
+        ),
+        catchError(error =>
+          of(
+            actions.uploadAlbum.failure({
+              error,
+              resource: album,
+            }),
+          ),
         ),
       ),
     ),

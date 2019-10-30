@@ -79,29 +79,29 @@ function AlbumView({
 
   return (
     <div className={classes.container}>
-      <AppBar component="div" color="primary" position="static" elevation={1}>
-        <Toolbar>
-          <Grid container alignItems="flex-start" spacing={1}>
-            <Grid item>
-              {typeof title === 'string' ? (
-                <Typography color="inherit" variant="h5" component="h1">
-                  {title}
-                </Typography>
-              ) : (
-                title
-              )}
-            </Grid>
-          </Grid>
-        </Toolbar>
-        <Toolbar>
-          <Grid container alignItems="center" spacing={1}>
-            {actions.map((action, index) => (
-              <Grid item key={index}>
-                {action}
+      {numberOfImages > 0 && (
+        <AppBar component="div" color="primary" position="static" elevation={1}>
+          <Toolbar>
+            <Grid container alignItems="flex-start" spacing={1}>
+              <Grid item>
+                {typeof title === 'string' ? (
+                  <Typography color="inherit" variant="h5" component="h1">
+                    {title}
+                  </Typography>
+                ) : (
+                  title
+                )}
               </Grid>
-            ))}
-            <Grid item xs />
-            {numberOfImages > 0 && (
+            </Grid>
+          </Toolbar>
+          <Toolbar>
+            <Grid container alignItems="center" spacing={1}>
+              {actions.map((action, index) => (
+                <Grid item key={index}>
+                  {action}
+                </Grid>
+              ))}
+              <Grid item xs />
               <Hidden xsDown>
                 <Grid item>
                   <Grid container spacing={2}>
@@ -128,10 +128,10 @@ function AlbumView({
                   </Grid>
                 </Grid>
               </Hidden>
-            )}
-          </Grid>
-        </Toolbar>
-      </AppBar>
+            </Grid>
+          </Toolbar>
+        </AppBar>
+      )}
       <div className={classes.content}>{children}</div>
     </div>
   )

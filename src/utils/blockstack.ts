@@ -54,8 +54,6 @@ export async function createUserGroup<
   factory: (model: UnsavedModel<Model> | Model) => Record,
   payload: UnsavedModel<Model> | Model,
 ): Promise<Record> {
-  const creator = currentUser()
-  const username = creator.attrs.username
   const userGroup = factory(payload)
   const userGroupSigningKey = await SigningKey.create({
     userGroupId: userGroup._id,
@@ -63,7 +61,14 @@ export async function createUserGroup<
   userGroup.attrs.signingKeyId = userGroupSigningKey._id
   userGroup.privateKey = userGroupSigningKey.attrs.privateKey
   addUserGroupKey(userGroup)
+  return userGroup
+}
 
+export async function joinUserGroup<Record extends UserGroup>(
+  userGroup: Record,
+): Promise<Record> {
+  const creator = currentUser()
+  const username = creator.attrs.username
   const invitation = await createInvitation(creator, userGroup)
   userGroup.attrs.members.push({
     username,
@@ -72,7 +77,6 @@ export async function createUserGroup<
 
   await userGroup.save()
   await createGroupMembership(username, userGroup)
-
   return userGroup
 }
 

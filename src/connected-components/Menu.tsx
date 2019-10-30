@@ -2,12 +2,9 @@ import _ from 'lodash'
 import React from 'react'
 import cx from 'classnames'
 import { connect } from 'react-redux'
-import { RouteComponentProps } from 'react-router'
-import { NavLink, withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import { Dispatch } from 'redux'
 import { RootAction, RootState } from 'typesafe-actions'
-import routes, { ShowAlbumURLParameters } from 'utils/routes'
 
 import {
   createStyles,
@@ -85,8 +82,7 @@ interface IStateProps {
 
 interface IProps extends Omit<DrawerProps, 'classes'> {}
 
-type ComposedProps = RouteComponentProps<ShowAlbumURLParameters> &
-  IDispatchProps &
+type ComposedProps = IDispatchProps &
   IStateProps &
   WithStyles<typeof styles> &
   IProps
@@ -105,15 +101,11 @@ class Menu extends React.Component<ComposedProps> {
   render() {
     const {
       classes,
-      location,
       albumCount: _albumCount,
       albums,
       dispatchGetAlbums: _dispatchGetAlbums,
       dispatchSetAlbumParent: _dispatchSetAlbumParent,
       dispatchSetAlbumPosition: _dispatchSetAlbumPosition,
-      history: _history,
-      match: _match,
-      staticContext: _staticContext,
       ...other
     } = this.props
 
@@ -126,10 +118,7 @@ class Menu extends React.Component<ComposedProps> {
         {...other}
       >
         <List disablePadding>
-          <ListItem
-            button
-            className={cx(classes.categoryHeader, classes.noLink)}
-          >
+          <ListItem className={cx(classes.categoryHeader, classes.noLink)}>
             <ListItemText
               classes={{
                 root: classes.categoryHeaderText,
@@ -141,15 +130,7 @@ class Menu extends React.Component<ComposedProps> {
         </List>
         <SmartAlbumTreeView />
         <List disablePadding>
-          <ListItem
-            button
-            className={cx(classes.categoryHeader, {
-              [classes.categoryHeaderActive]:
-                location.pathname === routes.albumsOverview,
-            })}
-            component={NavLink}
-            to={routes.albumsOverview}
-          >
+          <ListItem className={cx(classes.categoryHeader, classes.noLink)}>
             <ListItemText
               classes={{
                 root: classes.categoryHeaderText,
@@ -194,7 +175,6 @@ function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
 }
 
 export default compose<ComposedProps, IProps>(
-  withRouter,
   connect(
     mapStateToProps,
     mapDispatchToProps,

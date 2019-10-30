@@ -1,6 +1,10 @@
 import * as _ from 'lodash'
 
-import BaseModel, { UnsavedModel } from './'
+import BaseModel, {
+  UnsavedModel,
+  ModelParseOptions,
+  defaultModelParseOptions,
+} from './'
 import ImageMeta from './imageMeta'
 import ImageRecord from 'db/radiks/image'
 import { decodeColors, Uint8BitColor } from 'utils/colors'
@@ -57,18 +61,9 @@ export function imagePreviewPath(image: Image) {
   return `thumbnails/${image._id}-${image.name}`
 }
 
-type ImageOrigin = 'radiks' | 'local'
-interface ImageParseOptions {
-  origin: ImageOrigin
-}
-
-const defaultImageParseOptions: ImageParseOptions = {
-  origin: 'local',
-}
-
 export function parseImageRecord(
   record: ImageRecord,
-  options: ImageParseOptions = defaultImageParseOptions,
+  options: ModelParseOptions = defaultModelParseOptions,
 ): RemoteImage {
   const decodedColors = decodeColors(record.attrs.previewColors)
   const createdAt = record.attrs.createdAt || new Date().getTime()
@@ -103,7 +98,7 @@ export function parseImageRecord(
 
 export function parseImageRecords(
   records: ImageRecord[],
-  options: ImageParseOptions = defaultImageParseOptions,
+  options: ModelParseOptions = defaultModelParseOptions,
 ): RemoteImage[] {
   return _.map(records, r => parseImageRecord(r, options))
 }

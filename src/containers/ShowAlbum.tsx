@@ -25,7 +25,7 @@ import ImageGrid from 'components/ImageGrid'
 import SharePanel from 'components/SharePanel'
 import Album from 'models/album'
 import Image, { ImageFilterName } from 'models/image'
-import { saveAlbum, setAlbumImageColumnCount } from 'store/albums/actions'
+import { updateAlbum, setAlbumImageColumnCount } from 'store/albums/actions'
 import { getImages, addImagesToAlbum } from 'store/images/actions'
 import { albumImagesSelector } from 'store/images/selectors'
 import { keyForFilter } from 'store/images/types'
@@ -62,7 +62,7 @@ const styles = (theme: Theme) =>
 interface IDispatchProps {
   dispatchUploadImagesToAlbum: typeof addImagesToAlbum
   dispatchGetImages: (album: Album) => void
-  dispatchSaveAlbum: typeof saveAlbum.request
+  dispatchSetAlbumName: (name: string) => void
   dispatchSetAlbumImageColumnCount: typeof setAlbumImageColumnCount.request
   dispatchShowModal: (album: Album) => ReturnType<typeof showModal>
 }
@@ -162,7 +162,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
     const {
       album,
       classes,
-      dispatchSaveAlbum,
+      dispatchSetAlbumName,
       images,
       isLoadingImages,
       numberOfImages,
@@ -212,7 +212,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
         numberOfImageColumns={numberOfImageColumns}
         numberOfImages={numberOfImages}
         setNumberOfImageColumns={this.onChangeImageColumnCount}
-        title={<AlbumTitle album={album} onSave={dispatchSaveAlbum} />}
+        title={<AlbumTitle album={album} onSetName={dispatchSetAlbumName} />}
       >
         <Dropzone onDrop={this.onDropFiles}>
           {({ getInputProps, getRootProps }) => (
@@ -264,14 +264,23 @@ function mapStateToProps(store: RootState, props: ComposedProps): IStateProps {
   }
 }
 
-function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
+function mapDispatchToProps(
+  dispatch: Dispatch<RootAction>,
+  props: ComposedProps,
+): IDispatchProps {
+  const { album } = props
+
   return {
     dispatchGetImages: (album: Album) => {
       dispatch(getImages(albumFilter(album)))
     },
     dispatchUploadImagesToAlbum: albumImageFiles =>
       dispatch(addImagesToAlbum(albumImageFiles)),
-    dispatchSaveAlbum: album => dispatch(saveAlbum.request(album)),
+    dispatchSetAlbumName: name => {
+      if (album !== undefined) {
+        dispatch(updateAlbum.request({ album, updates: { name } }))
+      }
+    },
     dispatchSetAlbumImageColumnCount: payload =>
       dispatch(setAlbumImageColumnCount.request(payload)),
     dispatchShowModal: (album: Album) =>

@@ -6,7 +6,7 @@ import {
   IMAGES_FILE_PATH,
   NOTIFICATIONS_FILE_PATH,
 } from 'constants/index'
-import Album from 'models/album'
+import Album, { RemoteAlbum } from 'models/album'
 import Image, { ImageFilterAttributes, RemoteImage } from 'models/image'
 import Notification, {
   NotificationFilterAttributes,
@@ -32,7 +32,7 @@ class DB extends BaseService {
       this.setDirty(1)
       return dbWorker.updateAlbum(album)
     },
-    updateAll: (albums: Partial<Album>[]) => {
+    updateAll: (albums: Partial<Album>[] | RemoteAlbum[]) => {
       this.setDirty(albums.length)
       return dbWorker.updateAlbums(albums)
     },

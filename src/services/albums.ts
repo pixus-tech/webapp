@@ -1,12 +1,17 @@
+import { Observable } from 'rxjs'
 import AlbumRecord, { AlbumRecordFactory } from 'db/radiks/album'
 import Album, {
-  buildAlbumRecord,
   parseAlbumRecord,
   parseAlbumRecords,
   UnsavedAlbum,
 } from 'models/album'
 import AlbumMeta, { defaultAlbumMeta } from 'models/albumMeta'
-import { createUserGroup, currentUser, currentUsername } from 'utils/blockstack'
+import {
+  createUserGroup,
+  currentUser,
+  currentUsername,
+  joinUserGroup,
+} from 'utils/blockstack'
 
 import BaseService from './baseService'
 import db from './db'
@@ -23,7 +28,7 @@ class Albums extends BaseService {
   private streamCallback: StreamCallback | undefined = undefined
 
   addAlbum = (isDirectory: boolean) =>
-    this.dispatcher.performAsync<{ resource: Album }>(
+    this.dispatcher.performAsync<Album>(
       Queue.RecordOperation,
       (resolve, reject) => {
         const user = currentUser()
@@ -42,7 +47,7 @@ class Albums extends BaseService {
               meta: unsavedAlbum.meta,
             }
             db.albums.add(album)
-            resolve({ resource: album })
+            resolve(album)
           })
           .catch(reject)
       },
@@ -54,7 +59,7 @@ class Albums extends BaseService {
       (resolve, reject) => {
         AlbumRecord.fetchList<AlbumRecord>({ users: currentUsername() })
           .then(albumRecords => {
-            const albums = parseAlbumRecords(albumRecords)
+            const albums = parseAlbumRecords(albumRecords, { origin: 'radiks' })
             db.albums
               .updateAll(albums)
               .then(() => {
@@ -77,49 +82,67 @@ class Albums extends BaseService {
       },
     )
 
-  save = (album: Album | UnsavedAlbum) => {
+  saveToRadiks = (album: Album) => {
     const albumRecord = AlbumRecordFactory.build(album)
-    // TODO: The db update should be returned here because it is more likely to succeed
-    // the album should then have a flag dirty and sync to radiks if the client is online
-    db.albums.update(album)
-    return records.save(albumRecord)
-  }
+    const self = this
 
-  updateAlbum = (album: Album, updates: Partial<Album>) =>
-    this.dispatcher.performAsync<{ resource: Album }>(
-      Queue.RecordOperation,
-      (resolve, reject) => {
-        const albumRecord = buildAlbumRecord(album)
-        // TODO: The db update should be returned here because it is more likely to succeed
-        // the album should then have a flag dirty and sync to radiks if the client is online
-        const updatedAlbum = { ...album, ...updates }
-        db.albums.update(updatedAlbum)
-        albumRecord.update(updates)
+    return new Observable<AlbumRecord>(subscriber => {
+      if (!album.meta.isOnRadiks) {
+        joinUserGroup(albumRecord)
+          .then(() => {
+            records.save(albumRecord).subscribe({
+              next() {
+                self.updateMeta(album, { isOnRadiks: 1, isDirty: 0 })
+                subscriber.next(albumRecord)
+                subscriber.complete()
+              },
+              error(error) {
+                subscriber.error(error)
+              },
+            })
+          })
+          .catch(subscriber.error)
+      } else {
         records.save(albumRecord).subscribe({
           next() {
-            resolve({ resource: updatedAlbum })
+            self.updateMeta(album, { isDirty: 0 })
+            subscriber.next(albumRecord)
+            subscriber.complete()
           },
           error(error) {
-            reject(error)
+            subscriber.error(error)
           },
         })
+      }
+    })
+  }
+
+  update = (album: Album, updates: Partial<Album>) =>
+    this.dispatcher.performAsync<Album>(
+      Queue.RecordOperation,
+      (resolve, reject) => {
+        const updatedAlbum = { ...album, ...updates }
+        updatedAlbum.meta = { ...updatedAlbum.meta, isDirty: 1 }
+
+        db.albums
+          .update(updatedAlbum)
+          .then(() => resolve(updatedAlbum))
+          .catch(reject)
       },
     )
 
   updateMeta = (album: Album, meta: Partial<AlbumMeta>) =>
-    this.dispatcher.performAsync<{ resource: Album }>(
+    this.dispatcher.performAsync<Album>(
       Queue.RecordOperation,
       (resolve, reject) => {
-        const updatedMeta: AlbumMeta = { ...album.meta, ...meta }
+        const updatedMeta: AlbumMeta = { ...album.meta, isDirty: 1, ...meta }
         const updatedAlbum: Album = {
           ...album,
           meta: updatedMeta,
         }
         db.albums
           .update(updatedAlbum)
-          .then(() => {
-            resolve({ resource: updatedAlbum })
-          })
+          .then(() => resolve(updatedAlbum))
           .catch(reject)
       },
     )

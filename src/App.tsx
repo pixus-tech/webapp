@@ -15,7 +15,6 @@ import PrivateRoute from 'components/auth/PrivateRoute'
 import SigningIn from 'components/auth/SigningIn'
 import SignInFailure from 'components/auth/SignInFailure'
 import AuthVerifier from 'containers/AuthVerifier'
-import Albums from 'containers/Albums'
 import Settings from 'containers/Settings'
 import ModalRoot from 'connected-components/ModalRoot'
 import ToastRoot from 'connected-components/ToastRoot'
@@ -27,7 +26,7 @@ import UnauthorizedLayout from 'layouts/Unauthorized'
 import authReducer from 'store/auth/reducers'
 import { Locales } from 'store/i18n/types'
 import history from 'utils/history'
-import routes from 'utils/routes'
+import routes, { buildSmartAlbumRoute } from 'utils/routes'
 
 import localizedMessages from 'translations'
 
@@ -82,16 +81,6 @@ class App extends React.PureComponent<ComposedProps> {
                         path={routes.smartAlbums}
                       />
                       <Route
-                        component={Albums}
-                        exact
-                        path={routes.applicationRoot}
-                      />
-                      <Route
-                        component={Albums}
-                        exact
-                        path={routes.albumsOverview}
-                      />
-                      <Route
                         component={Settings}
                         exact
                         path={routes.settings}
@@ -105,7 +94,9 @@ class App extends React.PureComponent<ComposedProps> {
                   <UnauthorizedLayout>
                     <Switch>
                       {auth.isAuthenticated && (
-                        <Redirect to={{ pathname: routes.applicationRoot }} />
+                        <Redirect
+                          to={{ pathname: buildSmartAlbumRoute('favorites') }}
+                        />
                       )}
                       <Route
                         component={SigningIn}

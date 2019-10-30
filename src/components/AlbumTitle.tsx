@@ -56,7 +56,7 @@ const styles = (theme: Theme) =>
 
 interface IProps {
   album: Album
-  onSave: (album: Album) => void
+  onSetName: (name: string) => void
 }
 
 type ComposedProps = IProps & WithStyles<typeof styles>
@@ -88,11 +88,8 @@ class AlbumTitle extends React.Component<ComposedProps, IState> {
     this.setState({ isEditing: false })
   }
 
-  save = (name: string) => {
-    this.props.onSave({
-      ...this.props.album,
-      name,
-    })
+  setName = (name: string) => {
+    this.props.onSetName(name)
     this.endEditing()
   }
 
@@ -108,7 +105,7 @@ class AlbumTitle extends React.Component<ComposedProps, IState> {
             validationSchema={validationSchema}
             onSubmit={({ name }, actions) => {
               if (name !== undefined) {
-                this.save(name)
+                this.setName(name)
               }
               actions.setSubmitting(false)
             }}

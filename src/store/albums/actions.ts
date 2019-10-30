@@ -38,18 +38,25 @@ export const addAlbum = createAsyncAction(
   'ALBUMS__ADD__SUCCESS',
   'ALBUMS__ADD__FAILURE',
   'ALBUMS__ADD__CANCEL',
-)<
-  AddAlbumRequest,
-  API.PutResponse<Album>,
-  API.ErrorResponse<undefined>,
-  undefined
->()
+)<AddAlbumRequest, Album, API.ErrorResponse<undefined>, undefined>()
 
-export const saveAlbum = createAsyncAction(
-  'ALBUMS__SAVE_ALBUM__REQUEST',
-  'ALBUMS__SAVE_ALBUM__SUCCESS',
-  'ALBUMS__SAVE_ALBUM__FAILURE',
-  'ALBUMS__SAVE_ALBUM__CANCEL',
+interface AlbumUpdates {
+  album: Album
+  updates: Partial<Album>
+}
+
+export const updateAlbum = createAsyncAction(
+  'ALBUMS__UPDATE_ALBUM__REQUEST',
+  'ALBUMS__UPDATE_ALBUM__SUCCESS',
+  'ALBUMS__UPDATE_ALBUM__FAILURE',
+  'ALBUMS__UPDATE_ALBUM__CANCEL',
+)<AlbumUpdates, Album, API.ErrorResponse<AlbumUpdates>, Album>()
+
+export const uploadAlbum = createAsyncAction(
+  'ALBUMS__UPLOAD_ALBUM__REQUEST',
+  'ALBUMS__UPLOAD_ALBUM__SUCCESS',
+  'ALBUMS__UPLOAD_ALBUM__FAILURE',
+  'ALBUMS__UPLOAD_ALBUM__CANCEL',
 )<Album, Album, API.ErrorResponse<Album>, Album>()
 
 interface RequestSetAlbumPosition {
@@ -74,7 +81,7 @@ export const setAlbumPosition = createAsyncAction(
   'ALBUMS__SET_POSITION__CANCEL',
 )<
   SetAlbumPositionRequest,
-  API.PutResponse<Album>,
+  Album,
   API.ErrorResponse<SetAlbumPositionRequest>,
   undefined
 >()
@@ -91,7 +98,7 @@ export const setAlbumImageColumnCount = createAsyncAction(
   'ALBUMS__SET_IMAGE_COLUMN_COUNT__CANCEL',
 )<
   SetAlbumImageColumnCountRequest,
-  API.PutResponse<Album>,
+  Album,
   API.ErrorResponse<SetAlbumImageColumnCountRequest>,
   undefined
 >()

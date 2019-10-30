@@ -3,7 +3,7 @@ import DBWorker from 'worker-loader!workers/db.worker'
 import { registerWorker, postJob } from './'
 
 import { Buffer } from 'buffer'
-import Album from 'models/album'
+import Album, { RemoteAlbum } from 'models/album'
 import { defaultAlbumMeta } from 'models/albumMeta'
 import Image, { ImageFilterAttributes, RemoteImage } from 'models/image'
 import { defaultImageMeta } from 'models/imageMeta'
@@ -46,7 +46,7 @@ export function updateAlbum(album: Partial<Album>) {
   })
 }
 
-export function updateAlbums(albums: Partial<Album>[]) {
+export function updateAlbums(albums: Partial<Album>[] | RemoteAlbum[]) {
   return postJob<boolean>(dbWorker, 'albums.updateAll', {
     payload: { albums, defaultMeta: defaultAlbumMeta },
   })
