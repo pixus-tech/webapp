@@ -26,7 +26,7 @@ import UnauthorizedLayout from 'layouts/Unauthorized'
 import authReducer from 'store/auth/reducers'
 import { Locales } from 'store/i18n/types'
 import history from 'utils/history'
-import routes, { buildSmartAlbumRoute } from 'utils/routes'
+import routes from 'utils/routes'
 
 import localizedMessages from 'translations'
 
@@ -94,9 +94,7 @@ class App extends React.PureComponent<ComposedProps> {
                   <UnauthorizedLayout>
                     <Switch>
                       {auth.isAuthenticated && (
-                        <Redirect
-                          to={{ pathname: buildSmartAlbumRoute('favorites') }}
-                        />
+                        <Redirect to={{ pathname: routes.applicationRoot }} />
                       )}
                       <Route
                         component={SigningIn}
