@@ -398,7 +398,6 @@ const Settings: React.FC<ComposedProps> = ({
                 variant="contained"
                 color="secondary"
                 className={classes.dangerButton}
-                disabled={isResettingDatabase}
                 onClick={dispatchResetDatabase}
               >
                 Reset browser cache

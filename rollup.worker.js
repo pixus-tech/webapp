@@ -3,6 +3,7 @@ import typescript from 'rollup-plugin-typescript2'
 import { uglify } from 'rollup-plugin-uglify'
 import analyze from 'rollup-plugin-analyzer'
 import commonjs from 'rollup-plugin-commonjs'
+import sourcemaps from 'rollup-plugin-sourcemaps'
 
 const scriptPrefix = process.env.SCRIPT_PREFIX
 
@@ -13,6 +14,7 @@ function config({plugins = [], output = {}}) {
   return {
     input: `src/worker-scripts/${scriptPrefix}.ts`,
     plugins: [
+      sourcemaps(),
       typescript({
         tsconfigOverride: {
           compilerOptions: {
@@ -44,6 +46,8 @@ export default [
       globals: {
         this: 'self',
       },
+      sourcemap: true,
+      sourcemapFile: `build/static/js/${scriptPrefix}.dev.js.map`,
     }
   }),
 ]
