@@ -62,7 +62,7 @@ const styles = (theme: Theme) =>
 interface IDispatchProps {
   dispatchUploadImagesToAlbum: typeof addImagesToAlbum
   dispatchGetImages: (album: Album) => void
-  dispatchSetAlbumName: (name: string) => void
+  dispatchSetAlbumName: (album: Album, name: string) => void
   dispatchSetAlbumImageColumnCount: typeof setAlbumImageColumnCount.request
   dispatchShowModal: (album: Album) => ReturnType<typeof showModal>
 }
@@ -158,11 +158,17 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
     }
   }
 
+  setAlbumName = (name: string) => {
+    const { album, dispatchSetAlbumName } = this.props
+    if (album !== undefined) {
+      dispatchSetAlbumName(album, name)
+    }
+  }
+
   render() {
     const {
       album,
       classes,
-      dispatchSetAlbumName,
       images,
       isLoadingImages,
       numberOfImages,
@@ -212,7 +218,7 @@ class ShowAlbum extends React.PureComponent<ComposedProps, IState> {
         numberOfImageColumns={numberOfImageColumns}
         numberOfImages={numberOfImages}
         setNumberOfImageColumns={this.onChangeImageColumnCount}
-        title={<AlbumTitle album={album} onSetName={dispatchSetAlbumName} />}
+        title={<AlbumTitle album={album} onSetName={this.setAlbumName} />}
       >
         <Dropzone onDrop={this.onDropFiles}>
           {({ getInputProps, getRootProps }) => (
@@ -264,22 +270,15 @@ function mapStateToProps(store: RootState, props: ComposedProps): IStateProps {
   }
 }
 
-function mapDispatchToProps(
-  dispatch: Dispatch<RootAction>,
-  props: ComposedProps,
-): IDispatchProps {
-  const { album } = props
-
+function mapDispatchToProps(dispatch: Dispatch<RootAction>): IDispatchProps {
   return {
     dispatchGetImages: (album: Album) => {
       dispatch(getImages(albumFilter(album)))
     },
     dispatchUploadImagesToAlbum: albumImageFiles =>
       dispatch(addImagesToAlbum(albumImageFiles)),
-    dispatchSetAlbumName: name => {
-      if (album !== undefined) {
-        dispatch(updateAlbum.request({ album, updates: { name } }))
-      }
+    dispatchSetAlbumName: (album, name) => {
+      dispatch(updateAlbum.request({ album, updates: { name } }))
     },
     dispatchSetAlbumImageColumnCount: payload =>
       dispatch(setAlbumImageColumnCount.request(payload)),
