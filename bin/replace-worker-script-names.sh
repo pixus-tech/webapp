@@ -8,6 +8,7 @@ do
     hash=$(sha1sum $WORKER_SCRIPT | cut -c-8)
     name="${base}.${hash}.js"
     cp $WORKER_SCRIPT "build/static/js/${name}"
+    cp "${WORKER_SCRIPT}.map" "build/static/js/${name}.map"
 
     for SCRIPT in $(find build -name "*.js")
     do
