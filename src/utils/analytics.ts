@@ -40,9 +40,9 @@ function goalId(goal: Goal) {
 
 export default class Analytics {
   private static safelyCallFathom(
-    action: 'set' | 'trackPageview' | 'trackGoal',
-    key: string,
-    value: null | string | number,
+    _action: 'set' | 'trackPageview' | 'trackGoal',
+    _key: string,
+    _value: null | string | number,
   ) {
     try {
       // Disable goal tracking for now because of new NIL guidelines

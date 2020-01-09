@@ -36,12 +36,7 @@ class AnalyticsGate extends React.PureComponent<ComposedProps> {
     const scriptRef = document.getElementById(ANALYTICS_SCRIPT_TAG_ID)
     if (scriptRef !== null) {
       if (this.props.optOutAnalytics === false) {
-        ReactDOM.render(
-          <>
-            {``}
-          </>,
-          scriptRef,
-        )
+        ReactDOM.render(<>{``}</>, scriptRef)
       } else {
         ReactDOM.render(<></>, scriptRef)
         Analytics.disable()
