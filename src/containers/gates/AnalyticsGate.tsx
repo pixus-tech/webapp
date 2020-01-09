@@ -46,10 +46,10 @@ class AnalyticsGate extends React.PureComponent<ComposedProps> {
                   m=f.getElementsByTagName('script')[0];
                 o.async=1; o.src=t; o.id='fathom-script';
                 m.parentNode.insertBefore(o,m)
-              })(document, window, '//cdn.usefathom.com/tracker.js', 'fathom');
+              })(document, window, '//cdn.pixus.tech/tracker.js', 'fathom');
               fathom('set', 'siteId', 'WPOSXCUV');
-              fathom('trackPageview');
-              fathom('set', 'spa', 'pushstate');
+              /* fathom('trackPageview'); */
+              /* fathom('set', 'spa', 'pushstate'); */
             `}
           </>,
           scriptRef,

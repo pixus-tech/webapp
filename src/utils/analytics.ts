@@ -45,7 +45,8 @@ export default class Analytics {
     value: null | string | number,
   ) {
     try {
-      fathom(action, key, value)
+      // Disable goal tracking for now because of new NIL guidelines
+      // fathom(action, key, value)
     } catch {
       // nothing to do, fathom was not initialized
     }

@@ -8,7 +8,6 @@ import '@formatjs/intl-relativetimeformat/polyfill'
 import '@formatjs/intl-relativetimeformat/dist/locale-data/en'
 import '@formatjs/intl-relativetimeformat/dist/locale-data/zh'
 
-import * as Sentry from '@sentry/browser'
 import { config } from 'blockstack'
 
 import CssBaseline from '@material-ui/core/CssBaseline'
@@ -23,11 +22,6 @@ import { Provider } from 'react-redux'
 import App from './App'
 import * as serviceWorker from './serviceWorker'
 import storeConfiguration from './store'
-
-if (process.env.NODE_ENV === 'production') {
-  Sentry.init({ dsn: process.env.REACT_APP_SENTRY_DSN })
-  config.logLevel = 'info'
-}
 
 const Root = () => (
   <MuiThemeProvider theme={theme}>
