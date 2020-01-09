@@ -8,8 +8,6 @@ import '@formatjs/intl-relativetimeformat/polyfill'
 import '@formatjs/intl-relativetimeformat/dist/locale-data/en'
 import '@formatjs/intl-relativetimeformat/dist/locale-data/zh'
 
-import { config } from 'blockstack'
-
 import CssBaseline from '@material-ui/core/CssBaseline'
 import { MuiThemeProvider } from '@material-ui/core/styles'
 
