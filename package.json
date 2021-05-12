@@ -43,7 +43,7 @@
     "redux-persist-transform-immutable": "^5.0.0",
     "reselect": "^4.0.0",
     "rxjs": "^6.5.2",
-    "swiper": "^5.2.0",
+    "swiper": "^6.5.1",
     "typesafe-actions": "^4.4.0",
     "typescript": "^3.6.4",
     "utility-types": "^3.9.0",
