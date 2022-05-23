@@ -12,7 +12,7 @@
     "blockstack": "^19.3.0",
     "buffer": "^5.4.3",
     "classnames": "^2.2.6",
-    "dexie": "^2.0.4",
+    "dexie": "^3.2.2",
     "exif-js": "^2.3.0",
     "file-saver": "^2.0.2",
     "formik": "^2.0.3",
